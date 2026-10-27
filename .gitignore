@@ -1,0 +1,28 @@
+# Confidential / Large Datasets
+SANADA/
+Sample Dataset/
+*.tar
+*.tar.gz
+*.zip
+
+# Audio binary cache
+*.wav
+*.mp3
+*.flac
+
+# Python / Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# System / OS
+.DS_Store
+Thumbs.db
+
+# Screenshot / Presentation raw media
+*.png
+*.jpeg
+*.jpg
