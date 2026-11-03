@@ -26,3 +26,16 @@ Thumbs.db
 *.png
 *.jpeg
 *.jpg
+
+# Local scratch files, assignment templates, and notes (kept on local device only)
+gemini-member*.txt
+week*.pdf
+sanada_documentation.pdf
+sanada_extracted_text.txt
+week_*.md
+docs/week_*.md
+docs/MEMBER1_HANDOVER.md
+milestone_1_presentation_content.md
+docs/milestone_1_presentation_content.md
+01_dataset_loading.ipynb
+audio_analysis.ipynb
