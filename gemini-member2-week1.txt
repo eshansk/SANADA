@@ -1,0 +1,35 @@
+[ Start: Week 4 Integration & Evaluation ]
+         │
+         ▼
+[ 1. Connect Developer Controls (`/api/train`) ]
+  • Supply training pipeline hooks and hyperparameter presets to Member 5[cite: 45]:
+    (learning rate, batch size, epochs = 30, target dataset selection)[cite: 20, 45]
+  • Integrate checkpoint version tracking with backend (`/api/save-model`)[cite: 45]
+         │
+         ▼
+[ 2. Supply Telemetry Data for Analytics Dashboard ]
+  • Export benchmark metrics across datasets to Member 1 for UI charts[cite: 22, 45]:
+    ├─ Org-Mix-4 : MAE ~0.32, Exact ~74.8%, Relaxed 100.0%
+    ├─ Org-Mix-9 : MAE ~0.88, Exact ~36.5%, Relaxed ~84.4%
+    └─ FSD-Mix-32: MAE ~6.73, Exact ~5.6%,  Relaxed ~14.4%
+         │
+         ▼
+[ 3. Latency Profiling & Model Optimization ]
+  • Measure inference latency per 8.0s WAV file on CPU and GPU runtimes[cite: 4, 42]
+  • Optimize tensor preprocessing to minimize round-trip prediction delay[cite: 43]
+         │
+         ▼
+       /   4. Full-Stack Inference Verification: \
+      <  Does frontend audio trigger prediction   >
+       \    and render source count correctly?    /
+         ├──────────────┬─────────────────────────┤
+        Yes             │                         No
+         │              ▼                         ▼
+         │       [ Inspect tensor formats ] ──> [ Resolve serialization error ][cite: 43]
+         ▼
+[ 5. Final Documentation & Baseline Sign-Off ]
+  • Document Conformer regression performance, error decay, and saturation limits[cite: 21, 22]
+  • Finalize codebase and evaluation scripts for Week 5 full-scale training[cite: 20]
+         │
+         ▼
+[ End: Week 4 Deliverables Complete ]

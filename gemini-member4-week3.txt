@@ -1,0 +1,35 @@
+[ Start: Week 2 Pipeline & Loaders ]
+         │
+         ▼
+[ 1. Ingest Split Manifests (metadata.csv) ]
+  • Ingest train, val, and test manifests parsed by Member 5[cite: 19, 42]
+  • Parse multi-stem paths from `source_files` field for each mixture[cite: 19]
+  • Verify pre-mix disjoint split isolation ensuring zero speaker leakage[cite: 16, 42]
+         │
+         ▼
+[ 2. Build PyTorch Separation Dataset & DataLoader ]
+  • Implement custom `SanadaSeparationDataset`[cite: 42]
+  • Return mixture tensor of shape [1, 128000] and target stem matrix [K, 128000][cite: 4, 15, 18]
+  • Configure multi-threaded loading with pin_memory to reach ≥ 10 batches/sec[cite: 42]
+         │
+         ▼
+[ 3. Variable-K Output Standardization & Zero-Padding ]
+  • Configure max output nodes: N_outputs = 9 (for Org-Mix-9-Variable)[cite: 26]
+  • Pad inactive tracks with zero-tensors when active sources K < N_outputs[cite: 26]
+  • Formulate masked uPIT loss to handle zero-padded inactive channels[cite: 24, 26]
+         │
+         ▼
+       /   4. Throughput & Dimension Check:    \
+      <  Batch throughput ≥ 10 batches/s and    >
+       \    stem tensor dimensions aligned?     /
+         ├──────────────┬───────────────────────┤
+        Yes             │                       No
+         │              ▼                       ▼
+         │       [ Profile file IO load ] ────> [ Optimize audio decoding cache ][cite: 42]
+         ▼
+[ 5. Forward Pass & uPIT Loss Verification ]
+  • Execute dummy batch forward pass through Conv-TasNet + PITLossWrapper[cite: 24]
+  • Confirm permutation alignment and non-zero gradients via negative SI-SDR[cite: 20, 24]
+         │
+         ▼
+[ End: Week 2 Deliverables Ready ]

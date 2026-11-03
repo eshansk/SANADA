@@ -1,0 +1,36 @@
+[ Start: Week 4 Multi-Tier Portal & Release ]
+         │
+         ▼
+[ 1. Client-Side Routing Architecture (React Router) ]
+  • Configure navigation separating user, administrative, and analytical views[cite: 45]:
+    ├─ /predict    ──> End-User Inference Portal[cite: 45]
+    ├─ /train      ──> Developer Model Training Console[cite: 45]
+    ├─ /analytics  ──> System Metrics & Dataset Analytics[cite: 45]
+    └─ /docs       ──> Architectural Documentation & User Guide[cite: 45]
+         │
+         ▼
+[ 2. Build Multi-Tier Portal Interfaces ]
+  • End-User Portal: Audio upload/recorder, parameter tuning, Mel-spectrograms, stem outputs[cite: 45]
+  • Developer Console: Training triggers (`/api/train`), checkpoint history (`/api/save-model`)[cite: 45]
+  • Analytics Dashboard: Dataset distribution charts, SI-SDR vs. K degradation curves[cite: 25, 45]
+  • Documentation Page: SANADA paper overview, system pipeline, and usage guides[cite: 1, 45]
+         │
+         ▼
+[ 3. Comprehensive Error Handling & Production Build ]
+  • Wire centralized toast notification system for runtime alerts and failed requests[cite: 45]
+  • Audit accessibility, responsive reflows, and mobile viewport constraints[cite: 43]
+  • Execute production build via Vite (`npm run build`) and profile bundle sizes[cite: 45]
+         │
+         ▼
+[ 4. Public Cloud Frontend Deployment ]
+  • Deploy production client to Vercel or Netlify[cite: 45]
+  • Configure production environment variables (`VITE_API_URL`) pointing to Member 5's backend[cite: 45]
+  • Set up HTTPS, automated deployment hooks, and cache headers[cite: 45]
+         │
+         ▼
+[ 5. Live Smoke Testing & Multi-Device Validation ]
+  • Perform full-stack handshake between live Vercel frontend and live backend API[cite: 45]
+  • Validate audio recording, file inference, and multi-track playback on external devices[cite: 43, 45]
+         │
+         ▼
+[ End: Week 4 Production Client Live ]

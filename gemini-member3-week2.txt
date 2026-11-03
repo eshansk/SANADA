@@ -1,0 +1,35 @@
+[ Start: Week 2 Pipeline & Loaders ]
+         │
+         ▼
+[ 1. Ingest Split Manifests (metadata.csv) ]
+  • Ingest train, val, and test manifests parsed by Member 5[cite: 19, 42]
+  • Extract active class lists (`speaker_labels` and `fsd_labels`)[cite: 19]
+  • Verify disjoint split isolation ensuring zero speaker or event leakage[cite: 16, 42]
+         │
+         ▼
+[ 2. Build PyTorch Multi-Label Dataset & DataLoader ]
+  • Implement `SanadaTaggingDataset` returning (waveform_tensor, multi_hot_target)[cite: 42]
+  • Transform raw 8.0s audio to Mel-spectrogram tensors on the fly[cite: 4, 42]
+  • Encode ground truth into binary tensors of shape [batch_size, C]
+         │
+         ▼
+[ 3. Apply Data Augmentation & Imbalance Mitigation ]
+  • Apply SpecAugment: random frequency masking and time masking[cite: 42]
+  • Add low-level Gaussian noise to regularize representations[cite: 42]
+  • Verify Asymmetric Loss margin hyperparameters (gamma_neg, gamma_pos, clip)[cite: 22, 23]
+         │
+         ▼
+       /   4. Throughput & Forward Pass Check: \
+      <  Batch throughput ≥ 10 batches/s and    >
+       \    output logits shape == [batch, C]?  /
+         ├──────────────┬───────────────────────┤
+        Yes             │                       No
+         │              ▼                       ▼
+         │       [ Profile batch loader ] ───> [ Adjust num_workers / pin_memory ][cite: 42]
+         ▼
+[ 5. Loss & Gradient Smoke Verification ]
+  • Run dummy batch through Conformer + ASL loss wrapper[cite: 22, 23]
+  • Verify non-zero gradients and stable backpropagation through all C heads[cite: 20, 23]
+         │
+         ▼
+[ End: Week 2 Deliverables Ready ]

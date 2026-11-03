@@ -1,0 +1,30 @@
+[ Start: Week 2 UI Foundations ]
+         │
+         ▼
+[ 1. Audio Ingestion & File Drag-and-Drop ]
+  • Build drag-and-drop file upload zone for `.wav` files[cite: 43, 45]
+  • Add client-side validation: format check, file size limits, and duration alerts[cite: 42, 43]
+         │
+         ▼
+[ 2. Live Microphone Recording Engine ]
+  • Implement browser `MediaRecorder` API for real-time audio capture[cite: 43, 45]
+  • Configure browser microphone permission prompts and touch-friendly record toggles[cite: 43]
+  • Standardize captured audio stream to target 8.0-second window length[cite: 4, 43]
+         │
+         ▼
+[ 3. Dual-Waveform & Spectrogram Rendering ]
+  • Build audio visualizer components (using Wavesurfer.js or HTML5 Canvas)
+  • Implement synchronous timeline tracking linking audio playhead with spectrogram canvas[cite: 41, 45]
+         │
+         ▼
+[ 4. Mock Data Ingestion & State Architecture ]
+  • Build reactive UI state stores for processing indicators, count displays, and tags[cite: 45]
+  • Stress test component rendering using mock SANADA JSON payloads and audio stems[cite: 43]
+         │
+         ▼
+[ 5. Viewport & Cross-Device Verification ]
+  • Validate mobile viewport styling, touch target sizing, and responsive reflows[cite: 43]
+  • Verify audio autoplay policies and context resumption on user interaction[cite: 43]
+         │
+         ▼
+[ End: Week 2 Deliverables Ready ]

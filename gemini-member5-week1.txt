@@ -1,0 +1,38 @@
+[ Start: Week 1 Setup ]
+         │
+         ▼
+[ 1. Git Repository & Environment Setup ]
+  • Initialize Git repo with .gitignore, README, and pre-commit hooks[cite: 41]
+  • Establish directory scaffold:
+    ├── data/ (processed, splits)
+    ├── backend/ (Node.js/Express)
+    ├── models/ (inference wrappers)
+    └── docs/[cite: 41]
+         │
+         ▼
+[ 2. Ingest Pre-Cleaned SANADA Dataset ]
+  • Verify directory structure: Org-Mix-4, Org-Mix-9, FSD-Mix[cite: 4]
+  • Confirm single-channel (mono), 16 kHz, 16-bit PCM WAV standard[cite: 8]
+  • Confirm clip lengths equal exactly 8.0 seconds (128,000 samples)[cite: 4, 15]
+         │
+         ▼
+       /   3. Audio Integrity Check:    \
+      <  All files 16 kHz & 8.0s?        >
+       \                                /
+         ├──────────────┬───────────────┤
+        Yes             │               No
+         │              │               │
+         │              ▼               ▼
+         │       [ Log warnings ] ──> [ Quarantine corrupt files ]
+         ▼
+[ 4. Cross-Reference Manifest Files ]
+  • Locate and inspect metadata.csv files across each partition[cite: 19]
+  • Check header structure: mixture_path, labels, num_sources, source_files, dBFS[cite: 19]
+         │
+         ▼
+[ 5. Handshake & Data Contracts ]
+  • Provide verified paths and manifest loaders to Members 2, 3, and 4
+  • Finalize API payload schemas with Member 1
+         │
+         ▼
+[ End: Week 1 Deliverables Ready ]

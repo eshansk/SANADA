@@ -1,0 +1,15 @@
+SANADA/
+Sample Dataset/
+*.tar
+*.tar.gz
+*.zip
+*.wav
+*.mp3
+__pycache__/
+*.pyc
+.git/
+.venv/
+env/
+venv/
+*.ipynb
+docs/

@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  sanada-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sanada_backend_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000,*
+    volumes:
+      - ./backend/static/stems:/app/backend/static/stems
+      - ./models/checkpoints:/app/models/checkpoints
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
