@@ -25,6 +25,7 @@ if BASE_DIR not in sys.path:
 
 from scripts.manifest_loader import FSD_32_CLASSES, ORG_4_SPEAKERS, ORG_9_SPEAKERS
 from scripts.download_checkpoints import ensure_checkpoint_cache
+from models.tagging.predict import predict_sound_tags, label_separated_stems
 
 TARGET_SR = 16000
 EXPECTED_SAMPLES = 128000  # 8.0s at 16 kHz
@@ -104,35 +105,23 @@ class SANADAInferenceEngine:
                 "model": "Conformer-Regressor-MSE"
             }
 
-    def predict_tagging(self, waveform_tensor, taxonomy="speech"):
+    def predict_tagging(self, waveform_tensor, taxonomy="auto", k_from_member2=None, threshold=0.5):
         """Task 2: Member 3 Conformer + ASL (Multi-label tagging)."""
-        with torch.no_grad():
-            mel = self.mel_transform(waveform_tensor)
-            log_mel = self.amp_to_db(mel)
-            
-            classes = ORG_4_SPEAKERS if taxonomy == "speech_4" else (
-                ORG_9_SPEAKERS if taxonomy == "speech" else FSD_32_CLASSES
-            )
-            
-            # Compute class activation probabilities using multi-label sigmoid
-            energy_per_band = torch.mean(log_mel.squeeze(0), dim=1).cpu().numpy()
-            probs = {}
-            for i, cls_name in enumerate(classes):
-                # Harmonic signature mapping
-                band_idx = (i * 7) % len(energy_per_band)
-                score = 1.0 / (1.0 + np.exp(-(energy_per_band[band_idx] + 25.0) / 8.0))
-                probs[cls_name] = round(float(score), 4)
-                
-            sorted_classes = sorted(probs.items(), key=lambda x: x[1], reverse=True)
-            active = [c for c, p in sorted_classes if p >= 0.50]
-            if not active:
-                active = [sorted_classes[0][0]]
-                
-            return {
-                "active_classes": active,
-                "class_probabilities": probs,
-                "model": "Conformer-Classifier-ASL"
-            }
+        res = predict_sound_tags(
+            waveform_tensor,
+            threshold=threshold,
+            k_from_member2=k_from_member2,
+            taxonomy=taxonomy,
+            device=str(self.device)
+        )
+        return {
+            "active_classes": res["active_classes"],
+            "detected_tags": res["detected_tags"],
+            "class_probabilities": res["class_probabilities"],
+            "num_detected": res["num_detected"],
+            "k_guided": res["k_guided"],
+            "model": "Conformer-Classifier-ASL"
+        }
 
     def predict_separation(self, waveform_tensor, estimated_k=2):
         """Task 3: Member 4 Conv-TasNet (Time-domain source separation)."""
@@ -183,13 +172,21 @@ class SANADAInferenceEngine:
         results["source_counting"] = count_res
         est_k = count_res["estimated_k"]
         
-        # 2. Multi-Label Tagging
+        # 2. Multi-Label Tagging (Count-Guided by Member 2's estimated K)
         if task in ["all", "tagging"]:
-            results["label_tagging"] = self.predict_tagging(tensor)
+            results["label_tagging"] = self.predict_tagging(tensor, k_from_member2=est_k)
             
         # 3. Source Separation (Dynamic cardinality routed by estimated K)
         if task in ["all", "separating", "separation"]:
-            results["source_separation"] = self.predict_separation(tensor, estimated_k=est_k)
+            sep_res = self.predict_separation(tensor, estimated_k=est_k)
+            # Contract 4: Semantic labeling of separated stems
+            if "label_tagging" in results and "detected_tags" in results["label_tagging"]:
+                stem_files = [os.path.join(STATIC_STEMS_DIR, s["filename"]) for s in sep_res["stems"]]
+                labeled = label_separated_stems(stem_files, results["label_tagging"]["detected_tags"], device=str(self.device))
+                for s, l in zip(sep_res["stems"], labeled):
+                    s["assigned_tag"] = l.get("assigned_tag", "Unknown")
+                    s["stem_confidence"] = l.get("stem_confidence", 0.85)
+            results["source_separation"] = sep_res
             
         return results
 
