@@ -1,5 +1,6 @@
 # Confidential / Large Datasets
 SANADA/
+sanada/
 Sample Dataset/
 *.tar
 *.tar.gz
@@ -9,6 +10,18 @@ Sample Dataset/
 *.wav
 *.mp3
 *.flac
+
+# Local data cache
+data/processed_pt/
+data/raw_samples/
+data/temp/
+data/temp_qa/
+data/splits/metadata_manifest.csv
+
+# Local benchmarks & checkpoints (Excluded from Git)
+results/
+*.pt
+*.onnx
 
 # Python / Bytecode
 __pycache__/
@@ -21,6 +34,8 @@ venv/
 # System / OS
 .DS_Store
 Thumbs.db
+.antigravityignore
+Guidelines P V N Balarama Murthy/
 
 # Screenshot / Presentation raw media
 *.png
