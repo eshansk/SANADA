@@ -66,7 +66,7 @@
 - [x] **End-User Prediction Portal Built:** `POST /api/predict` and `POST /api/upload` routes implemented, validated, and returning structured predictions.
 - [x] **Developer Training & Checkpoint Portal Built:** Implemented `POST /api/train`, `GET /api/train/{job_id}`, and `POST /api/save-model`.
 - [x] **Supporting Statistics & Analytics Pages Added:** Configured `GET /api/stats` serving dataset metrics and Complexity Ceiling degradation data.
-- [x] **Full-Stack API Connection Verified:** Executed automated integration suite (`scripts/test_week4_fullstack.py`) with all 8 endpoints passing and latency $<180\text{ ms}$.
+- [x] **Full-Stack API Connection Verified:** Executed automated integration suite (`tests/test_api_endpoints.py`) with all 8 endpoints passing and latency $<180\text{ ms}$.
 - [x] **Local Environment Validation:** Containerized backend via `Dockerfile` and `docker-compose.yml` with automated curl healthchecks.
 - [x] **Public Cloud Deployment Completed:** Generated `render.yaml` and production configuration files for Render / Hugging Face Spaces deployment.
 

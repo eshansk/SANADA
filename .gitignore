@@ -26,3 +26,7 @@ Thumbs.db
 *.png
 *.jpeg
 *.jpg
+
+# Scratch notes & prompt exports
+*gemini*
+*extracted_text*

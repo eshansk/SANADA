@@ -196,7 +196,7 @@
 1. **Full-Stack Architecture Slide (Member 5):**
    * Client (React.js/Vite, Web Audio API, Canvas 60 FPS) $\leftrightarrow$ Asynchronous REST API (FastAPI, CORS, in-memory validation) $\leftrightarrow$ PyTorch Model Inference Bridge $\leftrightarrow$ Static Audio Stems.
 2. **Terminal Execution of Week 4 Full-Stack Test Suite (Member 5):**
-   * Run `python3 scripts/test_week4_fullstack.py` live on screen!
+   * Run `python3 tests/test_api_endpoints.py` live on screen!
    * Watch all 8 endpoints pass with sub-$180\text{ ms}$ latency!
 3. **Interactive UI Screen / Live Browser (Member 1):**
    * Open the web app on `http://localhost:5173` (or Swagger docs on `http://localhost:8000/docs`).
@@ -273,7 +273,7 @@
    * Point to the column that says `Overlap: 0 (PASS)` for all 13 sub-datasets. Emphasize: *"This proves our pre-mix 70/15/15 partitioning with seed S=42 completely eliminated data leakage."*
    * Point to the DataLoader throughput benchmark: *"16.35 batches per second, exceeding our project target of 10."*
 2. **During Window 2 (Minute 12:30):**
-   * Show `scripts/test_week4_fullstack.py` running in your terminal, showing all 8 tests passing with green `[PASS]` tags and 179 ms latency.
+   * Show `tests/test_api_endpoints.py` running in your terminal, showing all 8 tests passing with green `[PASS]` tags and 179 ms latency.
    * Point to `backend/app.py` and mention that training jobs run asynchronously in background workers so the server never freezes.
 
 ### 3. Key Technical Vocabulary You Should Use to Impress Evaluators:

@@ -21,7 +21,7 @@ import numpy as np
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 SANADA_MIX_DIR = os.path.join(BASE_DIR, "SANADA", "Org_Fsd_Mix")
-REPORT_PATH = os.path.join(BASE_DIR, "docs", "dataset_stats_report.md")
+REPORT_PATH = os.path.join(BASE_DIR, "docs", "dataset_statistics_report.md")
 
 def safe_parse_list(val):
     if isinstance(val, list):

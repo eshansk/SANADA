@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-scripts/test_week4_fullstack.py
-===============================
-Week 4 Full-Stack API Integration & Multi-Tier Verification Test Suite
-Member 5: Data Engineering & Backend API
+tests/test_api_endpoints.py
+===========================
+Full-Stack REST API & Inference Pipeline Verification Test Suite
+SANADA Machine Listening Platform
 
-Tests all Week 4 endpoints:
-1. GET  /api/health      (System vitality & memory telemetry)
-2. GET  /api/stats       (Analytics dashboard telemetry)
-3. POST /api/upload      (WAV format validation)
-4. POST /api/predict     (Full inference pipeline)
-5. POST /api/train       (Developer console training triggers)
-6. GET  /api/train/{id}  (Job status & progress tracking)
-7. POST /api/save-model  (Checkpoint versioning & export)
-8. GET  /static/stems/   (Audio stem retrieval)
+Comprehensive automated test coverage:
+1. GET  /api/health      -> System vitality, hardware acceleration, and RAM monitoring
+2. GET  /api/stats       -> Dataset metrics and acoustic benchmark telemetry
+3. POST /api/upload      -> Fast in-memory WAV standard validation
+4. POST /api/predict     -> Joint multi-task inference (Counting, Tagging, Separation)
+5. POST /api/train       -> Asynchronous training job dispatch with hyperparameter inputs
+6. GET  /api/train/{id}  -> Training job progress tracking and status telemetry
+7. POST /api/save-model  -> Model checkpoint export and semantic versioning
+8. GET  /static/stems/   -> Static audio stream delivery for client players
 """
 
 import os
@@ -34,9 +34,9 @@ SAMPLE_WAV_PATH = os.path.join(
     BASE_DIR, "SANADA", "Org_Fsd_Mix", "Org_Mix_4_Sounds_Variable", "train", "mix_00000.wav"
 )
 
-def run_week4_suite():
+def run_api_tests():
     print("=" * 85)
-    print(" SANADA WEEK 4 FULL-STACK API & MULTI-TIER ROUTING TEST SUITE (MEMBER 5)")
+    print(" SANADA REST API & MULTI-TIER PIPELINE INTEGRATION TEST SUITE")
     print("=" * 85)
     
     # 1. Health check
@@ -131,4 +131,4 @@ def run_week4_suite():
     print("=" * 85)
 
 if __name__ == "__main__":
-    run_week4_suite()
+    run_api_tests()

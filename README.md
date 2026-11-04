@@ -19,58 +19,62 @@ This repository implements the 8-week engineering and research lifecycle spannin
 ## 3. Repository Architecture
 ```text
 SANADA/
-├── index.html                 # [Member 1] Interactive frontend web application
-├── app.js                     # [Member 1] Client engine & Web Audio DSP interface
-├── style.css                  # [Member 1] Strict monochrome design system
-├── Dockerfile                 # Production multi-stage container specification
-├── docker-compose.yml         # Local container orchestration & volume mounts
-├── render.yaml                # 1-click cloud deployment spec for Render
-├── requirements.txt           # Production Python dependencies
-├── .env.example               # Environment and CORS configuration template
-├── README.md                  # Project overview & documentation
+├── index.html                           # [Member 1] Interactive frontend web application
+├── app.js                               # [Member 1] Client engine & Web Audio DSP interface
+├── style.css                            # [Member 1] Strict monochrome design system
+├── Dockerfile                           # Production multi-stage container specification
+├── docker-compose.yml                   # Local container orchestration & volume mounts
+├── render.yaml                          # 1-click cloud deployment spec for Render
+├── requirements.txt                     # Production Python dependencies
+├── .env.example                         # Environment and CORS configuration template
+├── README.md                            # Project overview & documentation
 │
 ├── backend/
-│   ├── app.py                 # Multi-tier production REST API (FastAPI)
-│   └── static/stems/          # Generated isolated audio stem delivery
+│   ├── app.py                           # Multi-tier production REST API (FastAPI)
+│   └── static/stems/                    # Generated isolated audio stem delivery
 │
 ├── data/
-│   ├── splits/                # Staged 60-sample reference test evaluation pool
-│   ├── raw/                   # Reference pointers to clean stems
-│   └── processed/             # Reference pointers to 13 synthesized mixture datasets
+│   ├── splits/test_evaluation_pool.csv  # 60-sample reference test evaluation pool
+│   ├── raw/.gitkeep                     # Reference structure for clean stems
+│   └── processed/.gitkeep               # Reference structure for synthesized mixtures
 │
 ├── docs/
-│   ├── week_1.md              # Week 1 Project Logbook
-│   ├── week_2.md              # Week 2 Project Logbook
-│   ├── week_3.md              # Week 3 Project Logbook
-│   ├── week_4.md              # Week 4 Project Logbook
-│   ├── api_contracts.md       # Full API contract & schema mappings
-│   ├── data_contracts_week1.md # Audio DSP standards & tensor specs
-│   ├── dataset_stats_report.md # Dataset telemetry & anti-clipping audit (15,559 clips, 34.5h)
-│   ├── MEMBER1_HANDOVER.md    # Frontend-backend integration guide
-│   ├── 15_MIN_PRESENTATION_SCRIPT.md # Presentation script for Milestone 1
-│   ├── references/            # Base research paper & weekly task PDF templates
-│   └── member_roadmaps/       # Individual member weekly ASCII execution roadmaps
+│   ├── api_contracts.md                 # Full API contract & schema mappings
+│   ├── audio_data_specifications.md     # Audio DSP standards & tensor contracts
+│   ├── dataset_statistics_report.md     # Dataset telemetry report (15,559 clips, 34.5h)
+│   ├── frontend_integration_guide.md    # Frontend-backend integration guide
+│   ├── milestone_presentation_script.md # Presentation script for Milestone 1
+│   ├── presentation_slides_guide.md     # Slide content guide
+│   ├── logbooks/                        # Project phase logbooks (Weeks 1 to 4)
+│   │   ├── week_01_initiation_and_survey.md
+│   │   ├── week_02_dataset_pipeline.md
+│   │   ├── week_03_architecture_and_api.md
+│   │   └── week_04_fullstack_deployment.md
+│   └── references/                      # Base research paper
+│       └── SANADA_Research_Paper.pdf
 │
 ├── models/
-│   ├── inference_bridge.py    # Unified multi-task AI inference engine (Tasks 1, 2, 3)
-│   ├── checkpoints/           # Serialized baseline model weights (.pt) & manifests
-│   ├── counting/              # Member 2 workspace
-│   ├── tagging/               # Member 3 workspace
-│   └── separation/            # Member 4 workspace
+│   ├── inference_bridge.py              # Unified multi-task AI inference engine (Tasks 1, 2, 3)
+│   ├── checkpoints/                     # Model weights (.pt) & versioned manifests
+│   ├── counting/.gitkeep                # Member 2 workspace
+│   ├── tagging/.gitkeep                 # Member 3 workspace
+│   └── separation/.gitkeep              # Member 4 workspace
 │
 ├── notebooks/
-│   ├── 01_dataset_loading.ipynb # Interactive audio loading & spectrogram visualizer
-│   └── audio_analysis.ipynb   # Audio DSP analysis (RMS, dBFS, resampling)
+│   ├── dataset_exploration.ipynb        # Interactive audio loading & spectrogram visualizer
+│   └── audio_dsp_analysis.ipynb         # Audio DSP analysis (RMS, dBFS, resampling)
 │
-└── scripts/
-    ├── verify_audio_integrity.py  # [Week 1] 16 kHz mono 8.0s audio audit
-    ├── manifest_loader.py         # [Week 1] Centralized metadata parser
-    ├── verify_zero_leakage.py     # [Week 2] 70:15:15 pre-mix zero leakage audit (S=42)
-    ├── dataset_stats.py           # [Week 2] Dataset statistics & telemetry compiler
-    ├── dataset_loader.py          # [Week 2] PyTorch DataLoader with SpecAugment (16.35 b/s)
-    ├── download_checkpoints.py    # [Week 3] Checkpoint retrieval & cache manager
-    ├── test_week3_api.py          # [Week 3] End-to-end inference verification suite
-    └── test_week4_fullstack.py    # [Week 4] Full-stack 8-endpoint validation suite
+├── scripts/
+│   ├── audit_audio_integrity.py         # Standardized 16 kHz mono 8.0s audio audit
+│   ├── compile_dataset_stats.py         # Dataset statistics & telemetry compiler
+│   ├── dataset_loader.py                # PyTorch DataLoader with SpecAugment (16.35 b/s)
+│   ├── download_checkpoints.py          # Checkpoint retrieval & cache manager
+│   ├── manifest_loader.py               # Metadata manifest parser
+│   └── verify_zero_leakage.py           # 70:15:15 pre-mix zero leakage audit (S=42)
+│
+└── tests/
+    ├── __init__.py
+    └── test_api_endpoints.py            # Automated 8-endpoint full-stack test suite
 ```
 
 ---
@@ -99,19 +103,19 @@ python3 backend/app.py
 * Open **`http://localhost:8000`** in your browser to interact with the frontend UI.
 * Open **`http://localhost:8000/docs`** for interactive Swagger API documentation.
 
-### Running Verification Test Suites
+### Running Verification & Test Suites
 ```bash
-# Verify audio format integrity across all partitions (Week 1)
-python3 scripts/verify_audio_integrity.py
+# 1. Verify audio format integrity across all partitions
+python3 scripts/audit_audio_integrity.py
 
-# Verify zero data leakage across all 13 sub-datasets (Week 2)
+# 2. Verify zero data leakage across all 13 sub-datasets (S=42)
 python3 scripts/verify_zero_leakage.py
 
-# Benchmark PyTorch DataLoader throughput (Week 2)
+# 3. Benchmark PyTorch DataLoader throughput
 python3 scripts/dataset_loader.py
 
-# Run Full-Stack 8-Endpoint API test suite (Week 4)
-python3 scripts/test_week4_fullstack.py
+# 4. Run automated Full-Stack 8-Endpoint API test suite
+python3 tests/test_api_endpoints.py
 ```
 
 ### Running with Docker

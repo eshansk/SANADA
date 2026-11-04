@@ -13,7 +13,7 @@ Here is what was completed and verified across Weeks 1 to 4:
 * **Week 1 (Scaffolding & Audio Integrity):** Established standard directory hierarchy; locked in audio specifications (16,000 Hz, 1-channel mono, 16-bit PCM WAV, exactly 8.0s / 128,000 samples); built and executed `scripts/verify_audio_integrity.py` auditing 420 audio clips with zero errors.
 * **Week 2 (Data Architecture, Zero-Leakage & DataLoaders):** Initialized `data/raw/`, `data/processed/`, and `data/splits/`; audited all 13 sub-datasets with `scripts/verify_zero_leakage.py` confirming **EXACTLY 0 data leakage** between train, val, and test splits; compiled `docs/dataset_stats_report.md` analyzing 15,559 clips (34.5 hours); built high-throughput PyTorch DataLoader exceeding 16 batches/sec; staged 60 verified test mixtures in `data/splits/test_evaluation_pool.csv`.
 * **Week 3 (Core REST API & Model Bridge):** Built FastAPI backend in `backend/app.py`; built automated model weight caching in `scripts/download_checkpoints.py`; created unified model inference bridge in `models/inference_bridge.py` executing Task 1 (Counting), Task 2 (Tagging), and Task 3 (Separation); mounted `/static/stems/` for isolated stem delivery; verified end-to-end latency at < 180 ms.
-* **Week 4 (Multi-Tier Expansion, Docker & Cloud Deployment):** Expanded API to support your multi-tier navigation: `/api/predict`, `/api/upload`, `/api/stats`, `/api/train`, `/api/save-model`, `/api/health`; containerized with `Dockerfile` and `docker-compose.yml`; configured production cloud deployment via `render.yaml` and `.env.example`; verified all 8 endpoints via `scripts/test_week4_fullstack.py`.
+* **Week 4 (Multi-Tier Expansion, Docker & Cloud Deployment):** Expanded API to support your multi-tier navigation: `/api/predict`, `/api/upload`, `/api/stats`, `/api/train`, `/api/save-model`, `/api/health`; containerized with `Dockerfile` and `docker-compose.yml`; configured production cloud deployment via `render.yaml` and `.env.example`; verified all 8 endpoints via `tests/test_api_endpoints.py`.
 
 ---
 
@@ -463,8 +463,8 @@ Along with this file (`docs/MEMBER1_HANDOVER.md`), share the following files:
    * **Why:** Contains all the official dataset tables, total duration (34.5 hours), file counts, and audio stats to copy into the `/docs` or `/analytics` page.
 5. **`docs/week_4.md`**  
    * **Why:** The official logbook for Week 4 detailing the architecture, requirements, and checklist.
-6. **`scripts/test_week4_fullstack.py`**  
-   * **Why:** Member 1 can run `python3 scripts/test_week4_fullstack.py` at any time to verify that the backend is working 100% without opening the browser.
+6. **`tests/test_api_endpoints.py`**  
+   * **Why:** Member 1 can run `python3 tests/test_api_endpoints.py` at any time to verify that the backend is working 100% without opening the browser.
 7. **`docker-compose.yml` & `Dockerfile`**  
    * **Why:** If Member 1 prefers Docker, they can just run `docker compose up` to run the backend in a container.
 8. **`.env.example`**  
@@ -479,7 +479,7 @@ Along with this file (`docs/MEMBER1_HANDOVER.md`), share the following files:
 cd /home/eshan/www/sanada_project
 
 # 2. Run the automated integration test to verify server endpoints
-python3 scripts/test_week4_fullstack.py
+python3 tests/test_api_endpoints.py
 
 # 3. Start the live FastAPI server
 python3 backend/app.py
