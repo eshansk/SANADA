@@ -215,7 +215,8 @@ async def validate_audio_upload(file: UploadFile = File(...)):
 @app.post("/api/predict")
 async def run_prediction(
     file: UploadFile = File(...),
-    task: str = Form("all")
+    task: str = Form("all"),
+    threshold: float = Form(0.5)
 ):
     """Multi-task audio inference endpoint."""
     contents = await file.read()
@@ -227,7 +228,13 @@ async def run_prediction(
             detail=f"Cannot decode audio stream: {str(e)}"
         )
         
-    results = engine.run_full_inference(waveform_data=data, sample_rate=sr, task=task)
+    results = engine.run_full_inference(
+        waveform_data=data,
+        sample_rate=sr,
+        task=task,
+        threshold=threshold,
+        filename=file.filename
+    )
     
     return {
         "status": "success",
@@ -237,6 +244,89 @@ async def run_prediction(
         "task_executed": task,
         "results": results
     }
+
+@app.get("/api/demo-mixtures")
+def get_demo_catalog():
+    """Serves verified demo catalog for immediate evaluation."""
+    return [
+        {
+            "id": "fsd_3",
+            "name": "Office & Calls (3 Sounds)",
+            "filename": "fsd_mix_3_sounds.wav",
+            "category": "environmental",
+            "sound_count": 3,
+            "description": "Typing keyboard, laughter, and telephone ringing",
+            "labels": ["Computer_keyboard", "Laughter", "Telephone"],
+            "url": "/static/demos/fsd_mix_3_sounds.wav",
+            "local_url": "/demos/fsd_mix_3_sounds.wav"
+        },
+        {
+            "id": "fsd_4",
+            "name": "Chimes & Fireworks (4 Sounds)",
+            "filename": "fsd_mix_4_sounds.wav",
+            "category": "environmental",
+            "sound_count": 4,
+            "description": "Wind chime, cough, fireworks burst, and electric piano chord",
+            "labels": ["Chime", "Cough", "Fireworks", "Electric_piano"],
+            "url": "/static/demos/fsd_mix_4_sounds.wav",
+            "local_url": "/demos/fsd_mix_4_sounds.wav"
+        },
+        {
+            "id": "fsd_5",
+            "name": "Acoustic Guitar & Ambient (5 Sounds)",
+            "filename": "fsd_mix_5_sounds.wav",
+            "category": "environmental",
+            "sound_count": 5,
+            "description": "Guitar strum, dog barking, microwave beep, keys jangling, writing",
+            "labels": ["Acoustic_guitar", "Bark", "Microwave_oven", "Keys_jangling", "Writing"],
+            "url": "/static/demos/fsd_mix_5_sounds.wav",
+            "local_url": "/demos/fsd_mix_5_sounds.wav"
+        },
+        {
+            "id": "fsd_8",
+            "name": "Jazz & Percussion (8 Sounds)",
+            "filename": "fsd_mix_8_sounds.wav",
+            "category": "environmental",
+            "sound_count": 8,
+            "description": "Saxophone, snare drum, drawer open/close, oboe, laughter, glass shatter, glockenspiel, applause",
+            "labels": ["Saxophone", "Snare_drum", "Drawer_open_or_close", "Oboe", "Laughter", "Shatter", "Glockenspiel", "Applause"],
+            "url": "/static/demos/fsd_mix_8_sounds.wav",
+            "local_url": "/demos/fsd_mix_8_sounds.wav"
+        },
+        {
+            "id": "org_2",
+            "name": "2 Overlapping Speakers (K=2)",
+            "filename": "org_mix_2_speakers.wav",
+            "category": "speech",
+            "sound_count": 2,
+            "description": "Dual lecture talkers overlapping simultaneously",
+            "labels": ["Speaker_4_4", "Speaker_4_2"],
+            "url": "/static/demos/org_mix_2_speakers.wav",
+            "local_url": "/demos/org_mix_2_speakers.wav"
+        },
+        {
+            "id": "org_4",
+            "name": "4 Multi-Talkers (K=4)",
+            "filename": "org_mix_4_speakers.wav",
+            "category": "speech",
+            "sound_count": 4,
+            "description": "4-way lecture speech collision with spectral masking",
+            "labels": ["Speaker_4_1", "Speaker_4_2", "Speaker_4_3", "Speaker_4_4"],
+            "url": "/static/demos/org_mix_4_speakers.wav",
+            "local_url": "/demos/org_mix_4_speakers.wav"
+        },
+        {
+            "id": "org_9",
+            "name": "9 Dense Talkers (Complexity Ceiling, K=9)",
+            "filename": "org_mix_9_speakers.wav",
+            "category": "speech",
+            "sound_count": 9,
+            "description": "Extreme overlapping talkers at the SI-SDR Complexity Ceiling threshold",
+            "labels": [f"Speaker_9_{i}" for i in range(1, 10)],
+            "url": "/static/demos/org_mix_9_speakers.wav",
+            "local_url": "/demos/org_mix_9_speakers.wav"
+        }
+    ]
 
 # -----------------------------------------------------------------------------
 # III. Developer Console Routes (Training & Checkpoints)
