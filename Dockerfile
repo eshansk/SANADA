@@ -21,10 +21,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source modules
+# Copy source modules & frontend interface
 COPY backend/ ./backend/
 COPY models/ ./models/
 COPY scripts/ ./scripts/
+COPY index.html style.css app.js ./
 
 # Ensure static directories and checkpoint folders exist
 RUN mkdir -p /app/backend/static/stems /app/models/checkpoints

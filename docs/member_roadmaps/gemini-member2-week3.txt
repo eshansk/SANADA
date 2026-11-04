@@ -1,0 +1,35 @@
+[ Start: Week 2 Tensor Pipelines ]
+         │
+         ▼
+[ 1. Ingest Split Manifests (metadata.csv) ]
+  • Load train, val, and test manifests parsed by Member 5[cite: 19, 42]
+  • Extract target ground-truth label: `num_sources` (integer K)[cite: 19]
+  • Verify label distributions across Org-Mix-4, Org-Mix-9, and FSD-Mix subsets[cite: 12]
+         │
+         ▼
+[ 2. Build PyTorch Counting Dataset & DataLoader ]
+  • Implement custom `SanadaCountingDataset` returning (waveform_tensor, K_scalar)[cite: 42]
+  • Standardize on-the-fly Mel-spectrogram transformation pipelines[cite: 41, 42]
+  • Set up multi-threaded batch loading with pinned memory[cite: 42]
+         │
+         ▼
+[ 3. Implement Data Augmentation Strategies ]
+  • Apply SpecAugment: random frequency masking and time masking[cite: 42]
+  • Add subtle additive Gaussian noise to prevent overfitting[cite: 42]
+  • Verify that augmentations preserve distinct energy peaks without corrupting source count[cite: 42]
+         │
+         ▼
+       /   4. Throughput & Shape Check:    \
+      <  Batch throughput ≥ 10 batches/s    >
+       \    and output tensor shapes aligned?/
+         ├──────────────┬───────────────────┤
+        Yes             │                   No
+         │              ▼                   ▼
+         │       [ Profile IO bottlenecks ]─> [ Optimize num_workers / pin_memory ][cite: 42]
+         ▼
+[ 5. End-to-End Forward Pass Verification ]
+  • Test forward pass through Conformer regressor with batch size = 16[cite: 9, 21]
+  • Confirm single-scalar continuous prediction output per mixture (shape: [batch_size, 1])[cite: 21]
+         │
+         ▼
+[ End: Week 2 Deliverables Ready ]

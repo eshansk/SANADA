@@ -1,0 +1,33 @@
+[ Start: Week 3 Full-Stack Integration ]
+         │
+         ▼
+[ 1. Mobile-Ready Layout & Touch Controls ]
+  • Optimize touch-friendly audio player controls and responsive action buttons[cite: 43]
+  • Enforce bandwidth-conscious asset loading and client-side audio compression checks[cite: 43]
+         │
+         ▼
+[ 2. HTTP Client Service Layer ]
+  • Implement Axios / Fetch service layer connecting to Member 5's Express backend[cite: 43]
+  • Configure endpoints:
+    ├─ GET  /api/health   ──> Server status check and ping monitoring[cite: 43]
+    ├─ POST /api/upload   ──> Raw audio validation upload[cite: 43]
+    └─ POST /api/predict  ──> Multipart form upload triggering model inference[cite: 43, 45]
+         │
+         ▼
+[ 3. Multi-Stem Audio Player Matrix ]
+  • Build multi-track audio player for separated stems returned from Conv-TasNet[cite: 24, 45]
+  • Add individual track controls: Solo, Mute, Volume Fader, and Stem Download[cite: 45]
+  • Render dynamic confidence score bars for predicted sound event classes[cite: 23, 45]
+         │
+         ▼
+[ 4. State Management & Asynchronous UI Feedback ]
+  • Add dynamic loading spinners, progress bars, and operation status toasts[cite: 45]
+  • Build graceful fallback UI states and descriptive alerts for backend errors[cite: 45]
+         │
+         ▼
+[ 5. End-to-End System Validation ]
+  • Conduct complete cycle tests across desktop browsers and mobile devices[cite: 43, 44]:
+    Input Capture ──> Express API ──> Model Inference ──> Rendered Results[cite: 43, 44]
+         │
+         ▼
+[ End: Week 3 Integration Ready ]

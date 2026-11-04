@@ -1,0 +1,37 @@
+[ Start: Week 1 Tagging Lead Setup ]
+         │
+         ▼
+[ 1. Repository Workspace & Environment Setup ]
+  • Configure Python virtual environment with PyTorch, torchaudio, and librosa[cite: 31, 34, 41]
+  • Establish model directory scaffold:
+    └── models/tagging/ (conformer_tagger.py, asl_loss.py, evaluate.py)[cite: 41]
+         │
+         ▼
+[ 2. Paper Task Breakdown & Input/Output Mapping ]
+  • Study SANADA multi-label acoustic tagging methodology (Section 5.2)
+  • Define tensor dimensions:
+    ├─ Input : Single-channel 16 kHz 8.0s waveform (x ∈ R^128000)[cite: 4, 8, 15]
+    └─ Target: Multi-hot binary vector y ∈ {0, 1}^C (C = 4, 9, or 32 classes)
+         │
+         ▼
+[ 3. Audio Representation & Feature Exploration ]
+  • Load sample WAV files at SR = 16000 and compute STFT and Mel-spectrograms[cite: 8, 41]
+  • Analyze time-frequency collision and spectral masking across overlapping events[cite: 20, 23]
+  • Verify audio feature extraction parameters (n_fft, hop_length, n_mels)[cite: 41]
+         │
+         ▼
+       /   4. Label Vocabulary Mapping:    \
+      <  Are all 32 FSD and 9 speech classes >
+       \    indexed into fixed integer IDs?  /
+         ├──────────────┬────────────────────┤
+        Yes             │                    No
+         │              ▼                    ▼
+         │       [ Re-index labels ] ───> [ Build class_to_idx dictionary ][cite: 14, 19]
+         ▼
+[ 5. Baseline Multi-Label Conformer Setup ]
+  • Scaffold Conformer sequence backbone network
+  • Attach multi-label classification head with linear projection to C classes[cite: 9, 23]
+  • Initialize Asymmetric Loss (ASL) module to handle extreme negative-label imbalance
+         │
+         ▼
+[ End: Week 1 Deliverables Ready ]

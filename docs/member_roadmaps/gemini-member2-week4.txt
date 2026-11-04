@@ -1,0 +1,37 @@
+[ Start: Week 1 Counting Lead Setup ]
+         │
+         ▼
+[ 1. Repository Workspace & Environment Setup ]
+  • Configure Python virtual environment with PyTorch, torchaudio, and librosa[cite: 31, 34, 41]
+  • Establish model directory scaffold:
+    └── models/counting/ (conformer_regressor.py, dsp_utils.py, evaluate.py)[cite: 41]
+         │
+         ▼
+[ 2. Paper Task Breakdown & Input/Output Mapping ]
+  • Study SANADA multi-source density estimation methodology (Section 5.1)
+  • Define tensor dimensions:
+    ├─ Input : Single-channel 16 kHz 8.0s waveform (x ∈ R^128000)[cite: 4, 8, 15]
+    └─ Target: Scalar source count K ∈ [2, 32] extracted from manifest[cite: 4, 19]
+         │
+         ▼
+[ 3. DSP & Audio Representation Sandbox ]
+  • Test audio loading routines across sample WAV mixtures at SR = 16000[cite: 8, 41]
+  • Compute and visualize STFT and Mel-spectrogram representations[cite: 41]
+  • Observe spectral masking and density saturation across K = 1, 4, 9, and 25[cite: 20]
+         │
+         ▼
+       /   4. Audio Feature Verification:  \
+      <  Are Mel-spectrogram dimensions     >
+       \    consistent across all samples?  /
+         ├──────────────┬───────────────────┤
+        Yes             │                   No
+         │              ▼                   ▼
+         │       [ Adjust hop_length ] ─> [ Standardize n_fft / n_mels ][cite: 41]
+         ▼
+[ 5. Baseline Conformer Architecture Design ]
+  • Scaffold the Conformer backbone network
+  • Replace classification head with a single continuous linear regression unit
+  • Establish loss criterion: Mean Squared Error (MSE Loss)[cite: 21]
+         │
+         ▼
+[ End: Week 1 Deliverables Ready ]

@@ -1,0 +1,36 @@
+[ Start: Week 1 Separation Lead Setup ]
+         │
+         ▼
+[ 1. Repository Workspace & Environment Setup ]
+  • Configure Python virtual environment with PyTorch, torchaudio, and Asteroid/SpeechBrain[cite: 31, 36, 41]
+  • Establish model directory scaffold:
+    └── models/separation/ (conv_tasnet.py, pit_loss.py, metrics.py, evaluate.py)[cite: 41]
+         │
+         ▼
+[ 2. Paper Task Breakdown & Input/Output Mapping ]
+  • Study SANADA monaural separation baseline specifications (Section 5.3)[cite: 24]
+  • Define tensor dimensions:
+    ├─ Input : Single-channel 16 kHz 8.0s mixture (x_mix ∈ R^128000)[cite: 4, 8, 15]
+    └─ Target: K isolated source waveforms (S ∈ R^[K x 128000])[cite: 4, 18]
+         │
+         ▼
+[ 3. Time-Domain Separation Playboard ]
+  • Test 1-D convolutional encoder, separator TCN, and 1-D decoder blocks[cite: 5]
+  • Verify waveform reconstruction across sample 8.0s mixtures at SR = 16000[cite: 8, 41]
+  • Analyze spectral overlap and masking across K = 2, 3, 4, 6, and 9 mixtures[cite: 20, 24]
+         │
+         ▼
+       /   4. Loss & Metric Formulation Check: \
+      <  Are SI-SDR loss and uPIT wrapper       >
+       \    configured for variable output K?   /
+         ├──────────────┬───────────────────────┤
+        Yes             │                       No
+         │              ▼                       ▼
+         │       [ Review permutation loss ] ─> [ Implement PITLossWrapper ][cite: 3, 24]
+         ▼
+[ 5. Team Contract & Data Handshake ]
+  • Align with Member 5 on parsing `source_files` paths from `metadata.csv`[cite: 19]
+  • Coordinate with Member 1 on multi-track output format for the client stem mixer[cite: 43]
+         │
+         ▼
+[ End: Week 1 Deliverables Ready ]

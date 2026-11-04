@@ -1,0 +1,44 @@
+[ Start: Week 4 Backend & Deployment ]
+         │
+         ▼
+[ 1. Expand Backend Routes & API Contracts ]
+  • Configure extended endpoints in Express.js:
+    ├─ POST /api/predict     ──> Multi-task inference execution
+    ├─ GET  /api/stats       ──> Dataset distributions, SNR, and metrics telemetry
+    ├─ POST /api/train       ──> Trigger training runs & hyperparameter inputs
+    ├─ POST /api/save-model  ──> Checkpoint export & version tracking
+    └─ GET  /api/health      ──> Live service status & GPU/memory monitor[cite: 45]
+         │
+         ▼
+[ 2. Asynchronous Payload & Error Handling ]
+  • Configure streaming/timeout limits for 8.0s WAV multipart handling[cite: 4, 45]
+  • Implement standard error payloads (HTTP 400/500) with detailed logging[cite: 45]
+  • Wire async queue/worker communication to prevent request blocking[cite: 45]
+         │
+         ▼
+[ 3. Local Containerization (Docker Compose) ]
+  • Write Dockerfile for Express.js API service[cite: 45]
+  • Write Dockerfile for Python ML inference worker (PyTorch/ONNX runtime)[cite: 43, 45]
+  • Create docker-compose.yml linking backend, worker, and local volume mounts[cite: 45]
+         │
+         ▼
+       /   4. Local Integration Check:    \
+      <  Full-stack runs locally via Docker>
+       \    without endpoint timeouts?    /
+         ├──────────────┬──────────────────┤
+        Yes             │                  No
+         │              ▼                  ▼
+         │       [ Inspect logs ] ───> [ Fix CORS / port routing ][cite: 45]
+         ▼
+[ 5. Production Security Hardening ]
+  • Lock down CORS policies to trusted frontend domains (Vercel/Netlify origin)[cite: 45]
+  • Manage environment secrets via production .env (API keys, cloud tokens)[cite: 45]
+         │
+         ▼
+[ 6. Public Cloud Deployment ]
+  • Deploy Backend & Python runtime to Render, AWS EC2, or Hugging Face Spaces[cite: 45]
+  • Verify automated model weight caching from remote bucket on boot[cite: 43]
+  • Perform live end-to-end handshake with Member 1's deployed frontend[cite: 43, 45]
+         │
+         ▼
+[ End: Week 4 Production Release Live ]
