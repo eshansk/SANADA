@@ -6,14 +6,15 @@ Full-Stack REST API & Inference Pipeline Verification Test Suite
 SANADA Machine Listening Platform
 
 Comprehensive automated test coverage:
-1. GET  /api/health      -> System vitality, hardware acceleration, and RAM monitoring
-2. GET  /api/stats       -> Dataset metrics and acoustic benchmark telemetry
-3. POST /api/upload      -> Fast in-memory WAV standard validation
-4. POST /api/predict     -> Joint multi-task inference (Counting, Tagging, Separation)
-5. POST /api/train       -> Asynchronous training job dispatch with hyperparameter inputs
-6. GET  /api/train/{id}  -> Training job progress tracking and status telemetry
-7. POST /api/save-model  -> Model checkpoint export and semantic versioning
-8. GET  /static/stems/   -> Static audio stream delivery for client players
+1. GET  /                -> Root service vitality, version, and endpoint discovery
+2. GET  /api/health      -> System vitality, hardware acceleration, and RAM monitoring
+3. GET  /api/stats       -> Dataset metrics and acoustic benchmark telemetry
+4. POST /api/upload      -> Fast in-memory WAV standard validation
+5. POST /api/predict     -> Joint multi-task inference (Counting, Tagging, Separation)
+6. POST /api/train       -> Asynchronous training job dispatch with hyperparameter inputs
+7. GET  /api/train/{id}  -> Training job progress tracking and status telemetry
+8. POST /api/save-model  -> Model checkpoint export and semantic versioning
+9. GET  /static/stems/   -> Static audio stream delivery for client players
 """
 
 import os
@@ -39,6 +40,16 @@ def run_api_tests():
     print(" SANADA REST API & MULTI-TIER PIPELINE INTEGRATION TEST SUITE")
     print("=" * 85)
     
+    # 0. Root Endpoint
+    print("\n[TEST 0] GET / (Root Service Vitality & Route Discovery)...")
+    t0 = time.time()
+    res = client.get("/")
+    lat = round((time.time() - t0) * 1000, 2)
+    assert res.status_code == 200
+    root_data = res.json()
+    assert root_data["status"] == "online"
+    print(f" [PASS] Status: {root_data['status']} | Service: {root_data['service']} | Docs: {root_data['docs_url']} | Latency: {lat} ms")
+
     # 1. Health check
     print("\n[TEST 1] GET /api/health (Vitality & Telemetry)...")
     t0 = time.time()
@@ -126,7 +137,7 @@ def run_api_tests():
     print(f" [PASS] Static audio stem accessible ({len(res.content)} bytes) at {stem_sample_url}")
 
     print("\n" + "=" * 85)
-    print(" ALL 8 FULL-STACK ENDPOINTS VALIDATED SUCCESSFULLY.")
+    print(" ALL 9 FULL-STACK REST ENDPOINTS VALIDATED SUCCESSFULLY.")
     print(" Backend API is 100% production-ready for Docker containerization and cloud deployment.")
     print("=" * 85)
 

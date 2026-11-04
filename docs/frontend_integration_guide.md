@@ -10,8 +10,8 @@
 As **Member 5 (Data Engineering & Backend API)**, I have completed all data engineering, dataset audits, manifest pipelines, and the complete multi-tier asynchronous REST API. 
 
 Here is what was completed and verified across Weeks 1 to 4:
-* **Week 1 (Scaffolding & Audio Integrity):** Established standard directory hierarchy; locked in audio specifications (16,000 Hz, 1-channel mono, 16-bit PCM WAV, exactly 8.0s / 128,000 samples); built and executed `scripts/verify_audio_integrity.py` auditing 420 audio clips with zero errors.
-* **Week 2 (Data Architecture, Zero-Leakage & DataLoaders):** Initialized `data/raw/`, `data/processed/`, and `data/splits/`; audited all 13 sub-datasets with `scripts/verify_zero_leakage.py` confirming **EXACTLY 0 data leakage** between train, val, and test splits; compiled `docs/dataset_stats_report.md` analyzing 15,559 clips (34.5 hours); built high-throughput PyTorch DataLoader exceeding 16 batches/sec; staged 60 verified test mixtures in `data/splits/test_evaluation_pool.csv`.
+* **Week 1 (Scaffolding & Audio Integrity):** Established standard directory hierarchy; locked in audio specifications (16,000 Hz, 1-channel mono, 16-bit PCM WAV, exactly 8.0s / 128,000 samples); built and executed `scripts/audit_audio_integrity.py` auditing 420 audio clips with zero errors.
+* **Week 2 (Data Architecture, Zero-Leakage & DataLoaders):** Initialized `data/raw/`, `data/processed/`, and `data/splits/`; audited all 13 sub-datasets with `scripts/verify_zero_leakage.py` confirming **EXACTLY 0 data leakage** between train, val, and test splits; compiled `docs/dataset_statistics_report.md` analyzing 15,559 clips (34.5 hours); built high-throughput PyTorch DataLoader exceeding 16 batches/sec; staged 60 verified test mixtures in `data/splits/test_evaluation_pool.csv`.
 * **Week 3 (Core REST API & Model Bridge):** Built FastAPI backend in `backend/app.py`; built automated model weight caching in `scripts/download_checkpoints.py`; created unified model inference bridge in `models/inference_bridge.py` executing Task 1 (Counting), Task 2 (Tagging), and Task 3 (Separation); mounted `/static/stems/` for isolated stem delivery; verified end-to-end latency at < 180 ms.
 * **Week 4 (Multi-Tier Expansion, Docker & Cloud Deployment):** Expanded API to support your multi-tier navigation: `/api/predict`, `/api/upload`, `/api/stats`, `/api/train`, `/api/save-model`, `/api/health`; containerized with `Dockerfile` and `docker-compose.yml`; configured production cloud deployment via `render.yaml` and `.env.example`; verified all 8 endpoints via `tests/test_api_endpoints.py`.
 
@@ -459,7 +459,7 @@ Along with this file (`docs/MEMBER1_HANDOVER.md`), share the following files:
    * **Why:** The core AI inference wrapper that executes Task 1, 2, and 3.
 3. **`data/splits/test_evaluation_pool.csv`**  
    * **Why:** A list of 60 pre-verified audio mixture filenames (from Org-Mix-4, Org-Mix-9, and FSD-Mix). Member 1 can use these paths to create a quick **"Select Preloaded Demo Audio"** dropdown in the UI.
-4. **`docs/dataset_stats_report.md`**  
+4. **`docs/dataset_statistics_report.md`**  
    * **Why:** Contains all the official dataset tables, total duration (34.5 hours), file counts, and audio stats to copy into the `/docs` or `/analytics` page.
 5. **`docs/week_4.md`**  
    * **Why:** The official logbook for Week 4 detailing the architecture, requirements, and checklist.

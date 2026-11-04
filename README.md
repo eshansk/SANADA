@@ -8,7 +8,7 @@ This repository implements the 8-week engineering and research lifecycle spannin
 ---
 
 ## 2. Team Members & Task Allocation
-* **Member 1 (Frontend UI & Client Engine):** Interactive Single Page Application (`index.html`, `app.js`, `style.css`), Web Audio API decoding, real-time Canvas spectrogram/waveform converters, and audio transport controls.
+* **Member 1 (Frontend UI & Client Engine):** Client engine, frontend dashboard integration, Web Audio API decoding, and interactive player controls.
 * **Member 2 (Audio Source Count Lead):** Task 1: Multi-source density estimation using a Conformer Regressor trained with MSE loss to predict continuous and discrete source count $K$.
 * **Member 3 (Label Tagging Lead):** Task 2: Multi-label acoustic tagging using a Conformer Classifier trained with Asymmetric Loss (ASL) across speaker identities and 32 environmental sound categories.
 * **Member 4 (Audio Separation Lead):** Task 3: Monaural universal source separation using Time-Domain Conv-TasNet with uPIT and SI-SDR loss; circumvention of the $O(K!)$ permutation bottleneck.
@@ -19,9 +19,6 @@ This repository implements the 8-week engineering and research lifecycle spannin
 ## 3. Repository Architecture
 ```text
 SANADA/
-├── index.html                           # [Member 1] Interactive frontend web application
-├── app.js                               # [Member 1] Client engine & Web Audio DSP interface
-├── style.css                            # [Member 1] Strict monochrome design system
 ├── Dockerfile                           # Production multi-stage container specification
 ├── docker-compose.yml                   # Local container orchestration & volume mounts
 ├── render.yaml                          # 1-click cloud deployment spec for Render
@@ -92,16 +89,16 @@ SANADA/
 
 ## 5. Quickstart & Verification
 
-### Running the API & Frontend
+### Running the Backend API Service
 ```bash
 # 1. Install dependencies
 pip install -r requirements.txt
 
-# 2. Launch the backend server (serves API and frontend UI)
+# 2. Launch the backend server
 python3 backend/app.py
 ```
-* Open **`http://localhost:8000`** in your browser to interact with the frontend UI.
 * Open **`http://localhost:8000/docs`** for interactive Swagger API documentation.
+* The API serves CORS-enabled endpoints consumed by Member 1's frontend application.
 
 ### Running Verification & Test Suites
 ```bash

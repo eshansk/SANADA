@@ -30,7 +30,6 @@ import numpy as np
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks, status
-from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -64,28 +63,24 @@ os.makedirs(STATIC_STEMS_DIR, exist_ok=True)
 app.mount("/static/stems", StaticFiles(directory=STATIC_STEMS_DIR), name="stems")
 
 @app.get("/")
-def serve_frontend_index():
-    """Serves Member 1's interactive frontend application."""
-    index_path = os.path.join(BASE_DIR, "index.html")
-    if os.path.exists(index_path):
-        return FileResponse(index_path)
-    return {"message": "SANADA Full-Stack Machine Listening API is running."}
-
-@app.get("/style.css")
-def serve_frontend_style():
-    """Serves frontend stylesheet."""
-    style_path = os.path.join(BASE_DIR, "style.css")
-    if os.path.exists(style_path):
-        return FileResponse(style_path, media_type="text/css")
-    raise HTTPException(status_code=404, detail="style.css not found")
-
-@app.get("/app.js")
-def serve_frontend_script():
-    """Serves frontend client engine."""
-    js_path = os.path.join(BASE_DIR, "app.js")
-    if os.path.exists(js_path):
-        return FileResponse(js_path, media_type="application/javascript")
-    raise HTTPException(status_code=404, detail="app.js not found")
+def root():
+    """Root endpoint delivering API vitality, documentation discovery, and routing metadata."""
+    return {
+        "status": "online",
+        "service": "SANADA Machine Listening API",
+        "version": "1.0.0",
+        "docs_url": "/docs",
+        "health_check": "/api/health",
+        "endpoints": {
+            "health": "/api/health",
+            "stats": "/api/stats",
+            "upload": "/api/upload",
+            "predict": "/api/predict",
+            "train": "/api/train",
+            "save_model": "/api/save-model",
+            "stems": "/static/stems/"
+        }
+    }
 
 # Initialize shared model inference engine
 engine = SANADAInferenceEngine()
