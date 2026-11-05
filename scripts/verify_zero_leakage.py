@@ -20,7 +20,12 @@ import glob
 import pandas as pd
 import sys
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+# Robust BASE_DIR resolution whether called directly or via root symlink
+current_dir = os.path.abspath(os.path.dirname(__file__))
+if os.path.exists(os.path.join(current_dir, "SANADA")):
+    BASE_DIR = current_dir
+else:
+    BASE_DIR = os.path.abspath(os.path.join(current_dir, ".."))
 SANADA_MIX_DIR = os.path.join(BASE_DIR, "SANADA", "Org_Fsd_Mix")
 
 def safe_parse_sources(val):

@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css?v=20261105.2">
+    <link rel="stylesheet" href="css/studio.css?v=20261105.1">
     <style>
         .teaser-callout::before,
         .teaser-callout::after {
@@ -73,7 +74,7 @@
                 <!-- ============================================================== -->
                 <section class="view-page active" id="pageHome">
                     <div class="hero-section">
-                        <h1 class="hero-headline">Machine Listening for Intractable Acoustic Mixtures</h1>
+                        <h1 class="hero-headline">Audio source count Estimator</h1>
                         <p class="hero-sub">
                             A standardized neural listening platform for simultaneous polyphonic source counting, multi-label event tagging, and clean time-domain speech separation evaluated across 13 benchmark partitions.
                         </p>
@@ -178,215 +179,261 @@
                 <!-- PAGE 2: /predict (STUDIO / INFERENCE PORTAL)                    -->
                 <!-- ============================================================== -->
                 <section class="view-page" id="pagePredict">
-                    <div class="page-header">
-                        <h1 class="page-title">Machine Listening Studio</h1>
-                        <p class="page-desc">Ingest polyphonic mixtures to jointly estimate source counts (<em>K</em>), classify sound events, and reconstruct clean audio stems.</p>
-                    </div>
-
-                    <!-- RESULT SUMMARY STRIP -->
-                    <div class="result-summary-strip">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span class="badge pass">LIVE INFERENCE ACTIVE</span>
-                            <span style="font-size: 12px; color: var(--text-secondary);">Keyboard shortcuts: <kbd style="background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono);">Space</kbd> Play/Pause &bull; <kbd style="background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono);">M</kbd> Mute</span>
+                    <!-- STUDIO HEADER ROW -->
+                    <div class="studio-header">
+                        <div class="studio-header-left">
+                            <h1 class="page-title">Machine Listening Studio</h1>
+                            <p class="page-desc">Ingest polyphonic mixtures to jointly estimate source counts (<em>K</em>), classify sound events, and reconstruct clean audio stems.</p>
                         </div>
-                        <button class="btn" id="copyJsonBtn" style="padding: 6px 14px; font-size: 12px;">
-                            <span>📋 Copy JSON</span>
-                        </button>
+                        <div class="studio-header-actions">
+                            <div class="engine-status-chip">
+                                <span class="status-dot"></span>
+                                <span class="engine-status-offline">Engine offline</span>
+                                <span class="engine-status-online">Engine online</span>
+                            </div>
+                            <button class="btn studio-copy-btn" id="copyJsonBtn">
+                                <span>📋 Copy JSON</span>
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- ROW 1: NUMBERED STEP 1 & STEP 2 PANELS -->
-                    <div class="grid-2">
-                        <!-- PANEL 1: INGESTION CARD -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h2 class="card-title">
-                                    <span class="step-pill">STEP 01</span>
-                                    <span>Audio Ingestion &amp; Live Recording</span>
-                                </h2>
-                                <div class="nav-tabs" style="background: var(--bg-card); padding: 2px;">
-                                    <button class="tab-link active" id="tabUploadMode" style="padding: 4px 10px; font-size: 11px;">Upload WAV</button>
-                                    <button class="tab-link" id="tabRecordMode" style="padding: 4px 10px; font-size: 11px;">Live Mic</button>
+                    <!-- TWO-COLUMN WORKSTATION LAYOUT -->
+                    <div class="studio-layout">
+                        <!-- LEFT RAIL (STICKY ON DESKTOP): INGESTION & PRE-FLIGHT VALIDATION -->
+                        <aside class="studio-rail">
+                            <!-- CARD 01: INGEST -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2 class="card-title">
+                                        <span class="step-pill">01</span>
+                                        <span>Ingest</span>
+                                    </h2>
+                                    <div class="nav-tabs seg-toggle">
+                                        <button class="tab-link active" id="tabUploadMode" data-route="predict">Upload WAV</button>
+                                        <button class="tab-link" id="tabRecordMode" data-route="predict">Live Mic</button>
+                                    </div>
+                                </div>
+
+                                <!-- DROP CONTAINER -->
+                                <div id="dropContainer">
+                                    <div class="dropzone" id="dropZone">
+                                        <input type="file" id="fileInput" accept=".wav" style="display: none;">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="color: #ffffff; margin-bottom: 8px;">
+                                            <path d="M12 3v13m0-13l-4 4m4-4l4 4"></path>
+                                            <path d="M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17"></path>
+                                        </svg>
+                                        <div style="font-size: 14px; font-weight: 500;">Drop 16 kHz Mono .WAV File</div>
+                                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Standardized to exactly 8.0 seconds (128,000 samples)</div>
+                                    </div>
+
+                                    <div class="ingest-controls-stacked">
+                                        <button class="btn btn-full" id="browseBtn">Browse Computer</button>
+                                        <select class="select-input select-full" id="demoSelect">
+                                            <option value="">Select Preloaded Evaluation Audio...</option>
+                                            <option value="mix_00000.wav">mix_00000.wav (Org-Mix-4 Variable K=2)</option>
+                                            <option value="mix_00001.wav">mix_00001.wav (Org-Mix-4 Variable K=2)</option>
+                                            <option value="mix_00012.wav">mix_00012.wav (Org-Mix-9 Variable K=3)</option>
+                                            <option value="mix_00018.wav">mix_00018.wav (Org-Mix-9 Variable K=4)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- LIVE MIC CONTAINER -->
+                                <div id="recordContainer" style="display: none;">
+                                    <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-md);">
+                                        <button class="btn-danger btn" id="recordToggleBtn" style="border-radius: var(--radius-full); padding: 12px 24px; font-size: 14px;">
+                                            <span>● Record 8.0s Audio</span>
+                                        </button>
+                                        <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; margin-top: 10px;" id="recTimer">0.0 / 8.0s</div>
+                                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="recHint">Captures live microphone and standardizes to 128,000 samples</div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- DROP CONTAINER -->
-                            <div id="dropContainer">
-                                <div class="dropzone" id="dropZone">
-                                    <input type="file" id="fileInput" accept=".wav" style="display: none;">
-                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="color: #ffffff; margin-bottom: 8px;">
-                                        <path d="M12 3v13m0-13l-4 4m4-4l4 4"></path>
-                                        <path d="M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17"></path>
-                                    </svg>
-                                    <div style="font-size: 14px; font-weight: 500;">Drop 16 kHz Mono .WAV File</div>
-                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Standardized to exactly 8.0 seconds (128,000 samples)</div>
+                            <!-- CARD 02: VALIDATE -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2 class="card-title">
+                                        <span class="step-pill">02</span>
+                                        <span>Validate</span>
+                                    </h2>
+                                    <span class="badge" id="uploadStatusBadge">Awaiting Audio</span>
                                 </div>
 
-                                <div class="controls-row">
-                                    <button class="btn" id="browseBtn">Browse Computer</button>
-                                    <select class="select-input" id="demoSelect" style="flex: 1;">
-                                        <option value="">Select Preloaded Evaluation Audio...</option>
-                                        <option value="mix_00000.wav">mix_00000.wav (Org-Mix-4 Variable K=2)</option>
-                                        <option value="mix_00001.wav">mix_00001.wav (Org-Mix-4 Variable K=2)</option>
-                                        <option value="mix_00012.wav">mix_00012.wav (Org-Mix-9 Variable K=3)</option>
-                                        <option value="mix_00018.wav">mix_00018.wav (Org-Mix-9 Variable K=4)</option>
+                                <table class="metric-table metric-grid-tiles" role="table">
+                                    <tbody role="rowgroup">
+                                        <tr role="row" class="metric-tile tile-filename">
+                                            <td class="label" role="cell">Filename</td>
+                                            <td class="val" id="metaFilename" role="cell">—</td>
+                                        </tr>
+                                        <tr role="row" class="metric-tile">
+                                            <td class="label" role="cell">Sampling Rate</td>
+                                            <td class="val" id="metaSampleRate" role="cell">—</td>
+                                        </tr>
+                                        <tr role="row" class="metric-tile">
+                                            <td class="label" role="cell">Channels</td>
+                                            <td class="val" id="metaChannels" role="cell">—</td>
+                                        </tr>
+                                        <tr role="row" class="metric-tile">
+                                            <td class="label" role="cell">Duration</td>
+                                            <td class="val" id="metaDuration" role="cell">—</td>
+                                        </tr>
+                                        <tr role="row" class="metric-tile">
+                                            <td class="label" role="cell">Peak Amplitude</td>
+                                            <td class="val" id="metaPeak" role="cell">—</td>
+                                        </tr>
+                                        <tr role="row" class="metric-tile tile-compliance">
+                                            <td class="label" role="cell">Standard Compliance</td>
+                                            <td class="val" id="metaCompliance" role="cell"><span class="badge warn">PENDING</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="validate-actions">
+                                    <select class="select-input select-full" id="taskSelect">
+                                        <option value="all">Task: All (Counting + Tagging + Separation)</option>
+                                        <option value="counting">Task 1: Source Counting Only</option>
+                                        <option value="tagging">Task 2: Multi-Label Tagging Only</option>
+                                        <option value="separating">Task 3: Source Separation Only</option>
                                     </select>
-                                </div>
-                            </div>
-
-                            <!-- LIVE MIC CONTAINER -->
-                            <div id="recordContainer" style="display: none;">
-                                <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-md);">
-                                    <button class="btn-danger btn" id="recordToggleBtn" style="border-radius: var(--radius-full); padding: 12px 24px; font-size: 14px;">
-                                        <span>● Record 8.0s Audio</span>
+                                    <button class="btn btn-primary btn-run-inference btn-full" id="runInferenceBtn" disabled>
+                                        <span id="inferenceBtnIcon">⚡</span>
+                                        <span id="inferenceBtnText">Run Inference</span>
                                     </button>
-                                    <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; margin-top: 10px;" id="recTimer">0.0 / 8.0s</div>
-                                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="recHint">Captures live microphone and standardizes to 128,000 samples</div>
                                 </div>
                             </div>
-                        </div>
+                        </aside>
 
-                        <!-- PANEL 2: AUDIO CONTRACT METRICS CARD -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h2 class="card-title">
-                                    <span class="step-pill">STEP 02</span>
-                                    <span>Audio Contract Pre-Flight Validation</span>
-                                </h2>
-                                <span class="badge" id="uploadStatusBadge">Awaiting Audio</span>
-                            </div>
-                            <table class="metric-table">
-                                <tr>
-                                    <td class="label">Filename</td>
-                                    <td class="val" id="metaFilename">—</td>
-                                </tr>
-                                <tr>
-                                    <td class="label">Sampling Rate</td>
-                                    <td class="val" id="metaSampleRate">—</td>
-                                </tr>
-                                <tr>
-                                    <td class="label">Channels</td>
-                                    <td class="val" id="metaChannels">—</td>
-                                </tr>
-                                <tr>
-                                    <td class="label">Duration</td>
-                                    <td class="val" id="metaDuration">—</td>
-                                </tr>
-                                <tr>
-                                    <td class="label">Peak Amplitude</td>
-                                    <td class="val" id="metaPeak">—</td>
-                                </tr>
-                                <tr>
-                                    <td class="label">Standard Compliance</td>
-                                    <td class="val" id="metaCompliance"><span class="badge warn">PENDING</span></td>
-                                </tr>
-                            </table>
-
-                            <div style="margin-top: 16px; display: flex; gap: 8px;">
-                                <select class="select-input" id="taskSelect" style="flex: 1;">
-                                    <option value="all">Task: All (Counting + Tagging + Separation)</option>
-                                    <option value="counting">Task 1: Source Counting Only</option>
-                                    <option value="tagging">Task 2: Multi-Label Tagging Only</option>
-                                    <option value="separating">Task 3: Source Separation Only</option>
-                                </select>
-                                <button class="btn btn-primary" id="runInferenceBtn" disabled>
-                                    <span id="inferenceBtnIcon">⚡</span>
-                                    <span id="inferenceBtnText">Run Inference</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- STEP 3: SIGNAL INSPECTION (DUAL WAVEFORM & STFT SPECTROGRAM) -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">
-                                <span class="step-pill">STEP 03</span>
-                                <span>Signal Inspection: Dual-Waveform &amp; Magma STFT Spectrogram</span>
-                            </h2>
-                            <div class="controls-row" style="margin-top: 0;">
-                                <button class="btn btn-primary" id="playMasterBtn" disabled>
-                                    <span id="playIcon">▶ Play</span>
-                                </button>
-                                <input type="range" class="volume-fader" id="scrubber" min="0" max="100" value="0" style="width: 200px;" disabled>
-                                <span style="font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary);" id="timeDisplay">0.00 / 0.00s</span>
-                            </div>
-                        </div>
-
-                        <!-- STACKED CANVASES WITH SYNCHRONOUS PLAYHEAD LINE -->
-                        <div class="canvas-stack" id="canvasStack">
-                            <div class="playhead-line" id="playheadLine"></div>
-
-                            <div class="canvas-layer">
-                                <span class="canvas-tag">TIME DOMAIN (AMPLITUDE ENVELOPE)</span>
-                                <canvas id="waveformCanvas" width="1220" height="95"></canvas>
-                            </div>
-                            <div class="canvas-layer">
-                                <span class="canvas-tag">MAGMA SPECTROGRAM (STFT 256 HANN)</span>
-                                <canvas id="spectrogramCanvas" width="1220" height="95"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ROW 3: THREE-TIER NEURAL OUTPUT CARDS -->
-                    <div class="grid-3">
-                        <!-- TASK 1: SOURCE COUNTING -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h2 class="card-title" style="font-size: 15px;">Task 1: Source Counting</h2>
-                                <span class="badge" id="kModelBadge">Conformer-MSE</span>
-                            </div>
-                            <div class="k-hero-box">
-                                <div class="k-hero-number" id="kHeroNumber">—</div>
-                                <div class="k-hero-sub" id="kHeroSub">Awaiting prediction</div>
-                            </div>
-
-                            <!-- COMPLEXITY CEILING GAUGE -->
-                            <div class="ceiling-gauge" id="ceilingGauge">
-                                <div class="gauge-bar">
-                                    <div class="gauge-fill" id="gaugeFill" style="width: 0%;"></div>
+                        <!-- RIGHT MAIN COLUMN: SIGNAL VISUALIZER, RESULTS, & STEM MIXER -->
+                        <div class="studio-main">
+                            <!-- CARD 03: SIGNAL -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2 class="card-title">
+                                        <span class="step-pill">03</span>
+                                        <span>Signal</span>
+                                    </h2>
+                                    <span class="badge">Dual Canvas &bull; STFT Magma</span>
                                 </div>
-                                <div class="gauge-status">
-                                    <span class="status-dot" id="gaugeDot"></span>
-                                    <span id="gaugeLabel" style="font-size: 11px;">Awaiting inference prediction</span>
+
+                                <!-- STACKED CANVASES WITH SYNCHRONOUS PLAYHEAD LINE -->
+                                <div class="canvas-stack" id="canvasStack">
+                                    <div class="playhead-line" id="playheadLine"></div>
+
+                                    <div class="canvas-layer">
+                                        <span class="canvas-tag">TIME DOMAIN (AMPLITUDE ENVELOPE)</span>
+                                        <canvas id="waveformCanvas" width="1220" height="100"></canvas>
+                                    </div>
+                                    <div class="canvas-layer">
+                                        <span class="canvas-tag">MAGMA SPECTROGRAM (STFT 256 HANN)</span>
+                                        <canvas id="spectrogramCanvas" width="1220" height="100"></canvas>
+                                    </div>
+                                </div>
+
+                                <!-- STATIC TIME RULER (0s to 8.0s) -->
+                                <div class="signal-time-ruler" aria-hidden="true">
+                                    <span>0.0s</span>
+                                    <span>1.0s</span>
+                                    <span>2.0s</span>
+                                    <span>3.0s</span>
+                                    <span>4.0s</span>
+                                    <span>5.0s</span>
+                                    <span>6.0s</span>
+                                    <span>7.0s</span>
+                                    <span>8.0s</span>
+                                </div>
+
+                                <!-- TRANSPORT CONTROLS BELOW CANVASES -->
+                                <div class="signal-transport-bar">
+                                    <div class="transport-controls">
+                                        <button class="btn btn-primary transport-play-btn" id="playMasterBtn" disabled>
+                                            <span id="playIcon">▶ Play</span>
+                                        </button>
+                                        <input type="range" class="volume-fader transport-scrubber" id="scrubber" min="0" max="100" value="0" disabled>
+                                        <span class="transport-time" id="timeDisplay">0.00 / 0.00s</span>
+                                    </div>
+                                    <div class="transport-shortcuts-hint">
+                                        <span>Shortcuts:</span>
+                                        <kbd>Space</kbd> <span>Play / Pause</span> &bull; <kbd>M</kbd> <span>Mute Stem</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <table class="metric-table" style="margin-top: 12px;">
-                                <tr>
-                                    <td class="label">Continuous Estimate</td>
-                                    <td class="val" id="kContinuousVal">—</td>
-                                </tr>
-                                <tr>
-                                    <td class="label">Complexity Ceiling</td>
-                                    <td class="val"><span class="badge pass"><em>K</em> &le; 4 SAFE</span></td>
-                                </tr>
-                            </table>
-                        </div>
+                            <!-- ROW 2: TASK 1 (SOURCE COUNTING) & TASK 2 (ACTIVE TAGS) -->
+                            <div class="studio-results-row">
+                                <!-- TASK 1: SOURCE COUNTING -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">
+                                            <span>Source count</span>
+                                        </h2>
+                                        <span class="badge" id="kModelBadge">Conformer-MSE</span>
+                                    </div>
+                                    <div class="k-hero-box">
+                                        <div class="k-hero-number" id="kHeroNumber">—</div>
+                                        <div class="k-hero-sub" id="kHeroSub">Awaiting prediction</div>
+                                    </div>
 
-                        <!-- TASK 2: MULTI-LABEL TAGGING -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h2 class="card-title" style="font-size: 15px;">Task 2: Active Sound Tags</h2>
-                                <span class="badge">Conformer-ASL</span>
-                            </div>
-                            <div id="probBarsContainer">
-                                <div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 40px 0;">
-                                    No active class tags predicted yet.<br>
-                                    <span style="font-size: 11px; color: var(--text-muted);">Top-K probabilities dynamically populated</span>
+                                    <!-- COMPLEXITY CEILING GAUGE -->
+                                    <div class="ceiling-gauge" id="ceilingGauge">
+                                        <div class="gauge-bar">
+                                            <div class="gauge-fill" id="gaugeFill" style="width: 0%;"></div>
+                                        </div>
+                                        <div class="gauge-ticks" aria-hidden="true">
+                                            <span>1</span>
+                                            <span>4</span>
+                                            <span>9+</span>
+                                        </div>
+                                        <div class="gauge-status" style="margin-top: 8px;">
+                                            <span class="status-dot" id="gaugeDot"></span>
+                                            <span id="gaugeLabel" style="font-size: 11px;">Awaiting inference prediction</span>
+                                        </div>
+                                    </div>
+
+                                    <table class="metric-table" style="margin-top: 14px;">
+                                        <tr>
+                                            <td class="label">Continuous Estimate</td>
+                                            <td class="val" id="kContinuousVal">—</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Complexity Ceiling</td>
+                                            <td class="val"><span class="badge">Reliable up to <em>K</em> = 4 (paper baseline)</span></td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <!-- TASK 2: MULTI-LABEL TAGGING -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h2 class="card-title">
+                                            <span>Active tags</span>
+                                        </h2>
+                                        <span class="badge">Conformer-ASL</span>
+                                    </div>
+                                    <div id="probBarsContainer">
+                                        <div class="ghost-empty-state">
+                                            <span class="ghost-icon">🏷️</span>
+                                            <span class="ghost-text">No active sound tags predicted yet</span>
+                                            <span class="ghost-sub">Run inference to dynamically populate top-K probabilities</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- TASK 3: MULTI-STEM PLAYER MATRIX -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h2 class="card-title" style="font-size: 15px;">Task 3: Reconstructed Stems</h2>
-                                <span class="badge">Conv-TasNet</span>
-                            </div>
-                            <div id="stemsContainer">
-                                <div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 40px 0;">
-                                    No separated stems reconstructed yet.<br>
-                                    <span style="font-size: 11px; color: var(--text-muted);">Stem player strips render on inference</span>
+                            <!-- TASK 3: FULL-WIDTH MULTI-STEM PLAYER MATRIX -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2 class="card-title">
+                                        <span>Separated stems</span>
+                                    </h2>
+                                    <span class="badge">Conv-TasNet</span>
+                                </div>
+                                <div id="stemsContainer">
+                                    <div class="ghost-empty-state">
+                                        <span class="ghost-icon">🎛️</span>
+                                        <span class="ghost-text">No separated stems reconstructed yet</span>
+                                        <span class="ghost-sub">Run inference to render independent solo / mute stem player strips</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
