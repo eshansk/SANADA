@@ -17,6 +17,7 @@ data/raw_samples/
 data/temp/
 data/temp_qa/
 data/splits/metadata_manifest.csv
+member4_separation_workspace/
 
 # Local benchmarks & checkpoints (Excluded from Git)
 results/
