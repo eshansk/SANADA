@@ -1,16 +1,16 @@
 {
   "counting": {
-    "path": "/mnt/c/projects/www/sanada_project/models/checkpoints/conformer_counting_baseline.pt",
+    "path": "/Users/sannidhanamnikhilesh/SANADA/git/models/checkpoints/conformer_counting_baseline.pt",
     "status": "cached",
     "version": "1.0.0"
   },
   "tagging": {
-    "path": "/mnt/c/projects/www/sanada_project/models/checkpoints/conformer_tagging_asl.pt",
+    "path": "/Users/sannidhanamnikhilesh/SANADA/git/models/checkpoints/conformer_tagging_asl.pt",
     "status": "cached",
     "version": "1.0.0"
   },
   "separation": {
-    "path": "/mnt/c/projects/www/sanada_project/models/checkpoints/conv_tasnet_separation.pt",
+    "path": "/Users/sannidhanamnikhilesh/SANADA/git/models/checkpoints/conv_tasnet_separation.pt",
     "status": "cached",
     "version": "1.0.0"
   }

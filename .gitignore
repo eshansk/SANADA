@@ -10,6 +10,8 @@ Sample Dataset/
 *.wav
 *.mp3
 *.flac
+!backend/static/demos/*.wav
+!frontend/demos/*.wav
 
 # Local data cache
 data/processed_pt/

@@ -1,0 +1,9 @@
+{
+  "name": "sanada-frontend",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "SANADA Machine Listening Platform - Member 1 Frontend Client Engine",
+  "scripts": {
+    "start": "python3 -m http.server 3000 --directory ."
+  }
+}

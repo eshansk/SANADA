@@ -32,8 +32,9 @@ from pydantic import BaseModel, Field
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
@@ -59,8 +60,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+STATIC_DEMOS_DIR = os.path.join(BASE_DIR, "backend", "static", "demos")
 os.makedirs(STATIC_STEMS_DIR, exist_ok=True)
+os.makedirs(STATIC_DEMOS_DIR, exist_ok=True)
 app.mount("/static/stems", StaticFiles(directory=STATIC_STEMS_DIR), name="stems")
+app.mount("/static/demos", StaticFiles(directory=STATIC_DEMOS_DIR), name="demos")
 
 @app.get("/")
 def root():
@@ -327,6 +331,20 @@ def get_demo_catalog():
             "local_url": "/demos/org_mix_9_speakers.wav"
         }
     ]
+
+@app.get("/api/demo-audio/{filename}")
+def stream_demo_audio(filename: str):
+    """Streams real evaluation demo audio directly to client."""
+    safe_name = os.path.basename(filename)
+    path = os.path.join(STATIC_DEMOS_DIR, safe_name)
+    if not os.path.exists(path):
+        # Fallback check in frontend demos
+        alt_path = os.path.join(BASE_DIR, "frontend", "demos", safe_name)
+        if os.path.exists(alt_path):
+            path = alt_path
+        else:
+            raise HTTPException(status_code=404, detail=f"Demo audio not found: {filename}")
+    return FileResponse(path, media_type="audio/wav", filename=safe_name)
 
 # -----------------------------------------------------------------------------
 # III. Developer Console Routes (Training & Checkpoints)

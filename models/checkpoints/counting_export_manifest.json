@@ -1,8 +1,8 @@
 {
   "task": "counting",
   "version": "v1.2.0",
-  "notes": "Week 4 production export with Conformer MSE regressor",
-  "exported_at": "2026-11-04T14:24:57Z",
+  "notes": "Week 4 production export Conformer MSE",
+  "exported_at": "2026-11-05T06:04:57Z",
   "sample_rate": 16000,
   "duration_s": 8.0
 }

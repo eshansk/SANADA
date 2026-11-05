@@ -51,15 +51,14 @@ class TaggingConfig:
     OUTPUT_NAMES = ["class_logits"]
 
 # 32 Canonical FSD Sound Event Classes (Synchronized with label_vocab.py & Web Demo Suite)
-SANADA_FSD_32_CLASSES = [
-    "Acoustic_guitar", "Applause", "Bark", "Bus", "Cello",
-    "Chime", "Clarinet", "Computer_keyboard", "Cough", "Drawer_open_or_close",
-    "Electric_piano", "Fireworks", "Flute", "Glockenspiel", "Gong",
-    "Gunshot_or_gunfire", "Harmonica", "Keys_jangling", "Laughter", "Meow",
-    "Microwave_oven", "Oboe", "Saxophone", "Scissors", "Shatter",
-    "Snare_drum", "Squeak", "Tearing", "Telephone", "Trumpet",
-    "Violin_or_fiddle", "Writing"
-]
+SANADA_FSD_32_CLASSES = sorted([
+    "Acoustic_guitar", "Applause", "Bark", "Bus", "Cello", "Chime", "Clarinet",
+    "Computer_keyboard", "Cough", "Drawer_open_or_close", "Electric_piano",
+    "Fireworks", "Flute", "Glockenspiel", "Gong", "Gunshot_or_gunfire",
+    "Harmonica", "Keys_jangling", "Laughter", "Meow", "Microwave_oven",
+    "Oboe", "Saxophone", "Scissors", "Shatter", "Snare_drum", "Squeak",
+    "Tearing", "Telephone", "Trumpet", "Violin_or_fiddle", "Writing"
+])
 
 ORG_4_CLASSES = ["Speaker_4_1", "Speaker_4_2", "Speaker_4_3", "Speaker_4_4"]
 ORG_9_CLASSES = [f"Speaker_9_{i}" for i in range(1, 10)]
