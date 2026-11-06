@@ -1,0 +1,170 @@
+/**
+ * frontend/css/tokens.css
+ * =======================
+ * Design Tokens & Layer Order.
+ * Wave-Derived Palette extracted from the Mux Wave Video (ID: 8wrHPCX2dC3msyYU9ObwqNdm00u3ViXvOSHUMRYSEe5Q).
+ * RETHEME RULE: Changing --wave-* tokens rethemes everything consistently across CSS and Canvas.
+ */
+
+@layer tokens, base, components, pages, utilities;
+
+@layer tokens {
+    :root {
+        /* ---------------------------------------------------------------------
+           WAVE VIDEO PALETTE (Extracted from 9 still frames across the video)
+           --------------------------------------------------------------------- */
+        /* Darkest video tone, lightened to ~6.5% lightness. Page base, visibly tinted, NOT black */
+        --wave-deep: hsl(268 30% 6.5%);
+
+        /* Dominant mid tone (main glow color): rich glowing violet #735cb3 */
+        --wave-1: hsl(256 42% 56%);
+
+        /* Secondary tone: luminous lavender #af90d0 */
+        --wave-2: hsl(270 42% 70%);
+
+        /* Tertiary/warm counter tone from video crests: soft orchid/rose #d896c5 (use sparingly) */
+        --wave-3: hsl(315 44% 68%);
+
+        /* Brightest highlight: iridescent wave crest #fdeaf4 (text gradients, active states, focus rings) */
+        --wave-light: hsl(325 78% 91%);
+
+        /* 3 Clear Surface Levels (Visibly tinted, clearly distinct) */
+        --bg-0: var(--wave-deep);                         /* ~6.5% lightness */
+        --bg-1: hsl(268 25% 10%);                         /* ~10% lightness: sections & cards */
+        --bg-2: hsl(268 22% 14.5%);                       /* ~14.5% lightness: raised surfaces, inputs, terminal */
+        --bg-hover: hsl(268 26% 18%);                     /* interactive hover overlay */
+
+        /* Backward-compatible background aliases */
+        --bg-base: var(--bg-0);
+        --bg-card: var(--bg-1);
+        --bg-elevated: var(--bg-2);
+
+        /* Accent & Gradients derived from wave palette */
+        --accent: var(--wave-light);
+        --accent-2: var(--wave-2);
+        --accent-grad: linear-gradient(135deg, var(--wave-light), var(--wave-1));
+        --accent-dim: color-mix(in srgb, var(--wave-1) 35%, transparent);
+        --accent-glow: color-mix(in srgb, var(--wave-1) 22%, transparent);
+        --border-tint: color-mix(in srgb, var(--wave-light) 12%, transparent);
+
+        /* Glass & Shadows */
+        --glass-fill: color-mix(in srgb, var(--wave-1) 9%, transparent);
+        --glass-border: color-mix(in srgb, var(--wave-light) 22%, transparent);
+        --glass-highlight: color-mix(in srgb, var(--wave-light) 40%, transparent);
+        --shadow-glow: 0 24px 60px -24px color-mix(in srgb, var(--wave-1) 45%, transparent);
+
+        /* White Opacity Tiers (Text Hierarchy and Neutral Borders) */
+        --w-100: rgba(255, 255, 255, 1);
+        --w-90: rgba(255, 255, 255, 0.9);
+        --w-80: rgba(255, 255, 255, 0.8);
+        --w-70: rgba(255, 255, 255, 0.7);
+        --w-60: rgba(255, 255, 255, 0.6);
+        --w-50: rgba(255, 255, 255, 0.5);
+        --w-40: rgba(255, 255, 255, 0.4);
+        --w-30: rgba(255, 255, 255, 0.3);
+        --w-20: rgba(255, 255, 255, 0.2);
+        --w-15: rgba(255, 255, 255, 0.15);
+        --w-10: rgba(255, 255, 255, 0.10);
+        --w-05: rgba(255, 255, 255, 0.05);
+
+        /* Text Hierarchy */
+        --text-primary: var(--w-100);
+        --text-secondary: var(--w-60);   /* 60% white standard (passes AA > 5.5:1) */
+        --text-muted: var(--w-40);       /* 40% white standard */
+        --text-inverted: #000000;
+
+        /* Border Scale */
+        --border-subtle: var(--border-tint);
+        --border-strong: color-mix(in srgb, var(--wave-light) 28%, transparent);
+        --border-focus: var(--accent);
+
+        /* Semantic Exceptions (Small & Rare) */
+        --rose: hsl(350 75% 68%);               /* Warm accent for Record, ceiling exceeded, error toast */
+        --rose-dim: hsl(350 75% 68% / 0.18);
+        --rose-border: hsl(350 75% 68% / 0.35);
+
+        /* Tiny 6-8px Hardware Status LEDs (engine online/offline) */
+        --status-led-online: #10b981;
+        --status-led-offline: #f59e0b;
+
+        /* Waveform / Visualizer Accent */
+        --waveform-accent: var(--accent);
+
+        /* Status Colors */
+        --success: var(--accent);
+        --success-bg: color-mix(in srgb, var(--wave-1) 16%, transparent);
+        --warning: var(--w-80);
+        --warning-bg: rgba(255, 255, 255, 0.06);
+        --danger: var(--rose);
+        --danger-bg: var(--rose-dim);
+
+        /* Typography */
+        --font-heading: 'Instrument Serif', Georgia, serif;
+        --font-body: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        --font-mono: 'Geist Mono', 'SF Mono', Menlo, Consolas, monospace;
+
+        /* Radii */
+        --radius-sm: 6px;
+        --radius-md: 10px;
+        --radius-lg: 18px;
+        --radius-xl: 24px;
+        --radius-full: 9999px;
+
+        /* Transitions & Easing */
+        --transition-fast: 0.15s ease;
+        --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+        /* Z-Index Scale */
+        --z-wave-bg: 1;
+        --z-ambient-backdrop: 2;
+        --z-content: 3;
+        --z-canvas-tag: 3;
+        --z-playhead: 4;
+        --z-sticky-rail: 10;
+        --z-navbar: 100;
+        --z-toast: 9999;
+
+        /* Default Page Radial Gradient Positions */
+        --bg-x1: 15%; --bg-y1: -10%;
+        --bg-x2: 90%; --bg-y2: 10%;
+        --bg-x3: 50%; --bg-y3: 110%;
+    }
+
+    /* Per-Page Gradient Variations (shifting coordinates per page for visual identity) */
+    body[data-page="home"] {
+        --bg-x1: 15%; --bg-y1: -10%;
+        --bg-x2: 90%; --bg-y2: 10%;
+        --bg-x3: 50%; --bg-y3: 110%;
+    }
+    body[data-page="predict"] { /* Studio */
+        --bg-x1: 25%; --bg-y1: -5%;
+        --bg-x2: 82%; --bg-y2: 20%;
+        --bg-x3: 40%; --bg-y3: 105%;
+    }
+    body[data-page="dataset"] {
+        --bg-x1: 10%; --bg-y1: 10%;
+        --bg-x2: 95%; --bg-y2: -5%;
+        --bg-x3: 60%; --bg-y3: 100%;
+    }
+    body[data-page="analytics"] { /* Results */
+        --bg-x1: 30%; --bg-y1: -8%;
+        --bg-x2: 85%; --bg-y2: 30%;
+        --bg-x3: 45%; --bg-y3: 95%;
+    }
+    body[data-page="train"] { /* Developer */
+        --bg-x1: 20%; --bg-y1: 5%;
+        --bg-x2: 75%; --bg-y2: 15%;
+        --bg-x3: 55%; --bg-y3: 115%;
+    }
+    body[data-page="docs"] {
+        --bg-x1: 12%; --bg-y1: -2%;
+        --bg-x2: 88%; --bg-y2: 18%;
+        --bg-x3: 40%; --bg-y3: 105%;
+    }
+    body[data-page="paper"] {
+        --bg-x1: 22%; --bg-y1: -12%;
+        --bg-x2: 92%; --bg-y2: 8%;
+        --bg-x3: 50%; --bg-y3: 102%;
+    }
+}

@@ -1,11 +1,8 @@
 /**
- * frontend/js/ui/paper-data.js
- * ============================
- * Official SANADA Paper Benchmark Constants & Fallback Metadata
- * Source: "SANADA: A Reproducible Synthetic Acoustic Dataset for Intractable Mixtures,
- * Evaluated with Baseline Models in Separation, Counting, and Tagging",
- * P. V. N. Balarama Murthy and R. Vijaya Prakash (SR University / NGIT).
- * DOI: 10.21227/z7hv-e014 (IEEE DataPort). SSRN preprint 7199188.
+ * frontend/js/data/paperBenchmarks.js
+ * ==================================
+ * Single Source of Truth for paper-reported metrics and empirical bounds.
+ * Corresponds to Murthy & Prakash (2025) IEEE DataPort / SSRN benchmark release.
  */
 
 export const PAPER_BENCHMARKS = {

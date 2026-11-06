@@ -1,15 +1,18 @@
 /**
- * frontend/js/audioEngine.js
- * ==========================
- * Client Web Audio API & MediaRecorder Processing Engine
- * Member 1 (Frontend UI & Client Engine)
+ * frontend/js/audio/audioEngine.js
+ * ================================
+ * Web Audio API Engine for client-side decoding, playback, synthetic mix generation,
+ * linear 16-bit PCM WAV encoding, and microphone streaming.
  */
 
-export const TARGET_SR = 16000;
-export const EXPECTED_FRAMES = 128000;
-export const EXPECTED_DURATION = 8.0;
+import { TARGET_SR, EXPECTED_FRAMES, EXPECTED_DURATION } from '../config.js';
 
-class AudioEngine {
+export function roundTo(num, dec) {
+    const factor = Math.pow(10, dec);
+    return Math.round(num * factor) / factor;
+}
+
+export class AudioEngine {
     constructor() {
         this.ctx = null;
         this.currentBuffer = null;
@@ -52,7 +55,7 @@ class AudioEngine {
     }
 
     /**
-     * Validates decoded buffer against Member 5 specification
+     * Validates decoded buffer against specifications
      */
     inspectBuffer(buffer) {
         const sr = buffer.sampleRate;
@@ -142,7 +145,6 @@ class AudioEngine {
         const numChan = buffer.numberOfChannels;
         const length = buffer.length * numChan * 2 + 44;
         const out = new DataView(new ArrayBuffer(length));
-        const channels = [];
         let offset = 0;
         let pos = 0;
 
@@ -163,6 +165,7 @@ class AudioEngine {
         setUint32(0x61746164); // "data"
         setUint32(length - pos - 4);
 
+        const channels = [];
         for (let i = 0; i < numChan; i++) channels.push(buffer.getChannelData(i));
         while (pos < length) {
             for (let i = 0; i < numChan; i++) {
@@ -293,11 +296,6 @@ class AudioEngine {
         }
         requestAnimationFrame(() => this._runPlaybackLoop());
     }
-}
-
-function roundTo(num, dec) {
-    const factor = Math.pow(10, dec);
-    return Math.round(num * factor) / factor;
 }
 
 export const audioEngine = new AudioEngine();

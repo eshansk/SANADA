@@ -8,30 +8,55 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=20261105.2">
-    <link rel="stylesheet" href="css/studio.css?v=20261105.1">
-    <style>
-        .teaser-callout::before,
-        .teaser-callout::after {
-            display: none !important;
-            content: none !important;
-            width: 0 !important;
-            height: 0 !important;
-            background: none !important;
-            border: none !important;
-        }
-        .teaser-callout {
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
-        }
-    </style>
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
 </head>
 <body>
     <div class="app-shell">
         <!-- FIXED CINEMATIC WAVE BACKGROUND (Pinned to Homepage only) -->
         <div class="home-fixed-wave-bg" id="homeWaveBg" aria-hidden="true">
-            <video id="ctaVideo" autoplay loop muted playsinline class="cta-video"></video>
+            <video id="ctaVideo" crossorigin="anonymous" autoplay loop muted playsinline class="cta-video"></video>
             <div class="home-wave-overlay"></div>
+        </div>
+
+        <!-- VISIBLE AMBIENT BACKDROP (Refraction layer for non-home pages & depth) -->
+        <div class="ambient-backdrop" id="ambientBackdrop" aria-hidden="true">
+            <div class="ambient-blob blob-1"></div>
+            <div class="ambient-blob blob-2"></div>
+            <div class="ambient-blob blob-3"></div>
+            <div class="ambient-blob blob-4"></div>
+            <svg class="ambient-ribbons" viewBox="0 0 1440 900" fill="none" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="ribbonGrad1" x1="0%" y1="0%" x2="100%" y2="80%">
+                        <stop offset="0%" stop-color="var(--wave-light)" stop-opacity="0.35"/>
+                        <stop offset="45%" stop-color="var(--wave-2)" stop-opacity="0.22"/>
+                        <stop offset="85%" stop-color="var(--wave-1)" stop-opacity="0.10"/>
+                        <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+                    </linearGradient>
+                    <linearGradient id="ribbonGrad2" x1="100%" y1="10%" x2="0%" y2="90%">
+                        <stop offset="0%" stop-color="var(--wave-2)" stop-opacity="0.28"/>
+                        <stop offset="50%" stop-color="var(--wave-3)" stop-opacity="0.18"/>
+                        <stop offset="85%" stop-color="var(--wave-1)" stop-opacity="0.08"/>
+                        <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+                    </linearGradient>
+                    <linearGradient id="ribbonGrad3" x1="30%" y1="0%" x2="70%" y2="100%">
+                        <stop offset="0%" stop-color="var(--wave-light)" stop-opacity="0.25"/>
+                        <stop offset="40%" stop-color="var(--wave-1)" stop-opacity="0.15"/>
+                        <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+                    </linearGradient>
+                    <filter id="grainFilter">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
+                        <feColorMatrix type="saturate" values="0"/>
+                    </filter>
+                </defs>
+                <path class="ribbon-path ribbon-1" d="M -100 280 C 260 120, 520 460, 880 260 C 1180 90, 1380 320, 1600 240" stroke="url(#ribbonGrad1)" stroke-width="2.5"/>
+                <path class="ribbon-path ribbon-2" d="M -100 440 C 320 280, 600 620, 960 400 C 1240 220, 1420 480, 1600 380" stroke="url(#ribbonGrad2)" stroke-width="2"/>
+                <path class="ribbon-path ribbon-3" d="M -80 620 C 380 440, 680 740, 1040 560 C 1300 420, 1480 620, 1600 520" stroke="url(#ribbonGrad1)" stroke-width="2"/>
+                <path class="ribbon-path ribbon-4" d="M -50 160 C 300 320, 640 100, 1000 220 C 1280 320, 1440 160, 1600 180" stroke="url(#ribbonGrad3)" stroke-width="1.5"/>
+                <rect width="100%" height="100%" filter="url(#grainFilter)" opacity="0.04"/>
+            </svg>
         </div>
 
         <!-- FLOATING LIQUID GLASS PILL NAVBAR -->
@@ -59,7 +84,7 @@
                         <span class="status-dot" id="backendDot"></span>
                         <span id="backendText">Engine offline</span>
                     </div>
-                    <button class="btn" id="pingBtn" style="padding: 4px 10px; font-size: 11px;">Ping Engine</button>
+                    <button class="btn btn-sm" id="pingBtn">Ping Engine</button>
                     <button class="nav-toggle" id="navToggle" aria-label="Toggle Navigation">☰</button>
                 </div>
             </div>
@@ -79,11 +104,11 @@
                             A standardized neural listening platform for simultaneous polyphonic source counting, multi-label event tagging, and clean time-domain speech separation evaluated across 13 benchmark partitions.
                         </p>
                         <div class="hero-cta-group">
-                            <a href="#/predict" class="btn btn-primary" style="padding: 12px 28px; font-size: 14px;">
+                            <a href="#/predict" class="btn btn-primary btn-hero">
                                 <span>Open Studio</span>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                             </a>
-                            <a href="#/paper" class="btn" style="padding: 12px 28px; font-size: 14px;">
+                            <a href="#/paper" class="btn btn-hero">
                                 <span>Read the Paper</span>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                             </a>
@@ -124,7 +149,7 @@
                             <p class="home-task-card-desc">
                                 Continuously regresses the exact number of concurrent active speakers or sound emitters from raw audio, overcoming discrete multi-class saturation at higher mixture densities.
                             </p>
-                            <div class="home-task-card-footer" style="color: var(--waveform-accent);">MAE 0.082 (Org-4) &bull; 94.2% Exact Acc</div>
+                            <div class="home-task-card-footer">MAE 0.082 (Org-4) &bull; 94.2% Exact Acc</div>
                         </div>
                         <div class="card home-task-card">
                             <div class="card-header home-task-card-header">
@@ -134,7 +159,7 @@
                             <p class="home-task-card-desc">
                                 Employs Asymmetric Loss (ASL) to dynamically attenuate easy negative gradients, delivering robust multi-label acoustic sound classification across 32 heterogeneous event classes.
                             </p>
-                            <div class="home-task-card-footer" style="color: var(--success);">0.942 mAP &bull; 0.915 Macro F1 &bull; 0.978 ROC-AUC</div>
+                            <div class="home-task-card-footer">0.942 mAP &bull; 0.915 Macro F1 &bull; 0.978 ROC-AUC</div>
                         </div>
                         <div class="card home-task-card">
                             <div class="card-header home-task-card-header">
@@ -144,16 +169,16 @@
                             <p class="home-task-card-desc">
                                 Time-domain mask estimation trained with Utterance Permutation Invariant Training (uPIT) to reconstruct clean monaural waveforms for each identified acoustic emitter.
                             </p>
-                            <div class="home-task-card-footer" style="color: var(--warning);">+10.59 dB (K=2) &bull; +4.24 dB (K=4)</div>
+                            <div class="home-task-card-footer">+10.59 dB (K=2) &bull; +4.24 dB (K=4)</div>
                         </div>
                     </div>
 
                     <!-- COMPLEXITY CEILING TEASER -->
-                    <div class="teaser-callout" style="border: 1px solid rgba(255, 255, 255, 0.1) !important; border-left: 1px solid rgba(255, 255, 255, 0.1) !important;">
-                        <h2 style="font-size: 24px; font-family: var(--font-heading); font-style: italic; margin-bottom: 8px;">
+                    <div class="teaser-callout">
+                        <h2 class="teaser-title">
                             The Complexity Ceiling: Why Speech Separation Collapses at <em>K</em> &gt; 4
                         </h2>
-                        <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6; max-width: 900px;">
+                        <p class="teaser-desc">
                             Empirical benchmarking across the SANADA dataset suite uncovered a physical performance barrier in time-domain speech separation. While source counting and multi-label tagging scale accurately up to <em>K</em> = 32, Conv-TasNet separation degrades from +10.59 dB at <em>K</em> = 2 to -1.15 dB at <em>K</em> = 5, proving that mask-based separation becomes mathematically intractable when mixture density exceeds four concurrent acoustic sources.
                         </p>
                     </div>
@@ -162,7 +187,7 @@
                     <div class="home-cta-block">
                         <h2 class="cta-heading">Hear where separation breaks down.</h2>
                         <p class="cta-subtext">Upload a mixture and watch counting, tagging and separation respond as the source count climbs.</p>
-                        <div class="cta-btn-group" style="margin-bottom: 32px;">
+                        <div class="cta-btn-group">
                             <a href="#/predict" class="btn cta-btn-glass">
                                 <span>Open Studio</span>
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
@@ -217,13 +242,13 @@
                                 <!-- DROP CONTAINER -->
                                 <div id="dropContainer">
                                     <div class="dropzone" id="dropZone">
-                                        <input type="file" id="fileInput" accept=".wav" style="display: none;">
-                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="color: #ffffff; margin-bottom: 8px;">
+                                        <input type="file" id="fileInput" accept=".wav" class="u-hidden">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="dropzone-icon">
                                             <path d="M12 3v13m0-13l-4 4m4-4l4 4"></path>
                                             <path d="M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17"></path>
                                         </svg>
-                                        <div style="font-size: 14px; font-weight: 500;">Drop 16 kHz Mono .WAV File</div>
-                                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Standardized to exactly 8.0 seconds (128,000 samples)</div>
+                                        <div class="dropzone-title">Drop 16 kHz Mono .WAV File</div>
+                                        <div class="dropzone-sub">Standardized to exactly 8.0 seconds (128,000 samples)</div>
                                     </div>
 
                                     <div class="ingest-controls-stacked">
@@ -239,13 +264,13 @@
                                 </div>
 
                                 <!-- LIVE MIC CONTAINER -->
-                                <div id="recordContainer" style="display: none;">
-                                    <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-md);">
-                                        <button class="btn-danger btn" id="recordToggleBtn" style="border-radius: var(--radius-full); padding: 12px 24px; font-size: 14px;">
+                                <div id="recordContainer" class="u-hidden">
+                                    <div class="record-box">
+                                        <button class="btn btn-danger btn-record" id="recordToggleBtn">
                                             <span>● Record 8.0s Audio</span>
                                         </button>
-                                        <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; margin-top: 10px;" id="recTimer">0.0 / 8.0s</div>
-                                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="recHint">Captures live microphone and standardizes to 128,000 samples</div>
+                                        <div class="record-timer" id="recTimer">0.0 / 8.0s</div>
+                                        <div class="record-hint" id="recHint">Captures live microphone and standardizes to 128,000 samples</div>
                                     </div>
                                 </div>
                             </div>
@@ -377,20 +402,20 @@
                                     <!-- COMPLEXITY CEILING GAUGE -->
                                     <div class="ceiling-gauge" id="ceilingGauge">
                                         <div class="gauge-bar">
-                                            <div class="gauge-fill" id="gaugeFill" style="width: 0%;"></div>
+                                            <div class="gauge-fill" id="gaugeFill"></div>
                                         </div>
                                         <div class="gauge-ticks" aria-hidden="true">
                                             <span>1</span>
                                             <span>4</span>
                                             <span>9+</span>
                                         </div>
-                                        <div class="gauge-status" style="margin-top: 8px;">
+                                        <div class="gauge-status">
                                             <span class="status-dot" id="gaugeDot"></span>
-                                            <span id="gaugeLabel" style="font-size: 11px;">Awaiting inference prediction</span>
+                                            <span id="gaugeLabel" class="gauge-label">Awaiting inference prediction</span>
                                         </div>
                                     </div>
 
-                                    <table class="metric-table" style="margin-top: 14px;">
+                                    <table class="metric-table metric-table-spaced">
                                         <tr>
                                             <td class="label">Continuous Estimate</td>
                                             <td class="val" id="kContinuousVal">—</td>
@@ -471,24 +496,24 @@
                                     <td><strong>Org-Mix-4</strong></td>
                                     <td>LibriSpeech (Clean English Lectures)</td>
                                     <td><em>K</em> &isin; [2, 4]</td>
-                                    <td style="font-family: var(--font-mono);">4,320</td>
-                                    <td style="font-family: var(--font-mono);">9.60 h</td>
+                                    <td class="font-mono">4,320</td>
+                                    <td class="font-mono">9.60 h</td>
                                     <td><span class="badge">Fixed K=2,3,4 + Variable</span></td>
                                 </tr>
                                 <tr>
                                     <td><strong>Org-Mix-9</strong></td>
                                     <td>LibriSpeech (High-Density Multi-Speaker)</td>
                                     <td><em>K</em> &isin; [2, 9]</td>
-                                    <td style="font-family: var(--font-mono);">9,600</td>
-                                    <td style="font-family: var(--font-mono);">21.33 h</td>
+                                    <td class="font-mono">9,600</td>
+                                    <td class="font-mono">21.33 h</td>
                                     <td><span class="badge">Fixed K=2..9 + Variable</span></td>
                                 </tr>
                                 <tr>
                                     <td><strong>FSD-Mix</strong></td>
                                     <td>FSD50K (Acoustic Events &amp; Noise)</td>
                                     <td><em>K</em> &isin; [2, 32]</td>
-                                    <td style="font-family: var(--font-mono);">1,639</td>
-                                    <td style="font-family: var(--font-mono);">3.64 h</td>
+                                    <td class="font-mono">1,639</td>
+                                    <td class="font-mono">3.64 h</td>
                                     <td><span class="badge">Variable (32 Classes)</span></td>
                                 </tr>
                             </tbody>
@@ -501,7 +526,7 @@
                             <h2 class="card-title">Acoustic Mixture Synthesis Pipeline</h2>
                             <span class="badge">Deterministic Seed 42</span>
                         </div>
-                        <div style="padding: 10px 0;">
+                        <div class="pipeline-diagram-wrap">
                             <svg class="chart-svg" viewBox="0 0 1100 240" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <!-- Background grid lines -->
                                 <line x1="40" y1="120" x2="1060" y2="120" stroke="rgba(255,255,255,0.08)" stroke-width="2" stroke-dasharray="6 6"/>
@@ -524,8 +549,8 @@
                                 <text x="424" y="98" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="12">&bull; 70 / 15 / 15 Zero-Leakage Split</text>
                                 <text x="424" y="122" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="12">&bull; 16,000 Hz monaural resampled channels</text>
                                 <text x="424" y="146" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="12">&bull; 8.0s (128,000 samples) window standardization</text>
-                                <rect x="424" y="166" width="170" height="24" rx="12" fill="rgba(16,185,129,0.15)"/>
-                                <text x="436" y="182" fill="#34d399" font-family="'Geist Mono', monospace" font-size="10">ZERO-LEAKAGE SPLIT</text>
+                                <rect x="424" y="166" width="170" height="24" rx="12" fill="var(--accent-glow)"/>
+                                <text x="436" y="182" fill="var(--accent)" font-family="'Geist Mono', monospace" font-size="10">ZERO-LEAKAGE SPLIT</text>
 
                                 <!-- Connector 2 -> 3 -->
                                 <path d="M700 120 L760 120" stroke="#ffffff" stroke-width="2"/>
@@ -536,8 +561,8 @@
                                 <text x="784" y="98" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="12">&bull; Linear summation with dynamic SNR offsets</text>
                                 <text x="784" y="122" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="12">&bull; -3.0 dBFS anti-clipping headroom scaling</text>
                                 <text x="784" y="146" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="12">&bull; Ground-truth stem serialization (.wav)</text>
-                                <rect x="784" y="166" width="165" height="24" rx="12" fill="rgba(56,189,248,0.15)"/>
-                                <text x="796" y="182" fill="#38bdf8" font-family="'Geist Mono', monospace" font-size="10">SYNTHESIZED STEM POOL</text>
+                                <rect x="784" y="166" width="165" height="24" rx="12" fill="var(--accent-glow)"/>
+                                <text x="796" y="182" fill="var(--accent)" font-family="'Geist Mono', monospace" font-size="10">SYNTHESIZED STEM POOL</text>
                             </svg>
                         </div>
                     </div>
@@ -571,7 +596,7 @@
                                 <h2 class="card-title">32 FSD50K Sound Classes (FSD-Mix)</h2>
                                 <span class="badge">Multi-Label Chips</span>
                             </div>
-                            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                            <p class="section-lead-sm">
                                 FSD-Mix synthesizes mixtures containing 2 to 32 concurrent active sound events drawn from these 32 acoustic classes:
                             </p>
                             <div class="chip-cloud">
@@ -646,19 +671,19 @@
                     </div>
 
                     <!-- THREE INLINE SVG CHARTS -->
-                    <div class="grid-3" style="margin-top: 16px;">
+                    <div class="grid-3 grid-3-charts">
                         <!-- CHART 1: SI-SDR vs K LINE CHART -->
                         <div class="chart-card">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                            <div class="chart-header">
                                 <h3 class="chart-title">Separation SI-SDR vs Density (<em>K</em>)</h3>
-                                <span class="badge" style="font-size: 10px;">Paper baselines</span>
+                                <span class="badge badge-xs">Paper baselines</span>
                             </div>
                             <p class="chart-desc">Conv-TasNet separation collapses below 0 dB for <em>K</em> &gt; 4.</p>
                             <svg class="chart-svg" viewBox="0 0 360 220" fill="none">
                                 <!-- Axes -->
                                 <line x1="40" y1="20" x2="40" y2="180" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-                                <line x1="40" y1="104" x2="340" y2="104" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4 4"/>
-                                <text x="240" y="98" fill="#f87171" font-family="'Geist Mono', monospace" font-size="9">0 dB Failure Line</text>
+                                <line x1="40" y1="104" x2="340" y2="104" stroke="var(--rose)" stroke-width="1.5" stroke-dasharray="4 4"/>
+                                <text x="240" y="98" fill="var(--rose)" font-family="'Geist Mono', monospace" font-size="9">0 dB Failure Line</text>
 
                                 <!-- Y Axis Labels -->
                                 <text x="14" y="28" fill="rgba(255,255,255,0.4)" font-family="'Geist Mono', monospace" font-size="8">+12 dB</text>
@@ -666,7 +691,7 @@
                                 <text x="14" y="178" fill="rgba(255,255,255,0.4)" font-family="'Geist Mono', monospace" font-size="8">-10 dB</text>
 
                                 <!-- Line plot: K=2 (+10.59), K=3 (+5.08), K=4 (+4.24), K=6 (-3.40), K=9 (-8.57) -->
-                                <polyline points="60,32 105,71 150,78 240,131 325,168" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
+                                <polyline points="60,32 105,71 150,78 240,131 325,168" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
                                 <!-- Points -->
                                 <circle cx="60" cy="32" r="4.5" fill="#ffffff"/>
                                 <text x="50" y="24" fill="#ffffff" font-family="'Geist Mono', monospace" font-size="8">+10.6</text>
@@ -674,10 +699,10 @@
                                 <text x="98" y="63" fill="#ffffff" font-family="'Geist Mono', monospace" font-size="8">+5.1</text>
                                 <circle cx="150" cy="78" r="4" fill="#ffffff"/>
                                 <text x="142" y="70" fill="#ffffff" font-family="'Geist Mono', monospace" font-size="8">+4.2</text>
-                                <circle cx="240" cy="131" r="4" fill="#ef4444"/>
-                                <text x="232" y="146" fill="#f87171" font-family="'Geist Mono', monospace" font-size="8">-3.4</text>
-                                <circle cx="325" cy="168" r="4.5" fill="#ef4444"/>
-                                <text x="312" y="182" fill="#f87171" font-family="'Geist Mono', monospace" font-size="8">-8.6</text>
+                                <circle cx="240" cy="131" r="4" fill="var(--rose)"/>
+                                <text x="232" y="146" fill="var(--rose)" font-family="'Geist Mono', monospace" font-size="8">-3.4</text>
+                                <circle cx="325" cy="168" r="4.5" fill="var(--rose)"/>
+                                <text x="312" y="182" fill="var(--rose)" font-family="'Geist Mono', monospace" font-size="8">-8.6</text>
 
                                 <!-- X Axis Labels -->
                                 <text x="52" y="200" fill="rgba(255,255,255,0.6)" font-family="'Geist Mono', monospace" font-size="9">K=2</text>
@@ -690,9 +715,9 @@
 
                         <!-- CHART 2: COUNTING ACCURACY BARS -->
                         <div class="chart-card">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                            <div class="chart-header">
                                 <h3 class="chart-title">Counting Performance Decay</h3>
-                                <span class="badge" style="font-size: 10px;">Paper baselines</span>
+                                <span class="badge badge-xs">Paper baselines</span>
                             </div>
                             <p class="chart-desc">Conformer MSE: Exact accuracy (%) &amp; MAE across corpora.</p>
                             <svg class="chart-svg" viewBox="0 0 360 220" fill="none">
@@ -722,9 +747,9 @@
 
                         <!-- CHART 3: TAGGING METRICS GROUPED BARS -->
                         <div class="chart-card">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                            <div class="chart-header">
                                 <h3 class="chart-title">Multi-Label ASL Tagging Metrics</h3>
-                                <span class="badge" style="font-size: 10px;">Paper baselines</span>
+                                <span class="badge badge-xs">Paper baselines</span>
                             </div>
                             <p class="chart-desc">mAP, Macro F1, and ROC-AUC under Asymmetric Loss.</p>
                             <svg class="chart-svg" viewBox="0 0 360 220" fill="none">
@@ -732,18 +757,18 @@
                                 <line x1="40" y1="180" x2="340" y2="180" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
 
                                 <!-- Group 1 (Org-4): mAP .9902, F1 .9449, AUC .9765 -->
-                                <rect x="60" y="38" width="16" height="142" rx="2" fill="#38bdf8"/>
-                                <rect x="78" y="44" width="16" height="136" rx="2" fill="#10b981"/>
+                                <rect x="60" y="38" width="16" height="142" rx="2" fill="var(--accent)"/>
+                                <rect x="78" y="44" width="16" height="136" rx="2" fill="var(--accent-2)"/>
                                 <rect x="96" y="40" width="16" height="140" rx="2" fill="#ffffff"/>
 
                                 <!-- Group 2 (Org-9): mAP .9122, F1 .8305, AUC .8744 -->
-                                <rect x="150" y="49" width="16" height="131" rx="2" fill="#38bdf8"/>
-                                <rect x="168" y="61" width="16" height="119" rx="2" fill="#10b981"/>
+                                <rect x="150" y="49" width="16" height="131" rx="2" fill="var(--accent)"/>
+                                <rect x="168" y="61" width="16" height="119" rx="2" fill="var(--accent-2)"/>
                                 <rect x="186" y="55" width="16" height="125" rx="2" fill="#ffffff"/>
 
                                 <!-- Group 3 (FSD-Mix): mAP .6265, F1 .6849, AUC .6161 -->
-                                <rect x="240" y="90" width="16" height="90" rx="2" fill="#38bdf8"/>
-                                <rect x="258" y="82" width="16" height="98" rx="2" fill="#10b981"/>
+                                <rect x="240" y="90" width="16" height="90" rx="2" fill="var(--accent)"/>
+                                <rect x="258" y="82" width="16" height="98" rx="2" fill="var(--accent-2)"/>
                                 <rect x="276" y="92" width="16" height="88" rx="2" fill="#ffffff"/>
 
                                 <!-- Legend & Labels -->
@@ -755,17 +780,17 @@
                     </div>
 
                     <!-- THE O(K!) INTRACTABILITY CALLOUT -->
-                    <div class="teaser-callout" style="margin-top: 24px; border: 1px solid rgba(255, 255, 255, 0.1) !important; border-left: 1px solid rgba(255, 255, 255, 0.1) !important;">
-                        <h2 style="font-size: 22px; font-family: var(--font-heading); font-style: italic; margin-bottom: 8px;">
+                    <div class="teaser-callout teaser-callout-spaced">
+                        <h2 class="teaser-title teaser-title-md">
                             The <em>O(K!)</em> Permutation Ambiguity Barrier
                         </h2>
-                        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                        <p class="teaser-desc-sm">
                             Separating unconstrained monaural mixtures requires matching each predicted audio stem with an unknown ground truth emitter. Utterance-level Permutation Invariant Training (uPIT) solves this by finding the optimal permutation amongst all <em>K!</em> assignments. At <em>K</em> = 4, there are 24 permutations; at <em>K</em> = 9, there are 362,880 permutations; at <em>K</em> = 15, there are over 1.3 trillion permutations. This factorial explosion, combined with overlapping spectrotemporal energy masks, creates an intractable complexity ceiling where gradient updates destabilize.
                         </p>
                     </div>
 
                     <!-- COMPLEXITY CEILING SEPARATION TABLE -->
-                    <div class="card" style="margin-top: 24px;">
+                    <div class="card card-spaced">
                         <div class="card-header">
                             <h2 class="card-title">Task 3: Conv-TasNet Separation (Complexity Ceiling Benchmark)</h2>
                             <span class="badge fail">Degrades &lt; 0 dB for <em>K</em> &gt; 4</span>
@@ -844,48 +869,48 @@
                                 <h2 class="card-title">Trigger Model Training (POST /api/train)</h2>
                                 <span class="badge">Async Worker</span>
                             </div>
-                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <div class="form-stack">
                                 <div>
-                                    <label style="font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Target Machine Listening Task</label>
-                                    <select class="select-input" id="trainTaskSelect" style="width: 100%;">
+                                    <label class="form-label">Target Machine Listening Task</label>
+                                    <select class="select-input w-full" id="trainTaskSelect">
                                         <option value="counting">Source Counting (Conformer Regressor MSE)</option>
                                         <option value="tagging">Multi-Label Tagging (Conformer Classifier ASL)</option>
                                         <option value="separation">Audio Separation (Conv-TasNet SI-SDR)</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label style="font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Target Dataset Partition</label>
-                                    <select class="select-input" id="trainDatasetSelect" style="width: 100%;">
+                                    <label class="form-label">Target Dataset Partition</label>
+                                    <select class="select-input w-full" id="trainDatasetSelect">
                                         <option value="Org_Mix_4_Sounds_Variable">Org_Mix_4_Sounds_Variable (K=2 to 4)</option>
                                         <option value="Org_Mix_9_Variable">Org_Mix_9_Variable (K=2 to 9)</option>
                                         <option value="FSD_Mix_Variable_Sounds">FSD_Mix_Variable_Sounds (32 Sound Classes)</option>
                                     </select>
                                 </div>
-                                <div class="grid-2" style="margin-bottom: 0;">
+                                <div class="grid-2 mb-0">
                                     <div>
-                                        <label style="font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Learning Rate</label>
-                                        <input type="number" class="text-input" id="trainLrInput" value="0.0005" step="0.0001" style="width: 100%;">
+                                        <label class="form-label">Learning Rate</label>
+                                        <input type="number" class="text-input w-full" id="trainLrInput" value="0.0005" step="0.0001">
                                     </div>
                                     <div>
-                                        <label style="font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Batch Size</label>
-                                        <input type="number" class="text-input" id="trainBatchInput" value="16" style="width: 100%;">
+                                        <label class="form-label">Batch Size</label>
+                                        <input type="number" class="text-input w-full" id="trainBatchInput" value="16">
                                     </div>
                                 </div>
-                                <div class="grid-2" style="margin-bottom: 0;">
+                                <div class="grid-2 mb-0">
                                     <div>
-                                        <label style="font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Epochs</label>
-                                        <input type="number" class="text-input" id="trainEpochsInput" value="30" style="width: 100%;">
+                                        <label class="form-label">Epochs</label>
+                                        <input type="number" class="text-input w-full" id="trainEpochsInput" value="30">
                                     </div>
                                     <div>
-                                        <label style="font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Optimizer</label>
-                                        <select class="select-input" id="trainOptSelect" style="width: 100%;">
+                                        <label class="form-label">Optimizer</label>
+                                        <select class="select-input w-full" id="trainOptSelect">
                                             <option value="AdamW">AdamW (Weight Decay 1e-4)</option>
                                             <option value="Adam">Adam</option>
                                             <option value="SGD">SGD with Momentum</option>
                                         </select>
                                     </div>
                                 </div>
-                                <button class="btn btn-primary" id="startTrainingBtn" style="margin-top: 8px;">
+                                <button class="btn btn-primary mt-sm" id="startTrainingBtn">
                                     <span>▶ Launch Training Run</span>
                                 </button>
                             </div>
@@ -897,24 +922,24 @@
                                 <h2 class="card-title">Model Checkpoint Serializer (POST /api/save-model)</h2>
                                 <span class="badge">State Dict</span>
                             </div>
-                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <div class="form-stack">
                                 <div>
-                                    <label style="font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Target Task</label>
-                                    <select class="select-input" id="exportTaskSelect" style="width: 100%;">
+                                    <label class="form-label">Target Task</label>
+                                    <select class="select-input w-full" id="exportTaskSelect">
                                         <option value="counting">Source Counting</option>
                                         <option value="tagging">Multi-Label Tagging</option>
                                         <option value="separation">Source Separation</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label style="font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Semantic Version Tag</label>
-                                    <input type="text" class="text-input" id="exportVersionTag" value="v1.2.0" style="width: 100%;">
+                                    <label class="form-label">Semantic Version Tag</label>
+                                    <input type="text" class="text-input w-full" id="exportVersionTag" value="v1.2.0">
                                 </div>
                                 <div>
-                                    <label style="font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Release Notes</label>
-                                    <input type="text" class="text-input" id="exportNotes" value="Production Conformer checkpoint on SANADA-4" style="width: 100%;">
+                                    <label class="form-label">Release Notes</label>
+                                    <input type="text" class="text-input w-full" id="exportNotes" value="Production Conformer checkpoint on SANADA-4">
                                 </div>
-                                <button class="btn" id="exportModelBtn" style="margin-top: 8px;">
+                                <button class="btn mt-sm" id="exportModelBtn">
                                     <span>💾 Export Checkpoint (.pt)</span>
                                 </button>
                             </div>
@@ -928,14 +953,14 @@
                             <span class="badge" id="trainingStatusText">Status: IDLE</span>
                         </div>
                         <div class="progress-bar">
-                            <div class="progress-fill" id="trainingProgressFill" style="width: 0%;"></div>
+                            <div class="progress-fill" id="trainingProgressFill"></div>
                         </div>
-                        <div style="display: flex; justify-content: space-between; font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 10px;">
+                        <div class="progress-meta">
                             <span>Progress</span>
                             <span id="trainingProgressPct">0%</span>
                         </div>
                         <div class="terminal-box" id="trainLogTerminal">
-                            <div><span style="color:#64748b;">[SYSTEM]</span> Developer console initialized. Ready to accept training jobs.</div>
+                            <div><span class="terminal-prefix">[SYSTEM]</span> Developer console initialized. Ready to accept training jobs.</div>
                         </div>
                     </div>
                 </section>
@@ -954,12 +979,12 @@
                             <h2 class="card-title">Research Reference: SANADA Dataset Suite</h2>
                             <span class="badge pass">IEEE DataPort Verified</span>
                         </div>
-                        <p style="font-size: 14px; margin-bottom: 12px;">
+                        <p class="reference-lead">
                             <strong>Paper:</strong> <em>SANADA: A Reproducible Synthetic Acoustic Dataset for Intractable Mixtures, Evaluated with Baseline Models in Separation, Counting, and Tagging</em><br>
                             <strong>Authors:</strong> Pelluri Venkata Naga Balarama Murthy &amp; R. Vijaya Prakash<br>
                             <strong>Permanent DOI:</strong> <code>10.21227/z7hv-e014</code> &bull; <strong>Host:</strong> IEEE DataPort
                         </p>
-                        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                        <p class="reference-body">
                             SANADA addresses the physical impossibility of collecting real-world high-density acoustic recordings with isolated ground-truth stems. By synthesizing three domain-isolated corpora (Org-Mix-4, Org-Mix-9, and FSD-Mix) with pre-mix 70/15/15 zero-leakage partitions and -3.0 dBFS anti-clipping attenuation, it provides the first rigorous benchmark proving the <strong>Complexity Ceiling</strong>—the point (<em>K</em> &gt; 4) where speech separation drops below 0 dB SI-SDR.
                         </p>
                     </div>
@@ -1065,14 +1090,14 @@
                             <h2 class="card-title">Abstract</h2>
                             <span class="badge warn">Preprint, not peer reviewed (SSRN)</span>
                         </div>
-                        <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+                        <p class="abstract-body">
                             Acoustic source counting, multi-label sound tagging, and source separation are traditionally evaluated on disparate corpora with differing mixture lengths, sampling rates, and overlap policies. SANADA introduces a unified synthetic benchmark comprising 15,559 eight-second mixtures across 13 partitions derived from LibriSpeech and FSD50K. By enforcing strict pre-mix 70/15/15 zero-leakage partitions and -3.0 dBFS anti-clipping attenuation, we systematically map the Complexity Ceiling—demonstrating that time-domain separation collapses below 0 dB SI-SDR when mixture density exceeds <em>K</em> = 4, whereas continuous counting and multi-label tagging scale robustly up to <em>K</em> = 32.
                         </p>
-                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                            <a href="https://doi.org/10.21227/z7hv-e014" target="_blank" rel="noopener" class="btn btn-primary" style="font-size: 12px; padding: 6px 16px;">
+                        <div class="paper-links">
+                            <a href="https://doi.org/10.21227/z7hv-e014" target="_blank" rel="noopener" class="btn btn-primary btn-compact">
                                 <span>Permanent DOI: 10.21227/z7hv-e014 ↗</span>
                             </a>
-                            <a href="https://ieee-dataport.org" target="_blank" rel="noopener" class="btn" style="font-size: 12px; padding: 6px 16px;">
+                            <a href="https://ieee-dataport.org" target="_blank" rel="noopener" class="btn btn-compact">
                                 <span>IEEE DataPort Repository ↗</span>
                             </a>
                         </div>
@@ -1082,7 +1107,7 @@
                     <div class="card">
                         <div class="card-header">
                             <h2 class="card-title">BibTeX Citation</h2>
-                            <button class="btn" id="copyBibtexBtn" style="padding: 5px 14px; font-size: 11px;">📋 Copy BibTeX</button>
+                            <button class="btn btn-xs" id="copyBibtexBtn">📋 Copy BibTeX</button>
                         </div>
                         <pre class="bibtex-box" id="bibtexCode">@article{murthy2026sanada,
   title={SANADA: A Reproducible Synthetic Acoustic Dataset for Intractable Mixtures, Evaluated with Baseline Models in Separation, Counting, and Tagging},
@@ -1099,17 +1124,17 @@
                         <div class="card-header">
                             <h2 class="card-title">Methodological Limitations</h2>
                         </div>
-                        <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: var(--text-secondary);">
-                            <li style="display: flex; align-items: flex-start; gap: 10px;">
-                                <span style="color: var(--warning);">⚠</span>
+                        <ul class="limitations-list">
+                            <li class="limitation-item">
+                                <span class="limitation-icon">⚠</span>
                                 <div><strong>Monaural Only:</strong> All mixtures are evaluated on single-channel recordings (16 kHz). Multi-channel spatial and interaural time difference (ITD/IPD) cues are deliberately omitted to evaluate pure monaural acoustic separation capabilities.</div>
                             </li>
-                            <li style="display: flex; align-items: flex-start; gap: 10px;">
-                                <span style="color: var(--warning);">⚠</span>
+                            <li class="limitation-item">
+                                <span class="limitation-icon">⚠</span>
                                 <div><strong>English Lecture Speech Domain:</strong> Org-Mix-4 and Org-Mix-9 partitions are synthesized using LibriSpeech read speech, which exhibits clean acoustic environments and standard English accents. Highly reverberant conversational speech may exhibit lower baseline separation.</div>
                             </li>
-                            <li style="display: flex; align-items: flex-start; gap: 10px;">
-                                <span style="color: var(--warning);">⚠</span>
+                            <li class="limitation-item">
+                                <span class="limitation-icon">⚠</span>
                                 <div><strong>Fixed 8.0-Second Duration Invariance:</strong> Models are evaluated on standardized 128,000-sample segments. Real-time streaming chunking requires additional dynamic buffer windowing.</div>
                             </li>
                         </ul>
@@ -1137,12 +1162,6 @@
     <!-- GLOBAL TOAST CONTAINER -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- PRESENTATION UI EXTENSIONS -->
-    <script type="module" src="js/ui/paper-data.js"></script>
-    <script type="module" src="js/ui/cta-video.js"></script>
-    <script type="module" src="js/ui/studioUi.js"></script>
-
-    <!-- LOAD ES MODULE CONTROLLER -->
-    <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>

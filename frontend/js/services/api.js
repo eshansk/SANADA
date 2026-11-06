@@ -1,12 +1,12 @@
 /**
- * frontend/js/api.js
- * ==================
- * Master REST API Client Service Layer
- * Member 1 (Frontend UI & Client Engine)
- * Aligned with docs/MEMBER1_HANDOVER.md contract
+ * frontend/js/services/api.js
+ * ===========================
+ * REST communication service for SANADA FastAPI backend.
+ * Provides endpoints for health checks, pre-flight validation,
+ * multi-task inference, dataset stats, and training tasks.
  */
 
-const API_BASE = window.SANADA_API_BASE || (window.location.hostname === 'localhost' ? 'http://127.0.0.1:8000' : `${window.location.protocol}//${window.location.hostname || '127.0.0.1'}:8000`);
+import { API_BASE } from '../config.js';
 
 export const API = {
     /**
@@ -20,7 +20,7 @@ export const API = {
 
     /**
      * Pre-flight audio validation (POST /api/upload)
-     * Validates 16 kHz, single-channel mono, 8.0s length
+     * Validates 16 kHz, single-channel monaural, 8.0s length
      */
     async validateAudio(file) {
         const formData = new FormData();
