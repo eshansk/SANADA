@@ -210,29 +210,43 @@
         }
     }
 
-    /* SELECTION (Accent tinted) */
+    /* SELECTION (White-ish) */
     ::selection {
-        background: var(--accent-dim);
+        background: rgba(255, 255, 255, 0.22);
         color: #ffffff;
     }
 
-    /* CUSTOM SCROLLBAR */
+    /* CUSTOM SCROLLBAR (Thin & Minimal) */
     ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
+        width: 4px;
+        height: 4px;
     }
 
     ::-webkit-scrollbar-track {
-        background: var(--bg-0);
+        background: transparent;
     }
 
     ::-webkit-scrollbar-thumb {
-        background: var(--border-tint);
+        background: rgba(255, 255, 255, 0.18);
         border-radius: var(--radius-full);
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background: var(--accent-dim);
+        background: rgba(255, 255, 255, 0.38);
+    }
+
+    /* HERO TEXT REVEAL ON LOAD */
+    @keyframes heroReveal {
+        0% {
+            opacity: 0;
+            transform: translateY(12px);
+            filter: blur(4px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+        }
     }
 
     /* TYPOGRAPHY */

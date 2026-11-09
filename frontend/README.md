@@ -25,8 +25,8 @@ frontend/
     │   └── api.js               # REST client for FastAPI backend endpoints
     ├── audio/
     │   ├── audioEngine.js       # Web Audio API engine, WAV encoding, live microphone capture
-    │   ├── signalVisualizer.js  # Dual canvas visualizer (cyan waveform + Magma STFT spectrogram)
-    │   └── stemPlayer.js        # Multi-track stem mixer (Solo, Mute, Volume, download via delegation)
+    │   ├── signalVisualizer.js  # Dual canvas visualizer (mirrored peak waveform + wave-themed STFT spectrogram)
+    │   └── stemPlayer.js        # DAW-style multi-track stem mixer (sample-synced Web Audio, MIX A/B, waveforms, solo/mute)
     ├── ui/
     │   ├── router.js            # Hash-based SPA routing (#/predict, #/analytics, etc.)
     │   ├── toast.js             # Non-blocking status alert system

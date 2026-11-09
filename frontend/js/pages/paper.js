@@ -22,4 +22,18 @@ export function initPaperPage() {
                 });
         });
     }
+
+    const copyDoiBtn = document.getElementById('copyDoiBtn');
+    if (copyDoiBtn) {
+        copyDoiBtn.addEventListener('click', () => {
+            const doi = '10.21227/z7hv-e014';
+            navigator.clipboard.writeText(doi)
+                .then(() => {
+                    showToast('DOI (10.21227/z7hv-e014) copied to clipboard!', 'success');
+                })
+                .catch(() => {
+                    showToast('Unable to copy DOI', 'warning');
+                });
+        });
+    }
 }

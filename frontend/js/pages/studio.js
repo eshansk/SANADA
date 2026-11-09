@@ -15,6 +15,19 @@ import { DualAudioVisualizer } from '../audio/signalVisualizer.js';
 import { StemPlayerMatrix } from '../audio/stemPlayer.js';
 import { showToast } from '../ui/toast.js';
 
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+const SVG_PLAY = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
+const SVG_PAUSE = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+
 export function initStudioPage() {
     // Studio State
     let activeFile = null;
@@ -49,6 +62,11 @@ export function initStudioPage() {
         waveformCanvas: document.getElementById('waveformCanvas'),
         spectrogramCanvas: document.getElementById('spectrogramCanvas'),
         playheadLine: document.getElementById('playheadLine'),
+        canvasStack: document.getElementById('canvasStack'),
+        canvasEmptyState: document.getElementById('canvasEmptyState'),
+        playheadPlayedTint: document.getElementById('playheadPlayedTint'),
+        visualizerGhostLine: document.getElementById('visualizerGhostLine'),
+        visualizerTooltip: document.getElementById('visualizerTooltip'),
         playMasterBtn: document.getElementById('playMasterBtn'),
         playIcon: document.getElementById('playIcon'),
         scrubber: document.getElementById('scrubber'),
@@ -59,6 +77,11 @@ export function initStudioPage() {
         runInferenceBtn: document.getElementById('runInferenceBtn'),
         inferenceBtnText: document.getElementById('inferenceBtnText'),
         inferenceBtnIcon: document.getElementById('inferenceBtnIcon'),
+        runHint: document.getElementById('runHint'),
+        inferenceProgressBar: document.getElementById('inferenceProgressBar'),
+        studioMobileActionBar: document.getElementById('studioMobileActionBar'),
+        mobileBarFilename: document.getElementById('mobileBarFilename'),
+        runInferenceMobileBtn: document.getElementById('runInferenceMobileBtn'),
 
         // Task Results
         kHeroNumber: document.getElementById('kHeroNumber'),
@@ -68,8 +91,8 @@ export function initStudioPage() {
         probBarsContainer: document.getElementById('probBarsContainer'),
         stemsContainer: document.getElementById('stemsContainer'),
 
-        // Ceiling Gauge
-        gaugeFill: document.getElementById('gaugeFill'),
+        // 9-Step Segmented Ceiling Meter
+        segmentedMeter: document.getElementById('segmentedMeter'),
         gaugeLabel: document.getElementById('gaugeLabel'),
         gaugeDot: document.getElementById('gaugeDot'),
 
@@ -82,7 +105,25 @@ export function initStudioPage() {
         visualizer = new DualAudioVisualizer(
             DOM.waveformCanvas,
             DOM.spectrogramCanvas,
-            DOM.playheadLine
+            DOM.playheadLine,
+            {
+                stackEl: DOM.canvasStack,
+                emptyStateEl: DOM.canvasEmptyState,
+                playedTintEl: DOM.playheadPlayedTint,
+                ghostLineEl: DOM.visualizerGhostLine,
+                tooltipEl: DOM.visualizerTooltip,
+                onSeek: (fraction) => {
+                    audioEngine.seek(fraction);
+                    if (DOM.scrubber) {
+                        DOM.scrubber.value = fraction * 100;
+                        DOM.scrubber.style.setProperty('--scrubber-pct', `${fraction * 100}%`);
+                    }
+                    if (DOM.timeDisplay && activeBuffer) {
+                        const cur = fraction * activeBuffer.duration;
+                        DOM.timeDisplay.textContent = `${cur.toFixed(2)} / ${activeBuffer.duration.toFixed(2)}s`;
+                    }
+                }
+            }
         );
     }
 
@@ -162,10 +203,32 @@ export function initStudioPage() {
         if (DOM.metaDuration) DOM.metaDuration.textContent = `${info.duration}s`;
         if (DOM.metaPeak) DOM.metaPeak.textContent = `${info.peakAmplitude} (${info.peakDbfs} dBFS)`;
 
-        if (visualizer) visualizer.render(buffer);
-        if (DOM.playMasterBtn) DOM.playMasterBtn.disabled = false;
-        if (DOM.scrubber) DOM.scrubber.disabled = false;
+        if (visualizer) {
+            visualizer.setComputing(true);
+            setTimeout(() => {
+                visualizer.render(buffer);
+                visualizer.setComputing(false);
+            }, 20);
+        }
+        if (DOM.playMasterBtn) {
+            DOM.playMasterBtn.disabled = false;
+            DOM.playMasterBtn.setAttribute('aria-label', 'Play audio');
+            DOM.playMasterBtn.title = 'Play (Space)';
+            if (DOM.playIcon) DOM.playIcon.innerHTML = SVG_PLAY;
+        }
+        if (DOM.scrubber) {
+            DOM.scrubber.disabled = false;
+            DOM.scrubber.value = 0;
+            DOM.scrubber.style.setProperty('--scrubber-pct', '0%');
+        }
+        if (DOM.timeDisplay) {
+            DOM.timeDisplay.textContent = `0.00 / ${info.duration}s`;
+        }
         if (DOM.runInferenceBtn) DOM.runInferenceBtn.disabled = false;
+        if (DOM.runHint) DOM.runHint.textContent = 'Audio ready. Click to run inference.';
+        if (DOM.studioMobileActionBar) DOM.studioMobileActionBar.classList.add('is-visible');
+        if (DOM.mobileBarFilename) DOM.mobileBarFilename.textContent = filename;
+        if (DOM.runInferenceMobileBtn) DOM.runInferenceMobileBtn.disabled = false;
     }
 
     async function triggerPreflightValidation(file) {
@@ -280,29 +343,56 @@ export function initStudioPage() {
         DOM.playMasterBtn.addEventListener('click', () => {
             if (audioEngine.isPlaying) {
                 audioEngine.pausePlayback();
-                if (DOM.playIcon) DOM.playIcon.textContent = '▶ Play';
+                if (DOM.playIcon) DOM.playIcon.innerHTML = SVG_PLAY;
+                DOM.playMasterBtn.setAttribute('aria-label', 'Play audio');
+                DOM.playMasterBtn.title = 'Play (Space)';
             } else {
                 audioEngine.play(
                     (cur, total, fraction) => {
                         if (DOM.timeDisplay) DOM.timeDisplay.textContent = `${cur.toFixed(2)} / ${total.toFixed(2)}s`;
-                        if (DOM.scrubber) DOM.scrubber.value = fraction * 100;
+                        if (DOM.scrubber) {
+                            DOM.scrubber.value = fraction * 100;
+                            DOM.scrubber.style.setProperty('--scrubber-pct', `${fraction * 100}%`);
+                        }
                         if (visualizer) visualizer.setPlayheadProgress(fraction);
                     },
                     () => {
-                        if (DOM.playIcon) DOM.playIcon.textContent = '▶ Play';
-                        if (DOM.scrubber) DOM.scrubber.value = 0;
+                        if (DOM.playIcon) DOM.playIcon.innerHTML = SVG_PLAY;
+                        DOM.playMasterBtn.setAttribute('aria-label', 'Play audio');
+                        DOM.playMasterBtn.title = 'Play (Space)';
+                        if (DOM.scrubber) {
+                            DOM.scrubber.value = 0;
+                            DOM.scrubber.style.setProperty('--scrubber-pct', '0%');
+                        }
                         if (visualizer) visualizer.setPlayheadProgress(0);
                     }
                 );
-                if (DOM.playIcon) DOM.playIcon.textContent = '❚❚ Pause';
+                if (DOM.playIcon) DOM.playIcon.innerHTML = SVG_PAUSE;
+                DOM.playMasterBtn.setAttribute('aria-label', 'Pause audio');
+                DOM.playMasterBtn.title = 'Pause (Space)';
             }
         });
     }
 
     if (DOM.scrubber) {
         DOM.scrubber.addEventListener('input', (e) => {
-            audioEngine.seek(e.target.value / 100);
-            if (visualizer) visualizer.setPlayheadProgress(e.target.value / 100);
+            const fraction = e.target.value / 100;
+            DOM.scrubber.style.setProperty('--scrubber-pct', `${e.target.value}%`);
+            audioEngine.seek(fraction);
+            if (visualizer) visualizer.setPlayheadProgress(fraction);
+            if (DOM.timeDisplay && activeBuffer) {
+                const cur = fraction * activeBuffer.duration;
+                DOM.timeDisplay.textContent = `${cur.toFixed(2)} / ${activeBuffer.duration.toFixed(2)}s`;
+            }
+        });
+    }
+
+    // Mobile Action Bar Run Button Synchronization
+    if (DOM.runInferenceMobileBtn) {
+        DOM.runInferenceMobileBtn.addEventListener('click', () => {
+            if (DOM.runInferenceBtn && !DOM.runInferenceBtn.disabled) {
+                DOM.runInferenceBtn.click();
+            }
         });
     }
 
@@ -313,8 +403,14 @@ export function initStudioPage() {
 
             const task = DOM.taskSelect ? DOM.taskSelect.value : 'all';
             DOM.runInferenceBtn.disabled = true;
+            if (DOM.runInferenceMobileBtn) DOM.runInferenceMobileBtn.disabled = true;
             if (DOM.inferenceBtnIcon) DOM.inferenceBtnIcon.innerHTML = '<div class="spinner"></div>';
             if (DOM.inferenceBtnText) DOM.inferenceBtnText.textContent = 'Executing Neural Tasks...';
+            if (DOM.inferenceProgressBar) DOM.inferenceProgressBar.style.display = 'block';
+
+            // Add shimmer effect to result cards during inference
+            const resultCards = document.querySelectorAll('.studio-results-row .card, .studio-main > .card:last-child');
+            resultCards.forEach(c => c.classList.add('is-shimmering'));
 
             try {
                 const data = await API.predictAudio(activeFile, task);
@@ -325,40 +421,64 @@ export function initStudioPage() {
                 renderMockResults();
             } finally {
                 DOM.runInferenceBtn.disabled = false;
-                if (DOM.inferenceBtnIcon) DOM.inferenceBtnIcon.textContent = '⚡';
-                if (DOM.inferenceBtnText) DOM.inferenceBtnText.textContent = 'Run Full Inference (POST /api/predict)';
+                if (DOM.runInferenceMobileBtn) DOM.runInferenceMobileBtn.disabled = false;
+                if (DOM.inferenceBtnIcon) DOM.inferenceBtnIcon.innerHTML = '';
+                if (DOM.inferenceBtnText) DOM.inferenceBtnText.textContent = 'Run Inference';
+                if (DOM.inferenceProgressBar) DOM.inferenceProgressBar.style.display = 'none';
+                resultCards.forEach(c => c.classList.remove('is-shimmering'));
             }
         });
+    }
+
+    function animateCountUp(el, targetVal, duration = 400) {
+        const target = parseInt(targetVal, 10);
+        if (isNaN(target)) { el.textContent = targetVal; return; }
+        const startTime = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+        function step(now) {
+            const time = now || (typeof performance !== 'undefined' ? performance.now() : Date.now());
+            const elapsed = time - startTime;
+            const progress = Math.min(1, elapsed / duration);
+            const current = Math.floor(progress * target);
+            el.textContent = current;
+            if (progress < 1) {
+                if (typeof requestAnimationFrame !== 'undefined') requestAnimationFrame(step);
+                else setTimeout(() => step(), 16);
+            } else {
+                el.textContent = target;
+            }
+        }
+        if (typeof requestAnimationFrame !== 'undefined') requestAnimationFrame(step);
+        else step();
     }
 
     function renderPredictionResults(results) {
         // Task 1: Source Counting
         if (results.source_counting && DOM.kHeroNumber) {
             const count = results.source_counting;
-            DOM.kHeroNumber.textContent = count.estimated_k;
+            animateCountUp(DOM.kHeroNumber, count.estimated_k);
             if (DOM.kHeroSub) DOM.kHeroSub.textContent = `Confidence: ${(count.confidence * 100).toFixed(1)}%`;
             if (DOM.kModelBadge) DOM.kModelBadge.textContent = count.model;
             if (DOM.kContinuousVal) DOM.kContinuousVal.textContent = count.raw_continuous_prediction.toFixed(3);
         }
 
-        // Task 2: Multi-Label Tagging
+        // Task 2: Multi-Label Tagging (Active: solid white pills + check; Candidates: outlined 40% white; Bars: white / 25% white)
         if (results.label_tagging && DOM.probBarsContainer) {
             const tagging = results.label_tagging;
             const activeClasses = tagging.active_classes || [];
             const isCorroborated = results.source_counting && results.source_counting.corroborated_by_tagging;
 
-            let badgesHtml = `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; align-items:center;">
+            let badgesHtml = `<div class="tag-pills-row">
                 <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Active Sources (${activeClasses.length}):</span>`;
 
             if (activeClasses.length > 0) {
                 activeClasses.forEach(c => {
-                    badgesHtml += `<span class="badge pass" style="font-size:11px; padding:3px 8px; font-weight:600;">● ${c}</span>`;
+                    badgesHtml += `<span class="tag-pill-active">✓ ${escapeHtml(c)}</span>`;
                 });
             } else {
-                badgesHtml += `<span class="badge fail" style="font-size:11px; padding:3px 8px;">None detected above threshold</span>`;
+                badgesHtml += `<span class="tag-pill-candidate" style="opacity:0.6;">None detected above threshold</span>`;
             }
             if (isCorroborated) {
-                badgesHtml += `<span class="badge pass" style="font-size:10px; margin-left:auto;">⚡ Synchronized with Count K=${results.source_counting.estimated_k}</span>`;
+                badgesHtml += `<span class="tag-sync-pill">Corroborated with K=${results.source_counting.estimated_k}</span>`;
             }
             badgesHtml += `</div>`;
 
@@ -372,13 +492,13 @@ export function initStudioPage() {
                 probHtml += `
                     <div class="prob-row">
                         <div class="prob-meta">
-                            <span style="${isActive ? 'color: var(--accent); font-weight: 700;' : 'color: var(--text-muted);'}">
-                                ${cls} ${isActive ? '✓ (Active)' : '<span style="font-size:10px;">(Candidate)</span>'}
+                            <span style="${isActive ? 'color: #ffffff; font-weight: 700;' : 'color: rgba(255, 255, 255, 0.65);'}">
+                                ${escapeHtml(cls)} ${isActive ? '✓ (Active)' : '<span style="font-size:10px; opacity:0.65;">(Candidate)</span>'}
                             </span>
-                            <span style="${isActive ? 'font-weight: 700; color: var(--accent);' : ''}">${pct}%</span>
+                            <span style="${isActive ? 'font-weight: 700; color: #ffffff;' : 'color: rgba(255, 255, 255, 0.65);'}">${pct}%</span>
                         </div>
                         <div class="prob-track">
-                            <div class="prob-fill" style="width: ${pct}%; ${isActive ? 'background: var(--accent);' : 'background: var(--w-15);'}"></div>
+                            <div class="prob-fill ${isActive ? 'prob-fill-active' : 'prob-fill-candidate'}" style="width: ${pct}%;"></div>
                         </div>
                     </div>
                 `;
@@ -388,7 +508,7 @@ export function initStudioPage() {
 
         // Task 3: Source Separation Stems Matrix
         if (results.source_separation && stemMatrix) {
-            stemMatrix.render(results.source_separation.stems, API_BASE);
+            stemMatrix.render(results.source_separation.stems, activeBuffer, API_BASE);
         }
     }
 
@@ -423,42 +543,46 @@ export function initStudioPage() {
         });
     }
 
-    // 8. Complexity Ceiling Gauge Watcher
-    function updateCeilingGauge(kVal) {
-        if (!DOM.gaugeFill || !DOM.gaugeLabel || !DOM.gaugeDot) return;
+    // 8. 9-Step Segmented Complexity Ceiling Meter Watcher
+    function updateSegmentedMeter(kVal) {
+        if (!DOM.segmentedMeter || !DOM.gaugeLabel || !DOM.gaugeDot) return;
         const k = parseInt(kVal, 10);
+        const segments = DOM.segmentedMeter.querySelectorAll('.meter-segment');
         if (isNaN(k)) {
-            DOM.gaugeFill.style.width = '0%';
-            DOM.gaugeFill.style.background = 'rgba(255, 255, 255, 0.2)';
+            segments.forEach(seg => seg.classList.remove('active'));
             DOM.gaugeDot.className = 'status-dot';
+            DOM.gaugeDot.style.background = '';
             DOM.gaugeLabel.textContent = 'Awaiting inference prediction to evaluate Complexity Ceiling';
             return;
         }
 
+        segments.forEach(seg => {
+            const segK = parseInt(seg.dataset.k, 10);
+            if (segK <= k) {
+                seg.classList.add('active');
+            } else {
+                seg.classList.remove('active');
+            }
+        });
+
         if (k <= 3) {
-            DOM.gaugeFill.style.width = `${Math.min(100, (k / 9) * 100)}%`;
-            DOM.gaugeFill.style.background = 'var(--accent)';
             DOM.gaugeDot.className = 'status-dot';
-            DOM.gaugeDot.style.background = 'var(--accent)';
+            DOM.gaugeDot.style.background = '#ffffff';
             DOM.gaugeLabel.innerHTML = `<strong>K = ${k} (Safe Zone)</strong>: Clean separation expected (&gt; 8.0 dB SI-SDR).`;
         } else if (k === 4) {
-            DOM.gaugeFill.style.width = '44%';
-            DOM.gaugeFill.style.background = 'var(--accent-2)';
             DOM.gaugeDot.className = 'status-dot';
-            DOM.gaugeDot.style.background = 'var(--accent-2)';
+            DOM.gaugeDot.style.background = '#ffffff';
             DOM.gaugeLabel.innerHTML = `<strong>K = 4 (Ceiling Boundary)</strong>: Speech separation usable (~4.2 dB SI-SDR); near breakdown limit.`;
         } else {
-            DOM.gaugeFill.style.width = `${Math.min(100, (k / 9) * 100)}%`;
-            DOM.gaugeFill.style.background = 'var(--rose)';
             DOM.gaugeDot.className = 'status-dot';
-            DOM.gaugeDot.style.background = 'var(--rose)';
-            DOM.gaugeLabel.innerHTML = `<strong style="color: var(--rose);">K = ${k} (Ceiling Exceeded)</strong>: Separation is unreliable (&lt; 0 dB SI-SDR). High permutation ambiguity.`;
+            DOM.gaugeDot.style.background = 'rgba(255, 255, 255, 0.4)';
+            DOM.gaugeLabel.innerHTML = `<strong>K = ${k} (Ceiling Exceeded)</strong>: Separation is unreliable (&lt; 0 dB SI-SDR). High permutation ambiguity.`;
         }
     }
 
     if (DOM.kHeroNumber) {
         const observer = new MutationObserver(() => {
-            updateCeilingGauge(DOM.kHeroNumber.textContent.trim());
+            updateSegmentedMeter(DOM.kHeroNumber.textContent.trim());
         });
         observer.observe(DOM.kHeroNumber, { childList: true, characterData: true, subtree: true });
     }
@@ -522,9 +646,13 @@ export function initStudioPage() {
             }
         } else if (e.code === 'KeyM') {
             e.preventDefault();
-            const muteBtn = document.querySelector('.stem-strip .btn-ctrl[id^="btnMute_"]');
-            if (muteBtn) {
-                muteBtn.click();
+            if (stemMatrix) {
+                const targetTrack = stemMatrix.getHoveredOrFocusedChannel();
+                if (targetTrack) {
+                    stemMatrix.toggleMute(targetTrack);
+                } else {
+                    showToast('Hover or focus a stem to mute with (M)', 'info');
+                }
             } else {
                 showToast('Mute shortcut (M) active when stems are loaded', 'info');
             }

@@ -27,9 +27,36 @@ export function getCurrentRoute() {
     return currentRoute;
 }
 
+export function updateNavIndicator() {
+    if (typeof document === 'undefined') return;
+    const indicator = document.getElementById('navIndicator');
+    const navTabs = document.querySelector('.navbar .nav-tabs');
+    if (!indicator || !navTabs) return;
+
+    // On narrow screens (<= 1100px) or mobile hamburger menu, indicator is hidden
+    if (window.innerWidth <= 1100 || navTabs.classList.contains('open')) {
+        indicator.style.opacity = '0';
+        return;
+    }
+
+    const activeTab = navTabs.querySelector('.tab-link.active');
+    if (activeTab && activeTab.offsetParent !== null) {
+        indicator.style.opacity = '1';
+        indicator.style.transform = `translateX(${activeTab.offsetLeft}px)`;
+        indicator.style.width = `${activeTab.offsetWidth}px`;
+    } else {
+        indicator.style.opacity = '0';
+    }
+}
+
 export function switchRoute(targetRoute, updateHash = true) {
     const route = resolveRoute(targetRoute);
     currentRoute = route;
+
+    // Scroll to top on route change
+    if (typeof window !== 'undefined') {
+        window.scrollTo(0, 0);
+    }
 
     if (typeof document !== 'undefined' && document.body) {
         document.body.dataset.page = route;
@@ -40,7 +67,7 @@ export function switchRoute(targetRoute, updateHash = true) {
     }
 
     // Update navbar tabs
-    const tabs = document.querySelectorAll('.tab-link');
+    const tabs = document.querySelectorAll('.navbar .nav-tabs .tab-link');
     tabs.forEach(tab => {
         if (tab.dataset.route === route) {
             tab.classList.add('active');
@@ -48,6 +75,12 @@ export function switchRoute(targetRoute, updateHash = true) {
             tab.classList.remove('active');
         }
     });
+
+    // Update sliding pill indicator
+    updateNavIndicator();
+    if (typeof requestAnimationFrame !== 'undefined') {
+        requestAnimationFrame(updateNavIndicator);
+    }
 
     // Toggle view-page containers
     const pages = {
@@ -91,13 +124,18 @@ export function initRouter(onRouteChangeCallback) {
     }
 
     // Navigation tab click delegation
-    document.querySelectorAll('.tab-link').forEach(tab => {
+    document.querySelectorAll('.navbar .nav-tabs .tab-link').forEach(tab => {
         tab.addEventListener('click', (e) => {
             const route = tab.dataset.route;
             if (route) {
                 switchRoute(route);
             }
         });
+    });
+
+    // Update sliding pill on resize
+    window.addEventListener('resize', () => {
+        updateNavIndicator();
     });
 
     // Listen to hash changes in window

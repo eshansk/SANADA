@@ -69,6 +69,7 @@
 
                 <!-- 7-TIER NAVIGATION TABS -->
                 <nav class="nav-tabs">
+                    <div class="nav-indicator" id="navIndicator"></div>
                     <button class="tab-link active" data-route="home">Home</button>
                     <button class="tab-link" data-route="predict">Studio</button>
                     <button class="tab-link" data-route="dataset">Dataset</button>
@@ -84,7 +85,9 @@
                         <span class="status-dot" id="backendDot"></span>
                         <span id="backendText">Engine offline</span>
                     </div>
-                    <button class="btn btn-sm" id="pingBtn">Ping Engine</button>
+                    <button class="btn btn-sm btn-icon" id="pingBtn" title="Ping Engine" aria-label="Ping Engine">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    </button>
                     <button class="nav-toggle" id="navToggle" aria-label="Toggle Navigation">☰</button>
                 </div>
             </div>
@@ -104,11 +107,11 @@
                             A standardized neural listening platform for simultaneous polyphonic source counting, multi-label event tagging, and clean time-domain speech separation evaluated across 13 benchmark partitions.
                         </p>
                         <div class="hero-cta-group">
-                            <a href="#/predict" class="btn btn-primary btn-hero">
+                            <a href="#/predict" class="btn btn-hero">
                                 <span>Open Studio</span>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                             </a>
-                            <a href="#/paper" class="btn btn-hero">
+                            <a href="#/paper" class="btn btn-primary btn-hero">
                                 <span>Read the Paper</span>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                             </a>
@@ -139,63 +142,143 @@
                         </div>
                     </div>
 
-                    <!-- 3-TASK PLATFORM OVERVIEW (EQUAL SIZE) -->
+                    <!-- 3-TASK PLATFORM OVERVIEW (EQUAL SIZE & ALIGNMENT) -->
                     <div class="home-task-grid">
+                        <!-- TASK 01: SOURCE COUNTING -->
                         <div class="card home-task-card">
                             <div class="card-header home-task-card-header">
-                                <h2 class="card-title">Task 1: Source Counting (<em>K</em>)</h2>
+                                <div>
+                                    <div class="task-mono-label">TASK 01</div>
+                                    <h2 class="card-title">Source Counting (<em>K</em>)</h2>
+                                </div>
                                 <span class="badge">Conformer MSE</span>
                             </div>
                             <p class="home-task-card-desc">
-                                Continuously regresses the exact number of concurrent active speakers or sound emitters from raw audio, overcoming discrete multi-class saturation at higher mixture densities.
+                                Continuous regression of active sound emitters from raw audio mixtures.
                             </p>
-                            <div class="home-task-card-footer">MAE 0.082 (Org-4) &bull; 94.2% Exact Acc</div>
+                            <div class="task-headline-metric">
+                                <div class="metric-val">0.082 <span class="metric-unit">MAE</span></div>
+                                <div class="metric-caption">Org-Mix-4 &bull; 94.2% Exact Accuracy</div>
+                            </div>
+                            <div class="task-mini-graphic graphic-dots" aria-hidden="true">
+                                <span class="dot-item active"></span>
+                                <span class="dot-item active"></span>
+                                <span class="dot-item active"></span>
+                                <span class="dot-item active"></span>
+                                <span class="dot-item dim"></span>
+                                <span class="dot-item dim"></span>
+                                <span class="dot-item dim"></span>
+                                <span class="dot-item dim"></span>
+                            </div>
                         </div>
+
+                        <!-- TASK 02: MULTI-LABEL TAGGING -->
                         <div class="card home-task-card">
                             <div class="card-header home-task-card-header">
-                                <h2 class="card-title">Task 2: Multi-Label Tagging</h2>
+                                <div>
+                                    <div class="task-mono-label">TASK 02</div>
+                                    <h2 class="card-title">Multi-Label Tagging</h2>
+                                </div>
                                 <span class="badge">Conformer ASL</span>
                             </div>
                             <p class="home-task-card-desc">
-                                Employs Asymmetric Loss (ASL) to dynamically attenuate easy negative gradients, delivering robust multi-label acoustic sound classification across 32 heterogeneous event classes.
+                                Asymmetric Loss classification across 32 heterogeneous acoustic event classes.
                             </p>
-                            <div class="home-task-card-footer">0.942 mAP &bull; 0.915 Macro F1 &bull; 0.978 ROC-AUC</div>
+                            <div class="task-headline-metric">
+                                <div class="metric-val">0.942 <span class="metric-unit">mAP</span></div>
+                                <div class="metric-caption">32 Classes &bull; 0.915 F1 &bull; 0.978 AUC</div>
+                            </div>
+                            <div class="task-mini-graphic graphic-chips" aria-hidden="true">
+                                <span class="mini-tag-chip">Speech</span>
+                                <span class="mini-tag-chip">Bell</span>
+                                <span class="mini-tag-chip">Music</span>
+                                <span class="mini-tag-chip">+29</span>
+                            </div>
                         </div>
+
+                        <!-- TASK 03: SPEECH SEPARATION -->
                         <div class="card home-task-card">
                             <div class="card-header home-task-card-header">
-                                <h2 class="card-title">Task 3: Speech Separation</h2>
+                                <div>
+                                    <div class="task-mono-label">TASK 03</div>
+                                    <h2 class="card-title">Speech Separation</h2>
+                                </div>
                                 <span class="badge">Conv-TasNet SI-SDR</span>
                             </div>
                             <p class="home-task-card-desc">
-                                Time-domain mask estimation trained with Utterance Permutation Invariant Training (uPIT) to reconstruct clean monaural waveforms for each identified acoustic emitter.
+                                Time-domain uPIT mask estimation reconstructing clean monaural waveforms.
                             </p>
-                            <div class="home-task-card-footer">+10.59 dB (K=2) &bull; +4.24 dB (K=4)</div>
+                            <div class="task-headline-metric">
+                                <div class="metric-val">+10.59 <span class="metric-unit">dB</span></div>
+                                <div class="metric-caption">K=2 Conv-TasNet SI-SDR &bull; uPIT Loss</div>
+                            </div>
+                            <div class="task-mini-graphic graphic-split" aria-hidden="true">
+                                <svg class="mini-split-svg" viewBox="0 0 200 24" fill="none" stroke="currentColor">
+                                    <path d="M 10 12 L 60 12 C 90 12, 100 5, 130 5 L 190 5" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round"/>
+                                    <path d="M 60 12 C 90 12, 100 19, 130 19 L 190 19" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+                                    <circle cx="10" cy="12" r="2.5" fill="#ffffff"/>
+                                    <circle cx="190" cy="5" r="2.5" fill="#ffffff"/>
+                                    <circle cx="190" cy="19" r="2.5" fill="rgba(255,255,255,0.5)"/>
+                                </svg>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- COMPLEXITY CEILING TEASER -->
-                    <div class="teaser-callout">
-                        <h2 class="teaser-title">
-                            The Complexity Ceiling: Why Speech Separation Collapses at <em>K</em> &gt; 4
-                        </h2>
-                        <p class="teaser-desc">
-                            Empirical benchmarking across the SANADA dataset suite uncovered a physical performance barrier in time-domain speech separation. While source counting and multi-label tagging scale accurately up to <em>K</em> = 32, Conv-TasNet separation degrades from +10.59 dB at <em>K</em> = 2 to -1.15 dB at <em>K</em> = 5, proving that mask-based separation becomes mathematically intractable when mixture density exceeds four concurrent acoustic sources.
-                        </p>
-                    </div>
+                    <!-- INTERACTIVE COMPLEXITY CEILING EXPLORER -->
+                    <div class="card ceiling-explorer-card" id="ceilingExplorer">
+                        <div class="card-header ceiling-explorer-header">
+                            <div>
+                                <div class="task-mono-label">INTERACTIVE BENCHMARK</div>
+                                <h2 class="card-title">Complexity Ceiling Explorer: Speech Separation Breakdown</h2>
+                            </div>
+                            <span class="badge">Conv-TasNet &bull; Org-Mix Fixed</span>
+                        </div>
 
-                    <!-- HOMEPAGE CALL TO ACTION BLOCK -->
-                    <div class="home-cta-block">
-                        <h2 class="cta-heading">Hear where separation breaks down.</h2>
-                        <p class="cta-subtext">Upload a mixture and watch counting, tagging and separation respond as the source count climbs.</p>
-                        <div class="cta-btn-group">
-                            <a href="#/predict" class="btn cta-btn-glass">
-                                <span>Open Studio</span>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-                            </a>
-                            <a href="#/paper" class="btn btn-primary cta-btn-white">
-                                <span>Read the Paper</span>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-                            </a>
+                        <div class="ceiling-explorer-body">
+                            <!-- Control: Segmented control K = 2, 3, 4, 6, 9 -->
+                            <div class="explorer-control-row">
+                                <span class="explorer-label">Mixture Density:</span>
+                                <div class="seg-toggle explorer-k-toggle" id="explorerKToggle" role="group" aria-label="Select source density K">
+                                    <button type="button" class="seg-btn active" data-k="2">K = 2</button>
+                                    <button type="button" class="seg-btn" data-k="3">K = 3</button>
+                                    <button type="button" class="seg-btn" data-k="4">K = 4 (Ceiling)</button>
+                                    <button type="button" class="seg-btn" data-k="6">K = 6</button>
+                                    <button type="button" class="seg-btn" data-k="9">K = 9</button>
+                                </div>
+                            </div>
+
+                            <div class="explorer-display-grid">
+                                <!-- Left: Large SI-SDR Readout -->
+                                <div class="explorer-metric-box">
+                                    <div class="explorer-metric-large" id="explorerSisdrNum">+10.59 dB</div>
+                                    <div class="explorer-metric-status" id="explorerSisdrStatus">Clean Separation (+10.6 dB)</div>
+                                </div>
+
+                                <!-- Middle: Horizontal bar crossing vertical 0 dB line -->
+                                <div class="explorer-bar-viz">
+                                    <div class="bar-viz-track">
+                                        <div class="bar-zero-line" title="0 dB Failure Boundary">
+                                            <span class="bar-zero-text">0 dB Failure Line</span>
+                                        </div>
+                                        <div class="bar-fill-indicator" id="explorerBarFill"></div>
+                                    </div>
+                                    <div class="bar-scale-marks">
+                                        <span>-10 dB</span>
+                                        <span>0 dB</span>
+                                        <span>+12 dB</span>
+                                    </div>
+                                </div>
+
+                                <!-- Right: Row of K dots going from solid to dissolving -->
+                                <div class="explorer-dots-box">
+                                    <div class="explorer-dots-label">Acoustic Emitting Stems (<span id="explorerDotsCount">2</span>):</div>
+                                    <div class="explorer-dots-row" id="explorerDotsRow"></div>
+                                </div>
+                            </div>
+
+                            <p class="teaser-desc mt-md">
+                                Empirical benchmarking across the SANADA dataset suite uncovered a physical performance barrier in time-domain speech separation. While source counting and multi-label tagging scale accurately up to <em>K</em> = 32, Conv-TasNet separation degrades from +10.59 dB at <em>K</em> = 2 to -1.15 dB at <em>K</em> = 5, proving that mask-based separation becomes mathematically intractable when mixture density exceeds four concurrent acoustic sources.
+                            </p>
                         </div>
                     </div>
                 </section>
@@ -211,15 +294,23 @@
                             <p class="page-desc">Ingest polyphonic mixtures to jointly estimate source counts (<em>K</em>), classify sound events, and reconstruct clean audio stems.</p>
                         </div>
                         <div class="studio-header-actions">
-                            <div class="engine-status-chip">
-                                <span class="status-dot"></span>
-                                <span class="engine-status-offline">Engine offline</span>
-                                <span class="engine-status-online">Engine online</span>
-                            </div>
                             <button class="btn studio-copy-btn" id="copyJsonBtn">
-                                <span>📋 Copy JSON</span>
+                                <span>Copy JSON</span>
                             </button>
                         </div>
+                    </div>
+
+                    <!-- INLINE GLASS NOTICE BAR (SHOWN ONLY WHEN ENGINE OFFLINE) -->
+                    <div class="studio-offline-notice" id="studioOfflineNotice" style="display: none;">
+                        <span class="notice-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        </span>
+                        <span>Engine offline: results are simulated</span>
+                    </div>
+
+                    <!-- THIN INDETERMINATE PROGRESS BAR DURING INFERENCE -->
+                    <div class="inference-progress-bar" id="inferenceProgressBar" style="display: none;">
+                        <div class="indeterminate-bar"></div>
                     </div>
 
                     <!-- TWO-COLUMN WORKSTATION LAYOUT -->
@@ -233,9 +324,9 @@
                                         <span class="step-pill">01</span>
                                         <span>Ingest</span>
                                     </h2>
-                                    <div class="nav-tabs seg-toggle">
-                                        <button class="tab-link active" id="tabUploadMode" data-route="predict">Upload WAV</button>
-                                        <button class="tab-link" id="tabRecordMode" data-route="predict">Live Mic</button>
+                                    <div class="seg-toggle">
+                                        <button type="button" class="seg-btn active" id="tabUploadMode">Upload WAV</button>
+                                        <button type="button" class="seg-btn" id="tabRecordMode">Live Mic</button>
                                     </div>
                                 </div>
 
@@ -267,7 +358,8 @@
                                 <div id="recordContainer" class="u-hidden">
                                     <div class="record-box">
                                         <button class="btn btn-danger btn-record" id="recordToggleBtn">
-                                            <span>● Record 8.0s Audio</span>
+                                            <span class="rec-dot"></span>
+                                            <span>Record 8.0s Audio</span>
                                         </button>
                                         <div class="record-timer" id="recTimer">0.0 / 8.0s</div>
                                         <div class="record-hint" id="recHint">Captures live microphone and standardizes to 128,000 samples</div>
@@ -285,34 +377,32 @@
                                     <span class="badge" id="uploadStatusBadge">Awaiting Audio</span>
                                 </div>
 
-                                <table class="metric-table metric-grid-tiles" role="table">
-                                    <tbody role="rowgroup">
-                                        <tr role="row" class="metric-tile tile-filename">
-                                            <td class="label" role="cell">Filename</td>
-                                            <td class="val" id="metaFilename" role="cell">—</td>
-                                        </tr>
-                                        <tr role="row" class="metric-tile">
-                                            <td class="label" role="cell">Sampling Rate</td>
-                                            <td class="val" id="metaSampleRate" role="cell">—</td>
-                                        </tr>
-                                        <tr role="row" class="metric-tile">
-                                            <td class="label" role="cell">Channels</td>
-                                            <td class="val" id="metaChannels" role="cell">—</td>
-                                        </tr>
-                                        <tr role="row" class="metric-tile">
-                                            <td class="label" role="cell">Duration</td>
-                                            <td class="val" id="metaDuration" role="cell">—</td>
-                                        </tr>
-                                        <tr role="row" class="metric-tile">
-                                            <td class="label" role="cell">Peak Amplitude</td>
-                                            <td class="val" id="metaPeak" role="cell">—</td>
-                                        </tr>
-                                        <tr role="row" class="metric-tile tile-compliance">
-                                            <td class="label" role="cell">Standard Compliance</td>
-                                            <td class="val" id="metaCompliance" role="cell"><span class="badge warn">PENDING</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <dl class="metric-dl-grid">
+                                    <div class="metric-dl-item tile-filename">
+                                        <dt class="label">Filename</dt>
+                                        <dd class="val" id="metaFilename">—</dd>
+                                    </div>
+                                    <div class="metric-dl-item">
+                                        <dt class="label">Sampling Rate</dt>
+                                        <dd class="val" id="metaSampleRate">—</dd>
+                                    </div>
+                                    <div class="metric-dl-item">
+                                        <dt class="label">Channels</dt>
+                                        <dd class="val" id="metaChannels">—</dd>
+                                    </div>
+                                    <div class="metric-dl-item">
+                                        <dt class="label">Duration</dt>
+                                        <dd class="val" id="metaDuration">—</dd>
+                                    </div>
+                                    <div class="metric-dl-item">
+                                        <dt class="label">Peak Amplitude</dt>
+                                        <dd class="val" id="metaPeak">—</dd>
+                                    </div>
+                                    <div class="metric-dl-item tile-compliance">
+                                        <dt class="label">Standard Compliance</dt>
+                                        <dd class="val" id="metaCompliance"><span class="badge warn">PENDING</span></dd>
+                                    </div>
+                                </dl>
 
                                 <div class="validate-actions">
                                     <select class="select-input select-full" id="taskSelect">
@@ -322,9 +412,10 @@
                                         <option value="separating">Task 3: Source Separation Only</option>
                                     </select>
                                     <button class="btn btn-primary btn-run-inference btn-full" id="runInferenceBtn" disabled>
-                                        <span id="inferenceBtnIcon">⚡</span>
+                                        <span id="inferenceBtnIcon"></span>
                                         <span id="inferenceBtnText">Run Inference</span>
                                     </button>
+                                    <div class="run-hint" id="runHint">Load or record audio to enable inference</div>
                                 </div>
                             </div>
                         </aside>
@@ -338,43 +429,82 @@
                                         <span class="step-pill">03</span>
                                         <span>Signal</span>
                                     </h2>
-                                    <span class="badge">Dual Canvas &bull; STFT Magma</span>
+                                    <span class="badge">Dual Canvas &bull; STFT 256 Hann</span>
                                 </div>
 
                                 <!-- STACKED CANVASES WITH SYNCHRONOUS PLAYHEAD LINE -->
-                                <div class="canvas-stack" id="canvasStack">
+                                <div class="canvas-stack" id="canvasStack" tabindex="0" role="region" aria-label="Audio visualizer: waveform and spectrogram">
+                                    <!-- EMPTY STATE BEFORE AUDIO LOADS -->
+                                    <div class="canvas-empty-state" id="canvasEmptyState">
+                                        <div class="empty-state-content">
+                                            <svg class="empty-state-wave-icon" viewBox="0 0 64 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                                <path d="M0 12 Q8 2, 16 12 T32 12 T48 12 T64 12" />
+                                            </svg>
+                                            <span>Drop a WAV or record to see the signal</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- PLAYED REGION HIGHLIGHT (Left of playhead is slightly brighter) -->
+                                    <div class="playhead-played-tint" id="playheadPlayedTint"></div>
+
+                                    <!-- ACTIVE PLAYHEAD LINE (2px white with soft glow) -->
                                     <div class="playhead-line" id="playheadLine"></div>
 
-                                    <div class="canvas-layer">
-                                        <span class="canvas-tag">TIME DOMAIN (AMPLITUDE ENVELOPE)</span>
-                                        <canvas id="waveformCanvas" width="1220" height="100"></canvas>
+                                    <!-- HOVER GHOST LINE -->
+                                    <div class="visualizer-ghost-line" id="visualizerGhostLine"></div>
+
+                                    <!-- GLASS TOOLTIP (time; frequency and dB on spectrogram) -->
+                                    <div class="visualizer-tooltip" id="visualizerTooltip" role="tooltip"></div>
+
+                                    <!-- WAVEFORM LAYER -->
+                                    <div class="canvas-layer canvas-layer-waveform">
+                                        <span class="canvas-tag">WAVEFORM</span>
+                                        <canvas id="waveformCanvas" role="img" aria-label="Audio waveform visualization (mirrored peak envelope)"></canvas>
                                     </div>
-                                    <div class="canvas-layer">
-                                        <span class="canvas-tag">MAGMA SPECTROGRAM (STFT 256 HANN)</span>
-                                        <canvas id="spectrogramCanvas" width="1220" height="100"></canvas>
+
+                                    <!-- SPECTROGRAM LAYER -->
+                                    <div class="canvas-layer canvas-layer-spectrogram">
+                                        <div class="spectrogram-header-row">
+                                            <span class="canvas-tag">SPECTROGRAM · STFT 256 · HANN</span>
+                                            <div class="spectrogram-db-legend" aria-hidden="true" title="Dynamic range: -80 dB to 0 dB relative to clip peak">
+                                                <span class="db-label">-80 dB</span>
+                                                <div class="db-bar"></div>
+                                                <span class="db-label">0 dB</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- FREQUENCY AXIS LABELS (0, 2k, 4k, 6k, 8k Hz at left in mono) -->
+                                        <div class="frequency-axis-labels" aria-hidden="true">
+                                            <span class="freq-tick" data-freq="8000">8k</span>
+                                            <span class="freq-tick" data-freq="6000">6k</span>
+                                            <span class="freq-tick" data-freq="4000">4k</span>
+                                            <span class="freq-tick" data-freq="2000">2k</span>
+                                            <span class="freq-tick" data-freq="0">0 Hz</span>
+                                        </div>
+                                        <canvas id="spectrogramCanvas" role="img" aria-label="STFT spectrogram frequency visualization (0 to 8 kHz)"></canvas>
                                     </div>
                                 </div>
 
-                                <!-- STATIC TIME RULER (0s to 8.0s) -->
+                                <!-- STATIC TIME RULER (0s to 8.0s) WITH ALIGNED TICK MARKS -->
                                 <div class="signal-time-ruler" aria-hidden="true">
-                                    <span>0.0s</span>
-                                    <span>1.0s</span>
-                                    <span>2.0s</span>
-                                    <span>3.0s</span>
-                                    <span>4.0s</span>
-                                    <span>5.0s</span>
-                                    <span>6.0s</span>
-                                    <span>7.0s</span>
-                                    <span>8.0s</span>
+                                    <div class="ruler-tick"><span>0.0s</span></div>
+                                    <div class="ruler-tick"><span>1.0s</span></div>
+                                    <div class="ruler-tick"><span>2.0s</span></div>
+                                    <div class="ruler-tick"><span>3.0s</span></div>
+                                    <div class="ruler-tick"><span>4.0s</span></div>
+                                    <div class="ruler-tick"><span>5.0s</span></div>
+                                    <div class="ruler-tick"><span>6.0s</span></div>
+                                    <div class="ruler-tick"><span>7.0s</span></div>
+                                    <div class="ruler-tick"><span>8.0s</span></div>
                                 </div>
 
                                 <!-- TRANSPORT CONTROLS BELOW CANVASES -->
                                 <div class="signal-transport-bar">
                                     <div class="transport-controls">
-                                        <button class="btn btn-primary transport-play-btn" id="playMasterBtn" disabled>
-                                            <span id="playIcon">▶ Play</span>
+                                        <button class="transport-play-btn" id="playMasterBtn" disabled aria-label="Play audio" title="Play / Pause (Space)">
+                                            <span id="playIcon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg></span>
                                         </button>
-                                        <input type="range" class="volume-fader transport-scrubber" id="scrubber" min="0" max="100" value="0" disabled>
+                                        <input type="range" class="transport-scrubber" id="scrubber" min="0" max="100" value="0" step="0.1" disabled aria-label="Audio playback scrubber">
                                         <span class="transport-time" id="timeDisplay">0.00 / 0.00s</span>
                                     </div>
                                     <div class="transport-shortcuts-hint">
@@ -399,15 +529,37 @@
                                         <div class="k-hero-sub" id="kHeroSub">Awaiting prediction</div>
                                     </div>
 
-                                    <!-- COMPLEXITY CEILING GAUGE -->
-                                    <div class="ceiling-gauge" id="ceilingGauge">
-                                        <div class="gauge-bar">
-                                            <div class="gauge-fill" id="gaugeFill"></div>
-                                        </div>
-                                        <div class="gauge-ticks" aria-hidden="true">
-                                            <span>1</span>
-                                            <span>4</span>
-                                            <span>9+</span>
+                                    <!-- 9-STEP SEGMENTED CEILING METER (K = 1..9+) -->
+                                    <div class="ceiling-meter-wrap" id="ceilingMeterWrap">
+                                        <div class="segmented-meter" id="segmentedMeter" aria-label="Source density meter K=1 to 9+">
+                                            <div class="meter-segment" data-k="1">
+                                                <span class="segment-num">1</span>
+                                            </div>
+                                            <div class="meter-segment" data-k="2">
+                                                <span class="segment-num">2</span>
+                                            </div>
+                                            <div class="meter-segment" data-k="3">
+                                                <span class="segment-num">3</span>
+                                            </div>
+                                            <div class="meter-segment is-ceiling" data-k="4">
+                                                <span class="segment-num">4</span>
+                                                <span class="ceiling-marker" title="Complexity Ceiling (K=4)">CEILING</span>
+                                            </div>
+                                            <div class="meter-segment" data-k="5">
+                                                <span class="segment-num">5</span>
+                                            </div>
+                                            <div class="meter-segment" data-k="6">
+                                                <span class="segment-num">6</span>
+                                            </div>
+                                            <div class="meter-segment" data-k="7">
+                                                <span class="segment-num">7</span>
+                                            </div>
+                                            <div class="meter-segment" data-k="8">
+                                                <span class="segment-num">8</span>
+                                            </div>
+                                            <div class="meter-segment" data-k="9">
+                                                <span class="segment-num">9+</span>
+                                            </div>
                                         </div>
                                         <div class="gauge-status">
                                             <span class="status-dot" id="gaugeDot"></span>
@@ -422,7 +574,7 @@
                                         </tr>
                                         <tr>
                                             <td class="label">Complexity Ceiling</td>
-                                            <td class="val"><span class="badge">Reliable up to <em>K</em> = 4 (paper baseline)</span></td>
+                                            <td class="val"><span class="badge" title="Reliable up to K = 4 (paper baseline)">K ≤ 4 · Verified</span></td>
                                         </tr>
                                     </table>
                                 </div>
@@ -437,7 +589,9 @@
                                     </div>
                                     <div id="probBarsContainer">
                                         <div class="ghost-empty-state">
-                                            <span class="ghost-icon">🏷️</span>
+                                            <span class="ghost-icon">
+                                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                                            </span>
                                             <span class="ghost-text">No active sound tags predicted yet</span>
                                             <span class="ghost-sub">Run inference to dynamically populate top-K probabilities</span>
                                         </div>
@@ -455,13 +609,26 @@
                                 </div>
                                 <div id="stemsContainer">
                                     <div class="ghost-empty-state">
-                                        <span class="ghost-icon">🎛️</span>
+                                        <span class="ghost-icon">
+                                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                                        </span>
                                         <span class="ghost-text">No separated stems reconstructed yet</span>
-                                        <span class="ghost-sub">Run inference to render independent solo / mute stem player strips</span>
+                                        <span class="ghost-sub">Run inference to render independent play / mute stem player strips</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- FIXED BOTTOM GLASS ACTION BAR FOR VIEWPORTS < 1100px -->
+                    <div class="studio-mobile-bar" id="studioMobileActionBar">
+                        <div class="mobile-bar-info">
+                            <span class="mobile-bar-filename" id="mobileBarFilename">Audio loaded</span>
+                            <span class="mobile-bar-hint" id="mobileBarHint">Ready for inference</span>
+                        </div>
+                        <button class="btn btn-primary btn-run-inference btn-mobile-run" id="runInferenceMobileBtn">
+                            <span>Run Inference</span>
+                        </button>
                     </div>
                 </section>
 
@@ -486,7 +653,7 @@
                                     <th>Corpus Domain</th>
                                     <th>Primary Sources</th>
                                     <th>Mixture Density (<em>K</em>)</th>
-                                    <th>Synthesized Clips</th>
+                                    <th>Synthesized Clips (Share)</th>
                                     <th>Total Duration</th>
                                     <th>Sub-Datasets</th>
                                 </tr>
@@ -495,24 +662,66 @@
                                 <tr>
                                     <td><strong>Org-Mix-4</strong></td>
                                     <td>LibriSpeech (Clean English Lectures)</td>
-                                    <td><em>K</em> &isin; [2, 4]</td>
-                                    <td class="font-mono">4,320</td>
+                                    <td>
+                                        <div class="k-range-wrap">
+                                            <div class="k-range-bar-track">
+                                                <div class="k-range-bar-fill" style="left: 6.25%; width: 6.25%;"></div>
+                                            </div>
+                                            <span class="k-range-text"><em>K</em> &isin; [2, 4]</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="share-cell-wrap">
+                                            <div class="font-mono">4,320 <span class="share-pct">(27.8%)</span></div>
+                                            <div class="share-bar-track">
+                                                <div class="share-bar-fill" style="width: 27.8%;"></div>
+                                            </div>
+                                        </div>
+                                    </td>
                                     <td class="font-mono">9.60 h</td>
                                     <td><span class="badge">Fixed K=2,3,4 + Variable</span></td>
                                 </tr>
                                 <tr>
                                     <td><strong>Org-Mix-9</strong></td>
                                     <td>LibriSpeech (High-Density Multi-Speaker)</td>
-                                    <td><em>K</em> &isin; [2, 9]</td>
-                                    <td class="font-mono">9,600</td>
+                                    <td>
+                                        <div class="k-range-wrap">
+                                            <div class="k-range-bar-track">
+                                                <div class="k-range-bar-fill" style="left: 6.25%; width: 21.875%;"></div>
+                                            </div>
+                                            <span class="k-range-text"><em>K</em> &isin; [2, 9]</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="share-cell-wrap">
+                                            <div class="font-mono">9,600 <span class="share-pct">(61.7%)</span></div>
+                                            <div class="share-bar-track">
+                                                <div class="share-bar-fill" style="width: 61.7%;"></div>
+                                            </div>
+                                        </div>
+                                    </td>
                                     <td class="font-mono">21.33 h</td>
                                     <td><span class="badge">Fixed K=2..9 + Variable</span></td>
                                 </tr>
                                 <tr>
                                     <td><strong>FSD-Mix</strong></td>
                                     <td>FSD50K (Acoustic Events &amp; Noise)</td>
-                                    <td><em>K</em> &isin; [2, 32]</td>
-                                    <td class="font-mono">1,639</td>
+                                    <td>
+                                        <div class="k-range-wrap">
+                                            <div class="k-range-bar-track">
+                                                <div class="k-range-bar-fill" style="left: 6.25%; width: 93.75%;"></div>
+                                            </div>
+                                            <span class="k-range-text"><em>K</em> &isin; [2, 32]</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="share-cell-wrap">
+                                            <div class="font-mono">1,639 <span class="share-pct">(10.5%)</span></div>
+                                            <div class="share-bar-track">
+                                                <div class="share-bar-fill" style="width: 10.5%;"></div>
+                                            </div>
+                                        </div>
+                                    </td>
                                     <td class="font-mono">3.64 h</td>
                                     <td><span class="badge">Variable (32 Classes)</span></td>
                                 </tr>
@@ -520,50 +729,79 @@
                         </table>
                     </div>
 
-                    <!-- 3-PHASE PIPELINE DIAGRAM (INLINE SVG) -->
+                    <!-- 3-PHASE PIPELINE SPECIFICATION (RESPONSIVE HTML GLASS STEP CARDS) -->
                     <div class="card">
                         <div class="card-header">
                             <h2 class="card-title">Acoustic Mixture Synthesis Pipeline</h2>
                             <span class="badge">Deterministic Seed 42</span>
                         </div>
-                        <div class="pipeline-diagram-wrap">
-                            <svg class="chart-svg" viewBox="0 0 1100 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <!-- Background grid lines -->
-                                <line x1="40" y1="120" x2="1060" y2="120" stroke="rgba(255,255,255,0.08)" stroke-width="2" stroke-dasharray="6 6"/>
+                        <div class="pipeline-flow">
+                            <!-- Phase 1 Card -->
+                            <div class="pipeline-step-card">
+                                <div class="step-card-meta">
+                                    <span class="step-num-pill">PHASE 01</span>
+                                    <span class="step-status-tag">SOURCE ACQUISITION</span>
+                                </div>
+                                <h3 class="step-card-title">Source Acquisition</h3>
+                                <ul class="step-card-list">
+                                    <li>LibriSpeech 100h clean monaural speech</li>
+                                    <li>FSD50K curated sound event repository</li>
+                                    <li>Strict speaker-isolated identity tracking</li>
+                                </ul>
+                                <div class="step-card-footer">
+                                    <span class="badge">RAW CORPUS AUDIT</span>
+                                </div>
+                            </div>
 
-                                <!-- Phase 1 Card -->
-                                <rect x="40" y="30" width="300" height="180" rx="14" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
-                                <text x="64" y="66" fill="#ffffff" font-family="'Instrument Serif', serif" font-style="italic" font-size="20">Phase 1: Source Acquisition</text>
-                                <text x="64" y="98" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="12">&bull; LibriSpeech 100h clean monaural speech</text>
-                                <text x="64" y="122" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="12">&bull; FSD50K curated sound event repository</text>
-                                <text x="64" y="146" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="12">&bull; Strict speaker-isolated identity tracking</text>
-                                <rect x="64" y="166" width="140" height="24" rx="12" fill="rgba(255,255,255,0.06)"/>
-                                <text x="76" y="182" fill="rgba(255,255,255,0.8)" font-family="'Geist Mono', monospace" font-size="10">RAW CORPUS AUDIT</text>
+                            <!-- Connector 1 -> 2 -->
+                            <div class="pipeline-connector" aria-hidden="true">
+                                <svg class="pipeline-connector-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </div>
 
-                                <!-- Connector 1 -> 2 -->
-                                <path d="M340 120 L400 120" stroke="#ffffff" stroke-width="2" marker-end="url(#arrow)"/>
+                            <!-- Phase 2 Card -->
+                            <div class="pipeline-step-card">
+                                <div class="step-card-meta">
+                                    <span class="step-num-pill">PHASE 02</span>
+                                    <span class="step-status-tag">PRE-MIX PARTITION</span>
+                                </div>
+                                <h3 class="step-card-title">Pre-Mix Partitioning</h3>
+                                <ul class="step-card-list">
+                                    <li>70 / 15 / 15 Zero-Leakage Split</li>
+                                    <li>16,000 Hz monaural resampled channels</li>
+                                    <li>8.0s (128,000 samples) window standardization</li>
+                                </ul>
+                                <div class="step-card-footer">
+                                    <span class="badge">ZERO-LEAKAGE SPLIT</span>
+                                </div>
+                            </div>
 
-                                <!-- Phase 2 Card -->
-                                <rect x="400" y="30" width="300" height="180" rx="14" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
-                                <text x="424" y="66" fill="#ffffff" font-family="'Instrument Serif', serif" font-style="italic" font-size="20">Phase 2: Pre-Mix Partitioning</text>
-                                <text x="424" y="98" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="12">&bull; 70 / 15 / 15 Zero-Leakage Split</text>
-                                <text x="424" y="122" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="12">&bull; 16,000 Hz monaural resampled channels</text>
-                                <text x="424" y="146" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="12">&bull; 8.0s (128,000 samples) window standardization</text>
-                                <rect x="424" y="166" width="170" height="24" rx="12" fill="var(--accent-glow)"/>
-                                <text x="436" y="182" fill="var(--accent)" font-family="'Geist Mono', monospace" font-size="10">ZERO-LEAKAGE SPLIT</text>
+                            <!-- Connector 2 -> 3 -->
+                            <div class="pipeline-connector" aria-hidden="true">
+                                <svg class="pipeline-connector-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </div>
 
-                                <!-- Connector 2 -> 3 -->
-                                <path d="M700 120 L760 120" stroke="#ffffff" stroke-width="2"/>
-
-                                <!-- Phase 3 Card -->
-                                <rect x="760" y="30" width="300" height="180" rx="14" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
-                                <text x="784" y="66" fill="#ffffff" font-family="'Instrument Serif', serif" font-style="italic" font-size="20">Phase 3: Dynamic Mixing Engine</text>
-                                <text x="784" y="98" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="12">&bull; Linear summation with dynamic SNR offsets</text>
-                                <text x="784" y="122" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="12">&bull; -3.0 dBFS anti-clipping headroom scaling</text>
-                                <text x="784" y="146" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="12">&bull; Ground-truth stem serialization (.wav)</text>
-                                <rect x="784" y="166" width="165" height="24" rx="12" fill="var(--accent-glow)"/>
-                                <text x="796" y="182" fill="var(--accent)" font-family="'Geist Mono', monospace" font-size="10">SYNTHESIZED STEM POOL</text>
-                            </svg>
+                            <!-- Phase 3 Card -->
+                            <div class="pipeline-step-card">
+                                <div class="step-card-meta">
+                                    <span class="step-num-pill">PHASE 03</span>
+                                    <span class="step-status-tag">DYNAMIC SYNTHESIS</span>
+                                </div>
+                                <h3 class="step-card-title">Dynamic Mixing Engine</h3>
+                                <ul class="step-card-list">
+                                    <li>Linear summation with dynamic SNR offsets</li>
+                                    <li>-3.0 dBFS anti-clipping headroom scaling</li>
+                                    <li>Ground-truth stem serialization (.wav)</li>
+                                </ul>
+                                <div class="step-card-footer">
+                                    <span class="badge">SYNTHESIZED STEM POOL</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -646,136 +884,191 @@
                         <p class="page-desc">Empirical evaluations demonstrating the performance ceiling where speech separation degrades below 0 dB SI-SDR while source counting and multi-label tagging scale robustly.</p>
                     </div>
 
-                    <!-- SUITE OVERVIEW TILES -->
-                    <div class="grid-4">
-                        <div class="stat-tile">
-                            <div class="stat-label">Synthesized Mixtures</div>
-                            <div class="stat-number" id="statTotalClips">15,559</div>
-                            <div class="stat-sub">13 Sub-Datasets</div>
+                    <!-- SUITE OVERVIEW LIQUID GLASS CARD -->
+                    <div class="card results-hero-card">
+                        <div class="card-header">
+                            <h2 class="card-title">Dataset Suite &amp; Synthesis Telemetry</h2>
+                            <span class="badge">13 Partitions · 15,559 Mixtures</span>
                         </div>
-                        <div class="stat-tile">
-                            <div class="stat-label">Total Duration</div>
-                            <div class="stat-number" id="statTotalHours">34.61h</div>
-                            <div class="stat-sub">8.0s Clip Invariance</div>
-                        </div>
-                        <div class="stat-tile">
-                            <div class="stat-label">Standard Sample Rate</div>
-                            <div class="stat-number" id="statSampleRate">16,000 Hz</div>
-                            <div class="stat-sub">1-Channel Monaural</div>
-                        </div>
-                        <div class="stat-tile">
-                            <div class="stat-label">Anti-Clipping Headroom</div>
-                            <div class="stat-number" id="statClippingGain">-3.0 dBFS</div>
-                            <div class="stat-sub">0.0 dBFS Max Peak</div>
+                        <div class="grid-4 mb-0">
+                            <div class="stat-tile">
+                                <div class="stat-label">Synthesized Mixtures</div>
+                                <div class="stat-number" id="statTotalClips">15,559</div>
+                                <div class="stat-sub">13 Sub-Datasets</div>
+                            </div>
+                            <div class="stat-tile">
+                                <div class="stat-label">Total Duration</div>
+                                <div class="stat-number" id="statTotalHours">34.61h</div>
+                                <div class="stat-sub">8.0s Clip Invariance</div>
+                            </div>
+                            <div class="stat-tile">
+                                <div class="stat-label">Standard Sample Rate</div>
+                                <div class="stat-number" id="statSampleRate">16,000 Hz</div>
+                                <div class="stat-sub">1-Channel Monaural</div>
+                            </div>
+                            <div class="stat-tile">
+                                <div class="stat-label">Anti-Clipping Headroom</div>
+                                <div class="stat-number" id="statClippingGain">-3.0 dBFS</div>
+                                <div class="stat-sub">0.0 dBFS Max Peak</div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- THREE INLINE SVG CHARTS -->
+                    <!-- THREE DYNAMIC SVG BENCHMARK CHARTS -->
                     <div class="grid-3 grid-3-charts">
                         <!-- CHART 1: SI-SDR vs K LINE CHART -->
-                        <div class="chart-card">
+                        <div class="card chart-card">
                             <div class="chart-header">
                                 <h3 class="chart-title">Separation SI-SDR vs Density (<em>K</em>)</h3>
                                 <span class="badge badge-xs">Paper baselines</span>
                             </div>
                             <p class="chart-desc">Conv-TasNet separation collapses below 0 dB for <em>K</em> &gt; 4.</p>
-                            <svg class="chart-svg" viewBox="0 0 360 220" fill="none">
-                                <!-- Axes -->
-                                <line x1="40" y1="20" x2="40" y2="180" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-                                <line x1="40" y1="104" x2="340" y2="104" stroke="var(--rose)" stroke-width="1.5" stroke-dasharray="4 4"/>
-                                <text x="240" y="98" fill="var(--rose)" font-family="'Geist Mono', monospace" font-size="9">0 dB Failure Line</text>
-
-                                <!-- Y Axis Labels -->
-                                <text x="14" y="28" fill="rgba(255,255,255,0.4)" font-family="'Geist Mono', monospace" font-size="8">+12 dB</text>
-                                <text x="18" y="107" fill="rgba(255,255,255,0.4)" font-family="'Geist Mono', monospace" font-size="8">0 dB</text>
-                                <text x="14" y="178" fill="rgba(255,255,255,0.4)" font-family="'Geist Mono', monospace" font-size="8">-10 dB</text>
-
-                                <!-- Line plot: K=2 (+10.59), K=3 (+5.08), K=4 (+4.24), K=6 (-3.40), K=9 (-8.57) -->
-                                <polyline points="60,32 105,71 150,78 240,131 325,168" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
-                                <!-- Points -->
-                                <circle cx="60" cy="32" r="4.5" fill="#ffffff"/>
-                                <text x="50" y="24" fill="#ffffff" font-family="'Geist Mono', monospace" font-size="8">+10.6</text>
-                                <circle cx="105" cy="71" r="4" fill="#ffffff"/>
-                                <text x="98" y="63" fill="#ffffff" font-family="'Geist Mono', monospace" font-size="8">+5.1</text>
-                                <circle cx="150" cy="78" r="4" fill="#ffffff"/>
-                                <text x="142" y="70" fill="#ffffff" font-family="'Geist Mono', monospace" font-size="8">+4.2</text>
-                                <circle cx="240" cy="131" r="4" fill="var(--rose)"/>
-                                <text x="232" y="146" fill="var(--rose)" font-family="'Geist Mono', monospace" font-size="8">-3.4</text>
-                                <circle cx="325" cy="168" r="4.5" fill="var(--rose)"/>
-                                <text x="312" y="182" fill="var(--rose)" font-family="'Geist Mono', monospace" font-size="8">-8.6</text>
-
-                                <!-- X Axis Labels -->
-                                <text x="52" y="200" fill="rgba(255,255,255,0.6)" font-family="'Geist Mono', monospace" font-size="9">K=2</text>
-                                <text x="97" y="200" fill="rgba(255,255,255,0.6)" font-family="'Geist Mono', monospace" font-size="9">K=3</text>
-                                <text x="142" y="200" fill="rgba(255,255,255,0.6)" font-family="'Geist Mono', monospace" font-size="9">K=4</text>
-                                <text x="232" y="200" fill="rgba(255,255,255,0.6)" font-family="'Geist Mono', monospace" font-size="9">K=6</text>
-                                <text x="318" y="200" fill="rgba(255,255,255,0.6)" font-family="'Geist Mono', monospace" font-size="9">K=9</text>
-                            </svg>
+                            <div id="sisdrChartContainer" class="chart-container">
+                                <svg class="chart-svg" viewBox="0 0 360 220" fill="none" role="img" aria-label="Separation SI-SDR vs Density K line chart">
+                                    <line x1="45" y1="28" x2="45" y2="186" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+                                    <line x1="45" y1="186" x2="336" y2="186" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+                                    <text x="39" y="31" text-anchor="end" fill="rgba(255,255,255,0.45)" font-family="var(--font-mono, monospace)" font-size="8">+12 dB</text>
+                                    <text x="39" y="117" text-anchor="end" fill="rgba(255,255,255,0.65)" font-family="var(--font-mono, monospace)" font-size="8" font-weight="600">0 dB</text>
+                                    <text x="39" y="189" text-anchor="end" fill="rgba(255,255,255,0.45)" font-family="var(--font-mono, monospace)" font-size="8">-10 dB</text>
+                                    <line x1="45" y1="114.2" x2="336" y2="114.2" stroke="#ffffff" stroke-width="1.2" stroke-dasharray="4 4" stroke-opacity="0.8"/>
+                                    <text x="332" y="108.2" text-anchor="end" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="8.5" font-weight="600" opacity="0.9">0 dB Failure Line</text>
+                                    <polyline points="45.0,38.1 86.6,77.7 128.1,83.7 211.3,138.6 336.0,175.7" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round"/>
+                                    <g class="chart-point-group" tabindex="0">
+                                        <circle cx="45.0" cy="38.1" r="4.5" fill="#ffffff" stroke="#000000" stroke-width="1.5" />
+                                        <text x="45.0" y="31.1" text-anchor="middle" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="8.5" font-weight="600">+10.6</text>
+                                        <title>K = 2: +10.59 dB (Clean (+10.6 dB))</title>
+                                    </g>
+                                    <g class="chart-point-group" tabindex="0">
+                                        <circle cx="86.6" cy="77.7" r="4.5" fill="#ffffff" stroke="#000000" stroke-width="1.5" />
+                                        <text x="86.6" y="70.7" text-anchor="middle" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="8.5" font-weight="600">+5.1</text>
+                                        <title>K = 3: +5.08 dB (Usable (+5.1 dB))</title>
+                                    </g>
+                                    <g class="chart-point-group" tabindex="0">
+                                        <circle cx="128.1" cy="83.7" r="4.5" fill="#ffffff" stroke="#000000" stroke-width="1.5" />
+                                        <text x="128.1" y="76.7" text-anchor="middle" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="8.5" font-weight="600">+4.2</text>
+                                        <title>K = 4: +4.24 dB (Usable Ceiling (+4.2 dB))</title>
+                                    </g>
+                                    <g class="chart-point-group" tabindex="0">
+                                        <circle cx="211.3" cy="138.6" r="4.5" fill="rgba(255,255,255,0.45)" stroke="#000000" stroke-width="1.5" />
+                                        <text x="211.3" y="131.6" text-anchor="middle" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="8.5" font-weight="600">-3.4</text>
+                                        <title>K = 6: -3.40 dB (Degraded (-3.4 dB))</title>
+                                    </g>
+                                    <g class="chart-point-group" tabindex="0">
+                                        <circle cx="336.0" cy="175.7" r="4.5" fill="rgba(255,255,255,0.45)" stroke="#000000" stroke-width="1.5" />
+                                        <text x="336.0" y="168.7" text-anchor="middle" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="8.5" font-weight="600">-8.6</text>
+                                        <title>K = 9: -8.57 dB (Intractable (-8.6 dB))</title>
+                                    </g>
+                                    <text x="45.0" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-mono, monospace)" font-size="9">K=2</text>
+                                    <text x="86.6" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-mono, monospace)" font-size="9">K=3</text>
+                                    <text x="128.1" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-mono, monospace)" font-size="9">K=4</text>
+                                    <text x="211.3" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-mono, monospace)" font-size="9">K=6</text>
+                                    <text x="336.0" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-mono, monospace)" font-size="9">K=9</text>
+                                </svg>
+                            </div>
                         </div>
 
                         <!-- CHART 2: COUNTING ACCURACY BARS -->
-                        <div class="chart-card">
+                        <div class="card chart-card">
                             <div class="chart-header">
                                 <h3 class="chart-title">Counting Performance Decay</h3>
                                 <span class="badge badge-xs">Paper baselines</span>
                             </div>
                             <p class="chart-desc">Conformer MSE: Exact accuracy (%) &amp; MAE across corpora.</p>
-                            <svg class="chart-svg" viewBox="0 0 360 220" fill="none">
-                                <!-- Axes -->
-                                <line x1="40" y1="20" x2="40" y2="180" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-                                <line x1="40" y1="180" x2="340" y2="180" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-
-                                <!-- Bars: Org-4 (74.75%), Org-9 (36.46%), FSD-Mix (5.56%) -->
-                                <rect x="70" y="70" width="40" height="110" rx="4" fill="#ffffff"/>
-                                <text x="73" y="62" fill="#ffffff" font-family="'Geist Mono', monospace" font-size="9">74.8%</text>
-                                <text x="68" y="86" fill="#000000" font-family="'Geist Mono', monospace" font-size="8" font-weight="600">MAE .32</text>
-
-                                <rect x="160" y="126" width="40" height="54" rx="4" fill="rgba(255,255,255,0.6)"/>
-                                <text x="163" y="118" fill="#ffffff" font-family="'Geist Mono', monospace" font-size="9">36.5%</text>
-                                <text x="158" y="142" fill="#000000" font-family="'Geist Mono', monospace" font-size="8" font-weight="600">MAE .88</text>
-
-                                <rect x="250" y="172" width="40" height="8" rx="2" fill="rgba(255,255,255,0.3)"/>
-                                <text x="256" y="164" fill="#ffffff" font-family="'Geist Mono', monospace" font-size="9">5.6%</text>
-                                <text x="246" y="152" fill="rgba(255,255,255,0.7)" font-family="'Geist Mono', monospace" font-size="8">MAE 6.73</text>
-
-                                <!-- X Axis Labels -->
-                                <text x="62" y="200" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="11">Org-Mix-4</text>
-                                <text x="152" y="200" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="11">Org-Mix-9</text>
-                                <text x="244" y="200" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="11">FSD-Mix</text>
-                            </svg>
+                            <div id="countingChartContainer" class="chart-container">
+                                <svg class="chart-svg" viewBox="0 0 360 220" fill="none" role="img" aria-label="Counting Performance Decay bar chart">
+                                    <line x1="40" y1="24" x2="40" y2="186" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+                                    <line x1="40" y1="186" x2="340" y2="186" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+                                    <text x="34" y="28" text-anchor="end" fill="rgba(255,255,255,0.4)" font-family="var(--font-mono, monospace)" font-size="8">100%</text>
+                                    <text x="34" y="108" text-anchor="end" fill="rgba(255,255,255,0.4)" font-family="var(--font-mono, monospace)" font-size="8">50%</text>
+                                    <text x="34" y="189" text-anchor="end" fill="rgba(255,255,255,0.4)" font-family="var(--font-mono, monospace)" font-size="8">0%</text>
+                                    <g class="chart-bar-group" tabindex="0">
+                                        <rect x="68" y="64.9" width="44" height="121.1" rx="4" fill="#ffffff" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                                        <text x="90" y="58.9" text-anchor="middle" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="9" font-weight="600">74.8%</text>
+                                        <text x="90" y="80.9" text-anchor="middle" fill="#000000" font-family="var(--font-mono, monospace)" font-size="8" font-weight="600">MAE 0.32</text>
+                                        <text x="90" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-body, sans-serif)" font-size="11">Org-Mix-4</text>
+                                        <title>Org-Mix-4: Exact Acc 74.75% | MAE 0.3243 | RMSE 0.4302</title>
+                                    </g>
+                                    <g class="chart-bar-group" tabindex="0">
+                                        <rect x="168" y="126.9" width="44" height="59.1" rx="4" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                                        <text x="190" y="120.9" text-anchor="middle" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="9" font-weight="600">36.5%</text>
+                                        <text x="190" y="142.9" text-anchor="middle" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="8" font-weight="600">MAE 0.88</text>
+                                        <text x="190" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-body, sans-serif)" font-size="11">Org-Mix-9</text>
+                                        <title>Org-Mix-9: Exact Acc 36.46% | MAE 0.8766 | RMSE 1.0925</title>
+                                    </g>
+                                    <g class="chart-bar-group" tabindex="0">
+                                        <rect x="268" y="177.0" width="44" height="9.0" rx="4" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                                        <text x="290" y="171.0" text-anchor="middle" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="9" font-weight="600">5.6%</text>
+                                        <text x="290" y="159.0" text-anchor="middle" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="8" font-weight="600">MAE 6.73</text>
+                                        <text x="290" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-body, sans-serif)" font-size="11">FSD-Mix-32</text>
+                                        <title>FSD-Mix-32: Exact Acc 5.56% | MAE 6.7262 | RMSE 8.0885</title>
+                                    </g>
+                                </svg>
+                            </div>
                         </div>
 
                         <!-- CHART 3: TAGGING METRICS GROUPED BARS -->
-                        <div class="chart-card">
+                        <div class="card chart-card">
                             <div class="chart-header">
                                 <h3 class="chart-title">Multi-Label ASL Tagging Metrics</h3>
                                 <span class="badge badge-xs">Paper baselines</span>
                             </div>
                             <p class="chart-desc">mAP, Macro F1, and ROC-AUC under Asymmetric Loss.</p>
-                            <svg class="chart-svg" viewBox="0 0 360 220" fill="none">
-                                <line x1="40" y1="20" x2="40" y2="180" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-                                <line x1="40" y1="180" x2="340" y2="180" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-
-                                <!-- Group 1 (Org-4): mAP .9902, F1 .9449, AUC .9765 -->
-                                <rect x="60" y="38" width="16" height="142" rx="2" fill="var(--accent)"/>
-                                <rect x="78" y="44" width="16" height="136" rx="2" fill="var(--accent-2)"/>
-                                <rect x="96" y="40" width="16" height="140" rx="2" fill="#ffffff"/>
-
-                                <!-- Group 2 (Org-9): mAP .9122, F1 .8305, AUC .8744 -->
-                                <rect x="150" y="49" width="16" height="131" rx="2" fill="var(--accent)"/>
-                                <rect x="168" y="61" width="16" height="119" rx="2" fill="var(--accent-2)"/>
-                                <rect x="186" y="55" width="16" height="125" rx="2" fill="#ffffff"/>
-
-                                <!-- Group 3 (FSD-Mix): mAP .6265, F1 .6849, AUC .6161 -->
-                                <rect x="240" y="90" width="16" height="90" rx="2" fill="var(--accent)"/>
-                                <rect x="258" y="82" width="16" height="98" rx="2" fill="var(--accent-2)"/>
-                                <rect x="276" y="92" width="16" height="88" rx="2" fill="#ffffff"/>
-
-                                <!-- Legend & Labels -->
-                                <text x="64" y="200" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="10">Org-4 (.99)</text>
-                                <text x="154" y="200" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="10">Org-9 (.91)</text>
-                                <text x="244" y="200" fill="rgba(255,255,255,0.6)" font-family="'Barlow', sans-serif" font-size="10">FSD-Mix (.63)</text>
-                            </svg>
+                            <div id="taggingChartContainer" class="chart-container">
+                                <svg class="chart-svg" viewBox="0 0 360 220" fill="none" role="img" aria-label="Multi-Label ASL Tagging Metrics grouped bar chart">
+                                    <g class="chart-legend-svg" aria-hidden="true">
+                                        <rect x="70" y="10" width="10" height="10" rx="2" fill="#ffffff"/>
+                                        <text x="84" y="18" fill="rgba(255,255,255,0.85)" font-family="var(--font-mono, monospace)" font-size="9">mAP</text>
+                                        <rect x="145" y="10" width="10" height="10" rx="2" fill="rgba(255,255,255,0.65)"/>
+                                        <text x="159" y="18" fill="rgba(255,255,255,0.85)" font-family="var(--font-mono, monospace)" font-size="9">Macro F1</text>
+                                        <rect x="235" y="10" width="10" height="10" rx="2" fill="rgba(255,255,255,0.30)"/>
+                                        <text x="249" y="18" fill="rgba(255,255,255,0.85)" font-family="var(--font-mono, monospace)" font-size="9">ROC-AUC</text>
+                                    </g>
+                                    <line x1="40" y1="38" x2="40" y2="186" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+                                    <line x1="40" y1="186" x2="340" y2="186" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+                                    <text x="34" y="42" text-anchor="end" fill="rgba(255,255,255,0.4)" font-family="var(--font-mono, monospace)" font-size="8">1.0</text>
+                                    <text x="34" y="115" text-anchor="end" fill="rgba(255,255,255,0.4)" font-family="var(--font-mono, monospace)" font-size="8">0.5</text>
+                                    <text x="34" y="189" text-anchor="end" fill="rgba(255,255,255,0.4)" font-family="var(--font-mono, monospace)" font-size="8">0.0</text>
+                                    <g class="chart-group" tabindex="0">
+                                        <rect x="47" y="39.5" width="14" height="146.5" rx="2" fill="#ffffff" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                            <title>Org-Mix-4 - mAP: 0.9902</title>
+                                        </rect>
+                                        <rect x="64" y="46.2" width="14" height="139.8" rx="2" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                            <title>Org-Mix-4 - Macro F1: 0.9449</title>
+                                        </rect>
+                                        <rect x="81" y="41.5" width="14" height="144.5" rx="2" fill="rgba(255,255,255,0.30)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                            <title>Org-Mix-4 - ROC-AUC: 0.9765</title>
+                                        </rect>
+                                        <text x="71" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-body, sans-serif)" font-size="10">Org-Mix-4 (0.99)</text>
+                                        <title>Org-Mix-4 Tagging: mAP=0.9902, F1=0.9449, AUC=0.9765</title>
+                                    </g>
+                                    <g class="chart-group" tabindex="0">
+                                        <rect x="137" y="51.0" width="14" height="135.0" rx="2" fill="#ffffff" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                            <title>Org-Mix-9 - mAP: 0.9122</title>
+                                        </rect>
+                                        <rect x="154" y="63.1" width="14" height="122.9" rx="2" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                            <title>Org-Mix-9 - Macro F1: 0.8305</title>
+                                        </rect>
+                                        <rect x="171" y="56.6" width="14" height="129.4" rx="2" fill="rgba(255,255,255,0.30)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                            <title>Org-Mix-9 - ROC-AUC: 0.8744</title>
+                                        </rect>
+                                        <text x="161" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-body, sans-serif)" font-size="10">Org-Mix-9 (0.91)</text>
+                                        <title>Org-Mix-9 Tagging: mAP=0.9122, F1=0.8305, AUC=0.8744</title>
+                                    </g>
+                                    <g class="chart-group" tabindex="0">
+                                        <rect x="227" y="93.3" width="14" height="92.7" rx="2" fill="#ffffff" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                            <title>FSD-Mix - mAP: 0.6265</title>
+                                        </rect>
+                                        <rect x="244" y="84.6" width="14" height="101.4" rx="2" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                            <title>FSD-Mix - Macro F1: 0.6849</title>
+                                        </rect>
+                                        <rect x="261" y="94.8" width="14" height="91.2" rx="2" fill="rgba(255,255,255,0.30)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                            <title>FSD-Mix - ROC-AUC: 0.6161</title>
+                                        </rect>
+                                        <text x="251" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-body, sans-serif)" font-size="10">FSD-Mix (0.63)</text>
+                                        <title>FSD-Mix Tagging: mAP=0.6265, F1=0.6849, AUC=0.6161</title>
+                                    </g>
+                                </svg>
+                            </div>
                         </div>
                     </div>
 
@@ -911,7 +1204,7 @@
                                     </div>
                                 </div>
                                 <button class="btn btn-primary mt-sm" id="startTrainingBtn">
-                                    <span>▶ Launch Training Run</span>
+                                    <span>Launch Training Run</span>
                                 </button>
                             </div>
                         </div>
@@ -940,7 +1233,7 @@
                                     <input type="text" class="text-input w-full" id="exportNotes" value="Production Conformer checkpoint on SANADA-4">
                                 </div>
                                 <button class="btn mt-sm" id="exportModelBtn">
-                                    <span>💾 Export Checkpoint (.pt)</span>
+                                    <span>Export Checkpoint (.pt)</span>
                                 </button>
                             </div>
                         </div>
@@ -959,8 +1252,29 @@
                             <span>Progress</span>
                             <span id="trainingProgressPct">0%</span>
                         </div>
-                        <div class="terminal-box" id="trainLogTerminal">
-                            <div><span class="terminal-prefix">[SYSTEM]</span> Developer console initialized. Ready to accept training jobs.</div>
+
+                        <!-- TERMINAL WINDOW WITH CHROME & LIVE LOSS SPARKLINE -->
+                        <div class="terminal-window">
+                            <div class="terminal-chrome">
+                                <div class="terminal-dots" aria-hidden="true">
+                                    <span class="terminal-dot"></span>
+                                    <span class="terminal-dot"></span>
+                                    <span class="terminal-dot"></span>
+                                </div>
+                                <div class="terminal-title">sanada-worker :: bash</div>
+                                <div class="terminal-tag" id="terminalTag">STANDBY</div>
+                            </div>
+
+                            <!-- Small live loss sparkline canvas above terminal -->
+                            <div class="terminal-sparkline-bar">
+                                <span class="sparkline-title">LOSS CONVERGENCE</span>
+                                <canvas id="trainLossCanvas" class="train-loss-sparkline" width="340" height="28" aria-label="Live training loss sparkline"></canvas>
+                                <span class="sparkline-val" id="sparklineVal">—</span>
+                            </div>
+
+                            <div class="terminal-box" id="trainLogTerminal">
+                                <div><span class="terminal-prefix prefix-system">[SYSTEM]</span> Developer console initialized. Ready to accept training jobs.</div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -1020,33 +1334,49 @@
                             </table>
                         </div>
 
-                        <!-- API CONTRACT TABLE -->
+                        <!-- API CONTRACT ROWS -->
                         <div class="card">
                             <div class="card-header">
                                 <h2 class="card-title">API Integration Routes (Production Contract)</h2>
+                                <span class="badge">REST Contract</span>
                             </div>
-                            <table class="metric-table">
-                                <tr>
-                                    <td class="label">POST /api/upload</td>
-                                    <td class="val">Pre-flight in-memory validation</td>
-                                </tr>
-                                <tr>
-                                    <td class="label">POST /api/predict</td>
-                                    <td class="val">Joint Tasks 1, 2, 3 inference</td>
-                                </tr>
-                                <tr>
-                                    <td class="label">GET /static/stems/:file</td>
-                                    <td class="val">Clean stem audio delivery</td>
-                                </tr>
-                                <tr>
-                                    <td class="label">POST /api/train</td>
-                                    <td class="val">Asynchronous training trigger</td>
-                                </tr>
-                                <tr>
-                                    <td class="label">GET /api/stats</td>
-                                    <td class="val">Telemetry &amp; Complexity Ceiling</td>
-                                </tr>
-                            </table>
+                            <div class="api-routes-table">
+                                <div class="api-route-row">
+                                    <div class="api-endpoint">
+                                        <span class="method-pill method-post">POST</span>
+                                        <code class="api-path">/api/upload</code>
+                                    </div>
+                                    <div class="api-desc">Pre-flight in-memory validation</div>
+                                </div>
+                                <div class="api-route-row">
+                                    <div class="api-endpoint">
+                                        <span class="method-pill method-post">POST</span>
+                                        <code class="api-path">/api/predict</code>
+                                    </div>
+                                    <div class="api-desc">Joint Tasks 1, 2, 3 inference</div>
+                                </div>
+                                <div class="api-route-row">
+                                    <div class="api-endpoint">
+                                        <span class="method-pill method-get">GET</span>
+                                        <code class="api-path">/static/stems/:file</code>
+                                    </div>
+                                    <div class="api-desc">Clean stem audio delivery</div>
+                                </div>
+                                <div class="api-route-row">
+                                    <div class="api-endpoint">
+                                        <span class="method-pill method-post">POST</span>
+                                        <code class="api-path">/api/train</code>
+                                    </div>
+                                    <div class="api-desc">Asynchronous training trigger</div>
+                                </div>
+                                <div class="api-route-row">
+                                    <div class="api-endpoint">
+                                        <span class="method-pill method-get">GET</span>
+                                        <code class="api-path">/api/stats</code>
+                                    </div>
+                                    <div class="api-desc">Telemetry &amp; Complexity Ceiling</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1094,9 +1424,12 @@
                             Acoustic source counting, multi-label sound tagging, and source separation are traditionally evaluated on disparate corpora with differing mixture lengths, sampling rates, and overlap policies. SANADA introduces a unified synthetic benchmark comprising 15,559 eight-second mixtures across 13 partitions derived from LibriSpeech and FSD50K. By enforcing strict pre-mix 70/15/15 zero-leakage partitions and -3.0 dBFS anti-clipping attenuation, we systematically map the Complexity Ceiling—demonstrating that time-domain separation collapses below 0 dB SI-SDR when mixture density exceeds <em>K</em> = 4, whereas continuous counting and multi-label tagging scale robustly up to <em>K</em> = 32.
                         </p>
                         <div class="paper-links">
-                            <a href="https://doi.org/10.21227/z7hv-e014" target="_blank" rel="noopener" class="btn btn-primary btn-compact">
+                            <a href="https://doi.org/10.21227/z7hv-e014" target="_blank" rel="noopener" class="btn btn-primary btn-compact" id="doiLink">
                                 <span>Permanent DOI: 10.21227/z7hv-e014 ↗</span>
                             </a>
+                            <button type="button" class="btn btn-compact" id="copyDoiBtn" title="Copy DOI identifier to clipboard">
+                                <span>Copy DOI</span>
+                            </button>
                             <a href="https://ieee-dataport.org" target="_blank" rel="noopener" class="btn btn-compact">
                                 <span>IEEE DataPort Repository ↗</span>
                             </a>
@@ -1107,7 +1440,7 @@
                     <div class="card">
                         <div class="card-header">
                             <h2 class="card-title">BibTeX Citation</h2>
-                            <button class="btn btn-xs" id="copyBibtexBtn">📋 Copy BibTeX</button>
+                            <button class="btn btn-xs" id="copyBibtexBtn">Copy BibTeX</button>
                         </div>
                         <pre class="bibtex-box" id="bibtexCode">@article{murthy2026sanada,
   title={SANADA: A Reproducible Synthetic Acoustic Dataset for Intractable Mixtures, Evaluated with Baseline Models in Separation, Counting, and Tagging},
@@ -1126,15 +1459,15 @@
                         </div>
                         <ul class="limitations-list">
                             <li class="limitation-item">
-                                <span class="limitation-icon">⚠</span>
+                                <span class="limitation-num">01</span>
                                 <div><strong>Monaural Only:</strong> All mixtures are evaluated on single-channel recordings (16 kHz). Multi-channel spatial and interaural time difference (ITD/IPD) cues are deliberately omitted to evaluate pure monaural acoustic separation capabilities.</div>
                             </li>
                             <li class="limitation-item">
-                                <span class="limitation-icon">⚠</span>
+                                <span class="limitation-num">02</span>
                                 <div><strong>English Lecture Speech Domain:</strong> Org-Mix-4 and Org-Mix-9 partitions are synthesized using LibriSpeech read speech, which exhibits clean acoustic environments and standard English accents. Highly reverberant conversational speech may exhibit lower baseline separation.</div>
                             </li>
                             <li class="limitation-item">
-                                <span class="limitation-icon">⚠</span>
+                                <span class="limitation-num">03</span>
                                 <div><strong>Fixed 8.0-Second Duration Invariance:</strong> Models are evaluated on standardized 128,000-sample segments. Real-time streaming chunking requires additional dynamic buffer windowing.</div>
                             </li>
                         </ul>

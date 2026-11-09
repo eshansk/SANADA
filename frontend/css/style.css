@@ -1,0 +1,8 @@
+/**
+ * Backward-compatibility wrapper for monolithic style.css.
+ * All modular styles are defined in tokens.css, base.css, components.css, and pages.css.
+ */
+@import "./tokens.css";
+@import "./base.css";
+@import "./components.css";
+@import "./pages.css";

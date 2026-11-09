@@ -20,15 +20,18 @@ import { initPaperPage } from './pages/paper.js';
 async function checkHealth() {
     const backendDot = document.getElementById('backendDot');
     const backendText = document.getElementById('backendText');
+    const studioOfflineNotice = document.getElementById('studioOfflineNotice');
 
     try {
         const data = await API.getHealth();
         if (backendDot) backendDot.className = 'status-dot online';
         if (backendText) backendText.textContent = `Engine online (${data.device.toUpperCase()})`;
+        if (studioOfflineNotice) studioOfflineNotice.style.display = 'none';
         return true;
     } catch (e) {
         if (backendDot) backendDot.className = 'status-dot';
         if (backendText) backendText.textContent = 'Engine offline';
+        if (studioOfflineNotice) studioOfflineNotice.style.display = 'flex';
         return false;
     }
 }
