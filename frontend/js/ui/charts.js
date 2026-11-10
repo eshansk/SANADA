@@ -92,12 +92,28 @@ export const ChartHelper = {
 
         const zeroY = getY(0);
 
-        // Generate points for polyline
-        const points = data.map(d => {
-            const k = d.k || d.density_k;
-            const db = d.sisdrDb !== undefined ? d.sisdrDb : d.si_sdr_db;
-            return { k, db, x: getX(k), y: getY(db), status: d.status || '' };
+        // Deduplicate rows by K density to avoid overlapping markers/ticks
+        const kMap = new Map();
+        data.forEach(d => {
+            const k = Number(d.k || d.density_k);
+            if (!kMap.has(k) || (d.domain && d.domain.includes('Fixed'))) {
+                const db = Number(d.sisdrDb !== undefined ? d.sisdrDb : d.si_sdr_db);
+                kMap.set(k, {
+                    k,
+                    db,
+                    status: d.status || ''
+                });
+            }
         });
+
+        // Sort ascending by K
+        const uniquePoints = Array.from(kMap.values()).sort((a, b) => a.k - b.k);
+
+        const points = uniquePoints.map(p => ({
+            ...p,
+            x: getX(p.k),
+            y: getY(p.db)
+        }));
 
         const polylinePoints = points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
 
@@ -173,13 +189,18 @@ export const ChartHelper = {
         const positions = [90, 190, 290];
         const whiteOpacities = ['#ffffff', 'rgba(255,255,255,0.65)', 'rgba(255,255,255,0.3)'];
 
-        const barsHtml = data.map((d, i) => {
+        const barsHtml = data.slice(0, 3).map((d, i) => {
             const acc = d.exactAccuracyPct || d.exact_acc_pct || 0;
             const barH = (acc / 100) * plotH;
             const x = positions[i] - (barW / 2);
             const y = (H - padB) - barH;
             const color = whiteOpacities[i] || '#ffffff';
-            const corpusName = d.corpus || d.domain;
+            const fullCorpus = d.corpus || d.domain || '';
+            // Sanitize corpus label to prevent overlapping on X-axis:
+            // "Org-Mix-4 (Max K=4)" -> "Org-Mix-4", "FSD-Mix-32 (Max K=32)" -> "FSD-Mix-32"
+            let corpusName = fullCorpus.split('(')[0].trim();
+            if (corpusName.toLowerCase().startsWith('fsd-mix-32')) corpusName = 'FSD-Mix-32';
+            else if (corpusName.toLowerCase().startsWith('fsd-mix')) corpusName = 'FSD-Mix';
             const maeVal = Number(d.mae).toFixed(2);
 
             return `
@@ -194,8 +215,8 @@ export const ChartHelper = {
                           font-family="var(--font-mono, monospace)"
                           font-size="8" font-weight="600">MAE ${maeVal}</text>
                     <text x="${positions[i]}" y="${H - 12}" text-anchor="middle"
-                          fill="rgba(255,255,255,0.6)" font-family="var(--font-body, sans-serif)" font-size="11">${corpusName}</text>
-                    <title>${corpusName}: Exact Acc ${acc}% | MAE ${Number(d.mae).toFixed(4)} | RMSE ${Number(d.rmse).toFixed(4)}</title>
+                          fill="rgba(255,255,255,0.7)" font-family="var(--font-mono, monospace)" font-size="10">${corpusName}</text>
+                    <title>${fullCorpus}: Exact Acc ${acc}% | MAE ${Number(d.mae).toFixed(4)} | RMSE ${Number(d.rmse).toFixed(4)}</title>
                 </g>
             `;
         }).join('');
@@ -234,8 +255,8 @@ export const ChartHelper = {
 
         const plotH = H - padT - padB;
         const barW = 14;
-        const groupGap = 90;
-        const startX = 64;
+        const groupGap = 95;
+        const startX = 75;
 
         const tiers = [
             { key: 'map', label: 'mAP', fill: '#ffffff' },
@@ -257,25 +278,29 @@ export const ChartHelper = {
             </g>
         `;
 
-        const groupsHtml = data.map((d, gi) => {
+        const groupsHtml = data.slice(0, 3).map((d, gi) => {
             const center = startX + gi * groupGap;
             const mapVal = d.mAP !== undefined ? d.mAP : d.map_macro;
             const f1Val = d.macroF1 !== undefined ? d.macroF1 : d.f1_macro;
             const aucVal = d.rocAuc !== undefined ? d.rocAuc : d.roc_auc;
 
             const values = [mapVal, f1Val, aucVal];
-            const corpusName = d.corpus || d.domain;
+            const fullCorpus = d.corpus || d.domain || '';
+            // Sanitize corpus label to prevent overlapping:
+            // "Org-Mix-4 (4 Speakers)" -> "Org-Mix-4", "FSD-Mix (32 Sound Classes)" -> "FSD-Mix"
+            let corpusName = fullCorpus.split('(')[0].trim();
+            if (corpusName.toLowerCase().startsWith('fsd-mix')) corpusName = 'FSD-Mix';
 
             const bars = values.map((val, bi) => {
                 const barH = (val / 1.0) * plotH;
-                const bx = center + (bi - 1) * (barW + 3);
+                const bx = center + (bi - 1) * (barW + 3) - 7;
                 const by = (H - padB) - barH;
                 const tier = tiers[bi];
 
                 return `
-                    <rect x="${bx}" y="${by.toFixed(1)}" width="${barW}" height="${barH.toFixed(1)}"
+                    <rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${barW}" height="${barH.toFixed(1)}"
                           rx="2" fill="${tier.fill}" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
-                        <title>${corpusName} - ${tier.label}: ${Number(val).toFixed(4)}</title>
+                        <title>${fullCorpus} - ${tier.label}: ${Number(val).toFixed(4)}</title>
                     </rect>
                 `;
             }).join('');
@@ -283,9 +308,9 @@ export const ChartHelper = {
             return `
                 <g class="chart-group" tabindex="0">
                     ${bars}
-                    <text x="${center + 7}" y="${H - 12}" text-anchor="middle"
-                          fill="rgba(255,255,255,0.6)" font-family="var(--font-body, sans-serif)" font-size="10">${corpusName} (${Number(mapVal).toFixed(2)})</text>
-                    <title>${corpusName} Tagging: mAP=${Number(mapVal).toFixed(4)}, F1=${Number(f1Val).toFixed(4)}, AUC=${Number(aucVal).toFixed(4)}</title>
+                    <text x="${center}" y="${H - 12}" text-anchor="middle"
+                          fill="rgba(255,255,255,0.7)" font-family="var(--font-mono, monospace)" font-size="10">${corpusName}</text>
+                    <title>${fullCorpus} Tagging: mAP=${Number(mapVal).toFixed(4)}, F1=${Number(f1Val).toFixed(4)}, AUC=${Number(aucVal).toFixed(4)}</title>
                 </g>
             `;
         }).join('');

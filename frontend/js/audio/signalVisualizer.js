@@ -15,7 +15,7 @@
  */
 
 function getCssColor(varName, fallbackRgb) {
-    if (typeof window === 'undefined') return fallbackRgb;
+    if (typeof window === 'undefined' || typeof document === 'undefined') return fallbackRgb;
     try {
         const val = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
         if (!val) return fallbackRgb;
@@ -26,18 +26,23 @@ function getCssColor(varName, fallbackRgb) {
         ctx.fillStyle = val;
         ctx.fillRect(0, 0, 1, 1);
         const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+        if (r === 0 && g === 0 && b === 0 && val !== 'black') return fallbackRgb;
         return [r, g, b];
     } catch (e) {
         return fallbackRgb;
     }
 }
 
-function createWaveThemeLUT() {
-    // Resolve tokens dynamically from site theme CSS
-    const deep = getCssColor('--wave-deep', [18, 12, 24]);        // Base tone (~6.5% lightness)
-    const w1 = getCssColor('--wave-1', [115, 92, 179]);          // Dominant mid tone violet #735cb3
-    const w2 = getCssColor('--wave-2', [175, 144, 208]);         // Secondary tone lavender #af90d0
-    const wLight = getCssColor('--wave-light', [253, 234, 244]); // Iridescent wave highlight #fdeaf4
+let cachedWaveThemeLUT = null;
+
+function getWaveThemeLUT() {
+    if (cachedWaveThemeLUT) return cachedWaveThemeLUT;
+
+    // Direct RGB theme ramp (--wave-deep -> --wave-1 -> --wave-2 -> --wave-light)
+    const deep = [18, 12, 24];        // Base tone (~6.5% lightness) #120c18
+    const w1 = [115, 92, 179];         // Dominant mid tone violet #735cb3
+    const w2 = [175, 144, 208];        // Secondary tone lavender #af90d0
+    const wLight = [253, 234, 244];    // Iridescent wave highlight #fdeaf4
 
     // 0.25: deep glowing violet tone (--wave-1 at 40% lightness)
     const w1Dark = [
@@ -87,6 +92,7 @@ function createWaveThemeLUT() {
         lut[i * 3 + 2] = Math.round(b);
     }
 
+    cachedWaveThemeLUT = lut;
     return lut;
 }
 
@@ -219,15 +225,24 @@ export class DualAudioVisualizer {
         if (!this.wfCanvas || !this.specCanvas) return;
         this.dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
 
-        const rect = this.wfCanvas.getBoundingClientRect();
-        const clientW = Math.max(100, Math.floor(rect.width || (this.stackEl ? this.stackEl.clientWidth : 1000)));
+        let clientW = 0;
+        if (this.stackEl && this.stackEl.clientWidth > 100) {
+            clientW = this.stackEl.clientWidth;
+        } else if (this.wfCanvas && this.wfCanvas.clientWidth > 100) {
+            clientW = this.wfCanvas.clientWidth;
+        } else if (this.wfCanvas && this.wfCanvas.parentElement && this.wfCanvas.parentElement.clientWidth > 100) {
+            clientW = this.wfCanvas.parentElement.clientWidth;
+        } else if (typeof window !== 'undefined' && window.innerWidth > 300) {
+            clientW = Math.min(1200, window.innerWidth - 64);
+        }
+        if (!clientW || clientW < 100) clientW = 900;
         const clientH = 100; // Standard 100px layer height
 
         this.cssW = clientW;
         this.cssH = clientH;
 
-        const pxW = Math.round(clientW * this.dpr);
-        const pxH = Math.round(clientH * this.dpr);
+        const pxW = Math.max(300, Math.round(clientW * this.dpr));
+        const pxH = Math.max(50, Math.round(clientH * this.dpr));
 
         if (this.wfCanvas.width !== pxW || this.wfCanvas.height !== pxH) {
             this.wfCanvas.width = pxW;
@@ -265,18 +280,45 @@ export class DualAudioVisualizer {
         }
     }
 
+    resize() {
+        this.handleResize();
+    }
+
+    clear() {
+        this.lastBuffer = null;
+        this.cachedPeaks = null;
+        this.cachedWaveformPath = null;
+        this.cachedSpectrogramCanvas = null;
+        this.stftMatrix = null;
+        this.progress = 0;
+        this.setEmptyState(true);
+        this.setComputing(false);
+    }
+
     render(buffer) {
         if (!buffer) return;
         this.lastBuffer = buffer;
         this.setEmptyState(false);
         this.updateDimensions();
 
-        this.computeWaveformPeaks(buffer);
-        this.computeSTFT(buffer);
+        // 1. Render waveform immediately (isolated try/catch)
+        try {
+            this.computeWaveformPeaks(buffer);
+            this.renderWaveform(this.progress || 0);
+        } catch (err) {
+            console.warn('Waveform render error:', err);
+        }
 
-        this.renderWaveform(0);
-        this.renderSpectrogram();
-        this.setPlayheadProgress(0);
+        // 2. Render STFT spectrogram immediately (isolated try/catch)
+        try {
+            this.computeSTFT(buffer);
+            this.renderSpectrogram();
+        } catch (err) {
+            console.warn('Spectrogram render error:', err);
+        }
+
+        this.setPlayheadProgress(this.progress || 0);
+        this.setComputing(false);
     }
 
     drawEmptyStateGrid(canvas, ctx) {
@@ -298,11 +340,22 @@ export class DualAudioVisualizer {
     }
 
     setEmptyState(isEmpty) {
+        if (!this.emptyStateEl) {
+            this.emptyStateEl = (this.stackEl && typeof this.stackEl.querySelector === 'function')
+                ? this.stackEl.querySelector('#canvasEmptyState')
+                : (typeof document !== 'undefined' ? document.getElementById('canvasEmptyState') : null);
+        }
         if (this.emptyStateEl) {
             if (isEmpty) {
                 this.emptyStateEl.classList.remove('is-hidden');
+                this.emptyStateEl.style.display = 'flex';
+                this.emptyStateEl.style.opacity = '1';
+                this.emptyStateEl.style.visibility = 'visible';
             } else {
                 this.emptyStateEl.classList.add('is-hidden');
+                this.emptyStateEl.style.display = 'none';
+                this.emptyStateEl.style.opacity = '0';
+                this.emptyStateEl.style.visibility = 'hidden';
             }
         }
         if (isEmpty) {
@@ -316,9 +369,10 @@ export class DualAudioVisualizer {
     }
 
     setComputing(isComputing) {
-        if (this.stackEl) {
-            if (isComputing) this.stackEl.classList.add('is-computing');
-            else this.stackEl.classList.remove('is-computing');
+        const stack = this.stackEl || (typeof document !== 'undefined' ? document.getElementById('canvasStack') : null);
+        if (stack) {
+            if (isComputing) stack.classList.add('is-computing');
+            else stack.classList.remove('is-computing');
         }
     }
 
@@ -405,11 +459,17 @@ export class DualAudioVisualizer {
         if (!buffer) return;
         const data = buffer.getChannelData(0);
         const nFft = 256;
-        const hop = 128;
+        let hop = 128;
         const numBins = 129; // 0 to 8000 Hz at 16 kHz sample rate (N/2 + 1)
 
         if (data.length < nFft) return;
-        const numFrames = Math.floor((data.length - nFft) / hop) + 1;
+
+        // Ensure numFrames is bounded so STFT computation is instantaneous (< 15ms)
+        let numFrames = Math.floor((data.length - nFft) / hop) + 1;
+        if (numFrames > 1000) {
+            hop = Math.ceil((data.length - nFft) / 999);
+            numFrames = Math.floor((data.length - nFft) / hop) + 1;
+        }
 
         const real = new Float32Array(nFft);
         const imag = new Float32Array(nFft);
@@ -433,6 +493,8 @@ export class DualAudioVisualizer {
             }
         }
 
+        if (!isFinite(maxDb) || maxDb < -120) maxDb = 0;
+
         this.stftMatrix = dbMatrix;
         this.maxDb = maxDb;
         this.numFrames = numFrames;
@@ -445,7 +507,7 @@ export class DualAudioVisualizer {
         const imgData = offCtx.createImageData(numFrames, numBins);
         const pixels = imgData.data;
 
-        const colorLUT = createWaveThemeLUT();
+        const colorLUT = getWaveThemeLUT();
 
         // Wave Theme colormap ramp:
         // 0.00 --wave-deep -> 0.25 --wave-1 dark -> 0.50 --wave-1 -> 0.75 --wave-2 lightened -> 1.00 --wave-light
@@ -478,14 +540,28 @@ export class DualAudioVisualizer {
     }
 
     renderSpectrogram() {
-        if (!this.specCtx || !this.cachedSpectrogramCanvas) return;
+        if (!this.specCtx) return;
         const ctx = this.specCtx;
 
-        ctx.save();
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(this.cachedSpectrogramCanvas, 0, 0, this.specCanvas.width, this.specCanvas.height);
-        ctx.restore();
+        if (!this.cachedSpectrogramCanvas) {
+            ctx.save();
+            ctx.fillStyle = this.getBaseColor();
+            ctx.fillRect(0, 0, this.specCanvas.width, this.specCanvas.height);
+            ctx.restore();
+            return;
+        }
+
+        if (!this.specCanvas.width || !this.specCanvas.height) return;
+
+        try {
+            ctx.save();
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(this.cachedSpectrogramCanvas, 0, 0, this.specCanvas.width, this.specCanvas.height);
+            ctx.restore();
+        } catch (e) {
+            console.warn('Spectrogram draw warning:', e);
+        }
     }
 
     setPlayheadProgress(fraction) {

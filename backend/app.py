@@ -148,7 +148,7 @@ def get_system_analytics():
             "channels": "Monaural (1)",
             "clip_duration_s": 8.0,
             "max_peak_dbfs": 0.0,
-            "clipping_prevention_gain": "-3.0 dBFS logarithmic attenuation"
+            "clipping_prevention_gain": "-3.0 dBFS"
         },
         "complexity_ceiling_benchmarks": {
             "source_separation_sisdr_db": [

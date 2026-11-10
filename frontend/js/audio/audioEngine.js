@@ -33,10 +33,14 @@ export class AudioEngine {
 
     initContext() {
         if (!this.ctx) {
-            this.ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: TARGET_SR });
+            try {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: TARGET_SR });
+            } catch (e) {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            }
         }
-        if (this.ctx.state === 'suspended') {
-            this.ctx.resume();
+        if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume().catch(() => {});
         }
         return this.ctx;
     }
@@ -45,13 +49,28 @@ export class AudioEngine {
      * Decodes binary ArrayBuffer into an AudioBuffer
      */
     async decodeAudio(arrayBuffer) {
-        this.initContext();
-        return new Promise((resolve, reject) => {
-            this.ctx.decodeAudioData(arrayBuffer, (decoded) => {
-                this.currentBuffer = decoded;
-                resolve(decoded);
-            }, reject);
-        });
+        const ctx = this.initContext();
+        // Clone slice before decoding because decodeAudioData detaches the underlying ArrayBuffer
+        const copy1 = arrayBuffer.slice ? arrayBuffer.slice(0) : arrayBuffer;
+        try {
+            const decoded = await ctx.decodeAudioData(copy1);
+            this.currentBuffer = decoded;
+            return decoded;
+        } catch (promiseErr) {
+            return new Promise((resolve, reject) => {
+                try {
+                    const copy2 = arrayBuffer.slice ? arrayBuffer.slice(0) : arrayBuffer;
+                    ctx.decodeAudioData(copy2, (decoded) => {
+                        this.currentBuffer = decoded;
+                        resolve(decoded);
+                    }, (err) => {
+                        reject(err || promiseErr);
+                    });
+                } catch (callbackErr) {
+                    reject(callbackErr || promiseErr);
+                }
+            });
+        }
     }
 
     /**

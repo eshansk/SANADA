@@ -97,8 +97,95 @@ export function initStudioPage() {
         gaugeDot: document.getElementById('gaugeDot'),
 
         // Copy JSON
-        copyJsonBtn: document.getElementById('copyJsonBtn')
+        copyJsonBtn: document.getElementById('copyJsonBtn'),
+
+        // Studio Progressive Disclosure & File Management
+        pagePredict: document.getElementById('pagePredict'),
+        studioResetAudioBtn: document.getElementById('studioResetAudioBtn'),
+        studioRemoveAudioBtn: document.getElementById('studioRemoveAudioBtn'),
+        studioChangeFileInlineBtn: document.getElementById('studioChangeFileInlineBtn'),
+        studioChangeAudioActionBtn: document.getElementById('studioChangeAudioActionBtn')
     };
+
+    function setStudioStage(stage) {
+        const page = DOM.pagePredict || document.getElementById('pagePredict');
+        if (!page) return;
+        page.classList.remove('stage-ingest', 'stage-loaded', 'stage-results');
+        page.classList.add(stage);
+
+        if (stage === 'stage-loaded' || stage === 'stage-results') {
+            if (visualizer && activeBuffer) {
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        visualizer.resize();
+                        visualizer.render(activeBuffer);
+                    });
+                });
+            }
+        }
+    }
+
+    function resetStudio() {
+        activeFile = null;
+        activeBuffer = null;
+        if (audioEngine.isPlaying) {
+            audioEngine.stopPlayback();
+        }
+        if (DOM.fileInput) DOM.fileInput.value = '';
+        if (DOM.demoSelect) DOM.demoSelect.value = '';
+        if (DOM.uploadStatusBadge) {
+            DOM.uploadStatusBadge.textContent = 'Awaiting Audio';
+            DOM.uploadStatusBadge.className = 'badge';
+        }
+        if (DOM.metaFilename) DOM.metaFilename.textContent = '—';
+        if (DOM.metaSampleRate) DOM.metaSampleRate.textContent = '—';
+        if (DOM.metaChannels) DOM.metaChannels.textContent = '—';
+        if (DOM.metaDuration) DOM.metaDuration.textContent = '—';
+        if (DOM.metaPeak) DOM.metaPeak.textContent = '—';
+        if (DOM.metaCompliance) DOM.metaCompliance.innerHTML = '<span class="badge warn">PENDING</span>';
+
+        if (DOM.playMasterBtn) DOM.playMasterBtn.disabled = true;
+        if (DOM.scrubber) {
+            DOM.scrubber.disabled = true;
+            DOM.scrubber.value = 0;
+            DOM.scrubber.style.setProperty('--scrubber-pct', '0%');
+        }
+        if (DOM.timeDisplay) DOM.timeDisplay.textContent = '0.00 / 0.00s';
+        if (DOM.runInferenceBtn) DOM.runInferenceBtn.disabled = true;
+        if (DOM.runHint) DOM.runHint.textContent = 'Load or record audio to enable inference';
+
+        if (visualizer) {
+            visualizer.clear();
+        }
+        if (stemMatrix) {
+            stemMatrix.stopAll();
+            stemMatrix.render([]);
+        }
+        setStudioStage('stage-ingest');
+    }
+
+    const triggerAudioFilePicker = () => {
+        resetStudio();
+        if (DOM.fileInput) {
+            DOM.fileInput.click();
+        }
+    };
+
+    if (DOM.studioResetAudioBtn) {
+        DOM.studioResetAudioBtn.addEventListener('click', triggerAudioFilePicker);
+    }
+    if (DOM.studioChangeFileInlineBtn) {
+        DOM.studioChangeFileInlineBtn.addEventListener('click', triggerAudioFilePicker);
+    }
+    if (DOM.studioChangeAudioActionBtn) {
+        DOM.studioChangeAudioActionBtn.addEventListener('click', triggerAudioFilePicker);
+    }
+    if (DOM.studioRemoveAudioBtn) {
+        DOM.studioRemoveAudioBtn.addEventListener('click', () => {
+            resetStudio();
+            showToast('Audio cleared. Select or drop a new file.', 'info');
+        });
+    }
 
     // Subsystems initialization
     if (DOM.waveformCanvas && DOM.spectrogramCanvas && DOM.playheadLine) {
@@ -195,7 +282,11 @@ export function initStudioPage() {
     }
 
     function displayDecodedBuffer(filename, buffer) {
+        if (!buffer) return;
+        activeBuffer = buffer;
         const info = audioEngine.inspectBuffer(buffer);
+
+        setStudioStage('stage-loaded');
 
         if (DOM.metaFilename) DOM.metaFilename.textContent = filename;
         if (DOM.metaSampleRate) DOM.metaSampleRate.textContent = `${info.sampleRate.toLocaleString()} Hz`;
@@ -205,10 +296,21 @@ export function initStudioPage() {
 
         if (visualizer) {
             visualizer.setComputing(true);
-            setTimeout(() => {
-                visualizer.render(buffer);
-                visualizer.setComputing(false);
-            }, 20);
+            const renderVisuals = () => {
+                try {
+                    visualizer.resize();
+                    visualizer.render(buffer);
+                } catch (e) {
+                    console.warn('Visualizer render error:', e);
+                } finally {
+                    visualizer.setComputing(false);
+                }
+            };
+            requestAnimationFrame(() => {
+                requestAnimationFrame(renderVisuals);
+            });
+            setTimeout(renderVisuals, 60);
+            setTimeout(renderVisuals, 180);
         }
         if (DOM.playMasterBtn) {
             DOM.playMasterBtn.disabled = false;
@@ -226,9 +328,6 @@ export function initStudioPage() {
         }
         if (DOM.runInferenceBtn) DOM.runInferenceBtn.disabled = false;
         if (DOM.runHint) DOM.runHint.textContent = 'Audio ready. Click to run inference.';
-        if (DOM.studioMobileActionBar) DOM.studioMobileActionBar.classList.add('is-visible');
-        if (DOM.mobileBarFilename) DOM.mobileBarFilename.textContent = filename;
-        if (DOM.runInferenceMobileBtn) DOM.runInferenceMobileBtn.disabled = false;
     }
 
     async function triggerPreflightValidation(file) {
@@ -258,53 +357,74 @@ export function initStudioPage() {
         }
     }
 
-    // 4. Preloaded Demo Selector
-    if (DOM.demoSelect) {
-        DOM.demoSelect.addEventListener('change', async (e) => {
-            const mixName = e.target.value;
-            if (!mixName) return;
-            audioEngine.stopPlayback();
+    // 4. Preloaded Demo Selector & Mixture Presets
+    async function loadDemoAudioByName(mixName) {
+        if (!mixName) return;
+        audioEngine.stopPlayback();
 
-            showToast(`Loading verified evaluation mixture: ${mixName}...`, 'info');
-            try {
-                const endpoints = [
-                    `${API_BASE}/api/demo-audio/${mixName}`,
-                    `${API_BASE}/static/demos/${mixName}`,
-                    `/demos/${mixName}`
-                ];
-                let arrayBuf = null;
-                for (const ep of endpoints) {
-                    try {
-                        const resp = await fetch(ep);
-                        if (resp.ok) {
-                            arrayBuf = await resp.arrayBuffer();
+        showToast(`Loading verified evaluation mixture: ${mixName}...`, 'info');
+        try {
+            const endpoints = [
+                `${API_BASE}/api/demo-audio/${mixName}`,
+                `${API_BASE}/static/demos/${mixName}`,
+                `/demos/${mixName}`,
+                `demos/${mixName}`,
+                `backend/static/demos/${mixName}`
+            ];
+            let arrayBuf = null;
+            for (const ep of endpoints) {
+                try {
+                    const resp = await fetch(ep);
+                    if (resp.ok) {
+                        const fetched = await resp.arrayBuffer();
+                        if (fetched && fetched.byteLength > 1000) {
+                            arrayBuf = fetched;
                             break;
                         }
-                    } catch (err) {}
-                }
-
-                if (arrayBuf && arrayBuf.byteLength > 1000) {
-                    const buffer = await audioEngine.decodeAudio(arrayBuf);
-                    activeBuffer = buffer;
-                    activeFile = new File([arrayBuf], mixName, { type: 'audio/wav' });
-                    displayDecodedBuffer(activeFile.name, buffer);
-                    triggerPreflightValidation(activeFile);
-                    showToast(`Loaded ${mixName} from verified dataset pool!`, 'success');
-                    return;
-                }
-            } catch (fetchErr) {
-                console.warn('Real demo audio fetch failed, falling back to local synthesis', fetchErr);
+                    }
+                } catch (err) {}
             }
 
-            const buffer = audioEngine.createSyntheticDemoBuffer(mixName.includes('9') ? 3 : 2);
-            activeBuffer = buffer;
-            const wavBlob = audioEngine.bufferToWavBlob(buffer);
-            activeFile = new File([wavBlob], mixName, { type: 'audio/wav' });
+            if (arrayBuf && arrayBuf.byteLength > 1000) {
+                const cloneForDecode = arrayBuf.slice(0);
+                const buffer = await audioEngine.decodeAudio(cloneForDecode);
+                activeBuffer = buffer;
+                activeFile = new File([arrayBuf], mixName, { type: 'audio/wav' });
+                displayDecodedBuffer(activeFile.name, buffer);
+                triggerPreflightValidation(activeFile);
+                showToast(`Loaded ${mixName} from verified dataset pool!`, 'success');
+                return;
+            }
+        } catch (fetchErr) {
+            console.warn('Real demo audio fetch failed, falling back to local synthesis', fetchErr);
+        }
 
-            displayDecodedBuffer(activeFile.name, buffer);
-            triggerPreflightValidation(activeFile);
+        const kSources = mixName.includes('18') ? 4 : (mixName.includes('9') || mixName.includes('12') ? 3 : 2);
+        const buffer = audioEngine.createSyntheticDemoBuffer(kSources);
+        activeBuffer = buffer;
+        const wavBlob = audioEngine.bufferToWavBlob(buffer);
+        activeFile = new File([wavBlob], mixName, { type: 'audio/wav' });
+
+        displayDecodedBuffer(activeFile.name, buffer);
+        triggerPreflightValidation(activeFile);
+    }
+
+    if (DOM.demoSelect) {
+        DOM.demoSelect.addEventListener('change', (e) => {
+            loadDemoAudioByName(e.target.value);
         });
     }
+
+    document.querySelectorAll('.preset-chip-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const preset = btn.dataset.preset;
+            if (preset) {
+                if (DOM.demoSelect) DOM.demoSelect.value = preset;
+                loadDemoAudioByName(preset);
+            }
+        });
+    });
 
     // 5. Live Microphone Capture
     if (DOM.recordToggleBtn) {
@@ -452,6 +572,8 @@ export function initStudioPage() {
     }
 
     function renderPredictionResults(results) {
+        setStudioStage('stage-results');
+
         // Task 1: Source Counting
         if (results.source_counting && DOM.kHeroNumber) {
             const count = results.source_counting;
@@ -658,4 +780,7 @@ export function initStudioPage() {
             }
         }
     });
+
+    // Initial Stage: Clean, uncluttered Ingest mode
+    setStudioStage('stage-ingest');
 }

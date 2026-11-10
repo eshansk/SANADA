@@ -1162,8 +1162,10 @@
     }
 
     .canvas-empty-state.is-hidden {
-        opacity: 0;
-        visibility: hidden;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        display: none !important;
+        pointer-events: none !important;
     }
 
     .empty-state-content {
@@ -1868,6 +1870,11 @@
         background: var(--bg-hover);
         color: #ffffff;
         border-color: var(--wave-light);
+    }
+
+    .btn-stem-ctrl.btn-stem-play {
+        border-radius: 50%;
+        flex-shrink: 0;
     }
 
     .btn-stem-ctrl.btn-stem-play.is-playing {

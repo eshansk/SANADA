@@ -265,6 +265,10 @@ export class StemPlayerMatrix {
         const mixTrackId = 'mix';
         html += `
             <div class="stem-strip is-mix-track" id="stemStrip_mix" data-track-id="mix" tabindex="0">
+                <button class="btn-stem-ctrl btn-stem-play" data-stem-action="play-track" data-track-id="mix" id="btnPlay_mix" title="Play Mixture" aria-label="Play Mixture">
+                    <svg class="stem-icon-play" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                </button>
+
                 <div class="stem-strip-info">
                     <span class="stem-ch-chip">MIX</span>
                     <span class="stem-strip-name" title="Original Unseparated Mixture">Mixture (Original)</span>
@@ -277,9 +281,6 @@ export class StemPlayerMatrix {
                 </div>
 
                 <div class="stem-strip-controls">
-                    <button class="btn-stem-ctrl btn-stem-play" data-stem-action="play-track" data-track-id="mix" id="btnPlay_mix" title="Play Mixture" aria-label="Play Mixture">
-                        <svg class="stem-icon-play" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-                    </button>
                     <button class="btn-stem-ctrl btn-stem-mute" data-stem-action="mute-track" data-track-id="mix" id="btnMute_mix" title="Mute Mixture" aria-label="Mute Mixture">
                         <svg class="stem-icon-mute" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
                     </button>
@@ -330,6 +331,10 @@ export class StemPlayerMatrix {
 
             html += `
                 <div class="stem-strip" id="stemStrip_${trackId}" data-track-id="${trackId}" tabindex="0">
+                    <button class="btn-stem-ctrl btn-stem-play" data-stem-action="play-track" data-track-id="${trackId}" id="btnPlay_${trackId}" title="Play ${stemName}" aria-label="Play Stem">
+                        <svg class="stem-icon-play" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                    </button>
+
                     <div class="stem-strip-info">
                         <span class="stem-ch-chip">CH ${stem.channel}</span>
                         <span class="stem-strip-name" title="${stemName}">${stemName}</span>
@@ -343,9 +348,6 @@ export class StemPlayerMatrix {
                     </div>
 
                     <div class="stem-strip-controls">
-                        <button class="btn-stem-ctrl btn-stem-play" data-stem-action="play-track" data-track-id="${trackId}" id="btnPlay_${trackId}" title="Play ${stemName}" aria-label="Play Stem">
-                            <svg class="stem-icon-play" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-                        </button>
                         <button class="btn-stem-ctrl btn-stem-mute" data-stem-action="mute-track" data-track-id="${trackId}" id="btnMute_${trackId}" title="Mute ${stemName}" aria-label="Mute Stem">
                             <svg class="stem-icon-mute" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
                         </button>
@@ -534,15 +536,22 @@ export class StemPlayerMatrix {
 
         // Stop any previously playing sources so this track plays cleanly
         this.tracks.forEach((t, id) => {
-            if (t.sourceNode) {
-                try { t.sourceNode.stop(); t.sourceNode.disconnect(); } catch (_) {}
-                t.sourceNode = null;
+            if (id !== trackId) {
+                if (t.sourceNode) {
+                    try { t.sourceNode.stop(); t.sourceNode.disconnect(); } catch (_) {}
+                    t.sourceNode = null;
+                }
+                if (t.isAudioFallback && t.audioEl) {
+                    try { t.audioEl.pause(); } catch (_) {}
+                }
+                t.isPlayingIndividually = false;
+                this._updateTrackPlayBtn(id, false);
+                // Clear other tracks' visual progress so only active track progresses
+                if (t.playheadEl) t.playheadEl.style.left = '0%';
+                this.drawTrackWaveform(t, 0);
+                t.currentOffset = 0;
+                t.startOffset = 0;
             }
-            if (t.isAudioFallback && t.audioEl) {
-                try { t.audioEl.pause(); } catch (_) {}
-            }
-            t.isPlayingIndividually = false;
-            this._updateTrackPlayBtn(id, false);
         });
 
         this.isPlaying = true;
@@ -557,7 +566,8 @@ export class StemPlayerMatrix {
 
         const now = this.audioCtx ? this.audioCtx.currentTime : 0;
         this.playbackStartTime = now;
-        const startOffset = Math.max(0, Math.min(this.duration, this.pauseOffset));
+        const startOffset = Math.max(0, Math.min(this.duration, target.currentOffset || 0));
+        target.startOffset = startOffset;
 
         this._recomputeGains();
 
@@ -596,6 +606,13 @@ export class StemPlayerMatrix {
         target.isPlayingIndividually = false;
         this._updateTrackPlayBtn(trackId, false);
 
+        if (this.audioCtx) {
+            const startOffset = target.startOffset || 0;
+            const elapsed = (this.audioCtx.currentTime - this.playbackStartTime) + startOffset;
+            target.currentOffset = Math.min(this.duration, elapsed);
+            target.startOffset = target.currentOffset;
+        }
+
         const anyPlaying = Array.from(this.tracks.values()).some(t => t.sourceNode || t.isPlayingIndividually);
         if (!anyPlaying) {
             this.isPlaying = false;
@@ -607,11 +624,6 @@ export class StemPlayerMatrix {
             if (this.syncLoopId) {
                 if (typeof cancelAnimationFrame !== 'undefined') cancelAnimationFrame(this.syncLoopId);
                 this.syncLoopId = null;
-            }
-            if (this.audioCtx) {
-                const elapsed = this.audioCtx.currentTime - this.playbackStartTime;
-                this.pauseOffset += elapsed;
-                if (this.pauseOffset > this.duration) this.pauseOffset = 0;
             }
         }
     }
@@ -812,6 +824,11 @@ export class StemPlayerMatrix {
     stopAll() {
         this.pauseAll();
         this.pauseOffset = 0;
+        this.tracks.forEach(t => {
+            t.currentOffset = 0;
+            t.startOffset = 0;
+            t.isPlayingIndividually = false;
+        });
         this.updatePlayhead(0);
 
         if (this.masterScrubber) {
@@ -827,7 +844,22 @@ export class StemPlayerMatrix {
         const clamped = Math.max(0, Math.min(1, fraction));
         this.pauseOffset = clamped * this.duration;
 
-        this.updatePlayhead(clamped);
+        const soloTrack = Array.from(this.tracks.values()).find(t => t.isPlayingIndividually);
+
+        if (soloTrack) {
+            soloTrack.currentOffset = this.pauseOffset;
+            soloTrack.startOffset = this.pauseOffset;
+            if (soloTrack.playheadEl) {
+                soloTrack.playheadEl.style.left = `${clamped * 100}%`;
+            }
+            this.drawTrackWaveform(soloTrack, clamped);
+        } else {
+            this.updatePlayhead(clamped);
+            this.tracks.forEach(t => {
+                t.currentOffset = this.pauseOffset;
+                t.startOffset = this.pauseOffset;
+            });
+        }
 
         if (this.masterScrubber) {
             this.masterScrubber.value = clamped * 100;
@@ -838,8 +870,14 @@ export class StemPlayerMatrix {
         }
 
         if (this.isPlaying) {
-            this.pauseAll();
-            this.playAll();
+            if (soloTrack) {
+                const soloId = soloTrack.id;
+                this.pauseTrack(soloId);
+                this.playTrack(soloId);
+            } else {
+                this.pauseAll();
+                this.playAll();
+            }
         }
     }
 
@@ -858,29 +896,67 @@ export class StemPlayerMatrix {
     _runSyncLoop() {
         if (!this.isPlaying) return;
 
+        const soloTrack = Array.from(this.tracks.values()).find(t => t.isPlayingIndividually);
         const now = this.audioCtx ? this.audioCtx.currentTime : 0;
-        const elapsed = (now - this.playbackStartTime) + this.pauseOffset;
-        const fraction = Math.min(1, elapsed / this.duration);
 
-        if (this.masterScrubber) {
-            this.masterScrubber.value = fraction * 100;
-            this.masterScrubber.style.setProperty('--scrubber-pct', `${fraction * 100}%`);
-        }
-        if (this.timeDisplay) {
-            this.timeDisplay.textContent = `${elapsed.toFixed(2)} / ${this.duration.toFixed(2)}s`;
-        }
+        if (soloTrack) {
+            const startOffset = soloTrack.startOffset || 0;
+            const elapsed = (now - this.playbackStartTime) + startOffset;
+            const fraction = Math.max(0, Math.min(1, elapsed / this.duration));
+            const pctStr = `${fraction * 100}%`;
 
-        const pctStr = `${fraction * 100}%`;
-        this.tracks.forEach((track) => {
-            if (track.playheadEl) {
-                track.playheadEl.style.left = pctStr;
+            if (soloTrack.playheadEl) {
+                soloTrack.playheadEl.style.left = pctStr;
             }
-            this.drawTrackWaveform(track, fraction);
-        });
+            this.drawTrackWaveform(soloTrack, fraction);
 
-        if (elapsed >= this.duration) {
-            this.stopAll();
-            return;
+            if (this.masterScrubber) {
+                this.masterScrubber.value = fraction * 100;
+                this.masterScrubber.style.setProperty('--scrubber-pct', pctStr);
+            }
+            if (this.timeDisplay) {
+                this.timeDisplay.textContent = `${elapsed.toFixed(2)} / ${this.duration.toFixed(2)}s`;
+            }
+
+            if (elapsed >= this.duration) {
+                this.pauseTrack(soloTrack.id);
+                soloTrack.currentOffset = 0;
+                soloTrack.startOffset = 0;
+                if (soloTrack.playheadEl) soloTrack.playheadEl.style.left = '0%';
+                this.drawTrackWaveform(soloTrack, 0);
+                if (this.masterScrubber) {
+                    this.masterScrubber.value = 0;
+                    this.masterScrubber.style.setProperty('--scrubber-pct', '0%');
+                }
+                if (this.timeDisplay) {
+                    this.timeDisplay.textContent = `0.00 / ${this.duration.toFixed(2)}s`;
+                }
+                return;
+            }
+        } else {
+            const elapsed = (now - this.playbackStartTime) + this.pauseOffset;
+            const fraction = Math.max(0, Math.min(1, elapsed / this.duration));
+            const pctStr = `${fraction * 100}%`;
+
+            if (this.masterScrubber) {
+                this.masterScrubber.value = fraction * 100;
+                this.masterScrubber.style.setProperty('--scrubber-pct', pctStr);
+            }
+            if (this.timeDisplay) {
+                this.timeDisplay.textContent = `${elapsed.toFixed(2)} / ${this.duration.toFixed(2)}s`;
+            }
+
+            this.tracks.forEach((track) => {
+                if (track.playheadEl) {
+                    track.playheadEl.style.left = pctStr;
+                }
+                this.drawTrackWaveform(track, fraction);
+            });
+
+            if (elapsed >= this.duration) {
+                this.stopAll();
+                return;
+            }
         }
 
         if (typeof requestAnimationFrame !== 'undefined') {

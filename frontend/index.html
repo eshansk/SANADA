@@ -286,7 +286,7 @@
                 <!-- ============================================================== -->
                 <!-- PAGE 2: /predict (STUDIO / INFERENCE PORTAL)                    -->
                 <!-- ============================================================== -->
-                <section class="view-page" id="pagePredict">
+                <section class="view-page stage-ingest" id="pagePredict">
                     <!-- STUDIO HEADER ROW -->
                     <div class="studio-header">
                         <div class="studio-header-left">
@@ -318,11 +318,10 @@
                         <!-- LEFT RAIL (STICKY ON DESKTOP): INGESTION & PRE-FLIGHT VALIDATION -->
                         <aside class="studio-rail">
                             <!-- CARD 01: INGEST -->
-                            <div class="card">
+                            <div class="card" id="studioIngestCard">
                                 <div class="card-header">
                                     <h2 class="card-title">
-                                        <span class="step-pill">01</span>
-                                        <span>Ingest</span>
+                                        <span>Load Audio Mixture</span>
                                     </h2>
                                     <div class="seg-toggle">
                                         <button type="button" class="seg-btn active" id="tabUploadMode">Upload WAV</button>
@@ -352,6 +351,28 @@
                                             <option value="mix_00018.wav">mix_00018.wav (Org-Mix-9 Variable K=4)</option>
                                         </select>
                                     </div>
+
+                                    <div class="ingest-presets-wrap">
+                                        <span class="presets-label">Or choose an evaluation mixture preset:</span>
+                                        <div class="presets-chips">
+                                            <button type="button" class="preset-chip-btn" data-preset="mix_00000.wav">
+                                                <span class="chip-k">K=2</span>
+                                                <span>Speech Duo (Org-Mix-4)</span>
+                                            </button>
+                                            <button type="button" class="preset-chip-btn" data-preset="mix_00001.wav">
+                                                <span class="chip-k">K=2</span>
+                                                <span>Voice Mixture</span>
+                                            </button>
+                                            <button type="button" class="preset-chip-btn" data-preset="mix_00012.wav">
+                                                <span class="chip-k">K=3</span>
+                                                <span>Trio Speech (Org-Mix-9)</span>
+                                            </button>
+                                            <button type="button" class="preset-chip-btn" data-preset="mix_00018.wav">
+                                                <span class="chip-k">K=4</span>
+                                                <span>High Density (Org-Mix-9)</span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- LIVE MIC CONTAINER -->
@@ -368,18 +389,30 @@
                             </div>
 
                             <!-- CARD 02: VALIDATE -->
-                            <div class="card">
+                            <div class="card" id="studioValidateCard">
                                 <div class="card-header">
                                     <h2 class="card-title">
-                                        <span class="step-pill">02</span>
-                                        <span>Validate</span>
+                                        <span>Loaded Audio &amp; Specifications</span>
                                     </h2>
-                                    <span class="badge" id="uploadStatusBadge">Awaiting Audio</span>
+                                    <div class="studio-validate-header-actions">
+                                        <span class="badge" id="uploadStatusBadge">Awaiting Audio</span>
+                                        <button type="button" class="btn btn-sm btn-change-audio" id="studioResetAudioBtn" title="Upload or select a different audio">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                                            <span>Change Audio</span>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-remove-audio" id="studioRemoveAudioBtn" title="Remove audio and return to upload">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                            <span>Remove</span>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <dl class="metric-dl-grid">
                                     <div class="metric-dl-item tile-filename">
-                                        <dt class="label">Filename</dt>
+                                        <div class="tile-filename-header">
+                                            <dt class="label">Filename</dt>
+                                            <button type="button" class="link-change-file" id="studioChangeFileInlineBtn" title="Change or remove file">Change</button>
+                                        </div>
                                         <dd class="val" id="metaFilename">—</dd>
                                     </div>
                                     <div class="metric-dl-item">
@@ -411,10 +444,16 @@
                                         <option value="tagging">Task 2: Multi-Label Tagging Only</option>
                                         <option value="separating">Task 3: Source Separation Only</option>
                                     </select>
-                                    <button class="btn btn-primary btn-run-inference btn-full" id="runInferenceBtn" disabled>
-                                        <span id="inferenceBtnIcon"></span>
-                                        <span id="inferenceBtnText">Run Inference</span>
-                                    </button>
+                                    <div class="validate-buttons-row">
+                                        <button class="btn btn-primary btn-run-inference" id="runInferenceBtn" disabled>
+                                            <span id="inferenceBtnIcon"></span>
+                                            <span id="inferenceBtnText">Run Inference</span>
+                                        </button>
+                                        <button type="button" class="btn btn-secondary btn-replace-audio" id="studioChangeAudioActionBtn" title="Replace or remove current audio file">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                                            <span>Replace Audio</span>
+                                        </button>
+                                    </div>
                                     <div class="run-hint" id="runHint">Load or record audio to enable inference</div>
                                 </div>
                             </div>
@@ -423,11 +462,10 @@
                         <!-- RIGHT MAIN COLUMN: SIGNAL VISUALIZER, RESULTS, & STEM MIXER -->
                         <div class="studio-main">
                             <!-- CARD 03: SIGNAL -->
-                            <div class="card">
+                            <div class="card" id="studioSignalCard">
                                 <div class="card-header">
                                     <h2 class="card-title">
-                                        <span class="step-pill">03</span>
-                                        <span>Signal</span>
+                                        <span>Signal Visualizer</span>
                                     </h2>
                                     <span class="badge">Dual Canvas &bull; STFT 256 Hann</span>
                                 </div>
@@ -515,9 +553,9 @@
                             </div>
 
                             <!-- ROW 2: TASK 1 (SOURCE COUNTING) & TASK 2 (ACTIVE TAGS) -->
-                            <div class="studio-results-row">
+                            <div class="studio-results-row" id="studioResultsRow">
                                 <!-- TASK 1: SOURCE COUNTING -->
-                                <div class="card">
+                                <div class="card" id="studioCountingCard">
                                     <div class="card-header">
                                         <h2 class="card-title">
                                             <span>Source count</span>
@@ -580,7 +618,7 @@
                                 </div>
 
                                 <!-- TASK 2: MULTI-LABEL TAGGING -->
-                                <div class="card">
+                                <div class="card" id="studioTaggingCard">
                                     <div class="card-header">
                                         <h2 class="card-title">
                                             <span>Active tags</span>
@@ -600,7 +638,7 @@
                             </div>
 
                             <!-- TASK 3: FULL-WIDTH MULTI-STEM PLAYER MATRIX -->
-                            <div class="card">
+                            <div class="card" id="studioStemsCard">
                                 <div class="card-header">
                                     <h2 class="card-title">
                                         <span>Separated stems</span>
@@ -620,8 +658,8 @@
                         </div>
                     </div>
 
-                    <!-- FIXED BOTTOM GLASS ACTION BAR FOR VIEWPORTS < 1100px -->
-                    <div class="studio-mobile-bar" id="studioMobileActionBar">
+                    <!-- FIXED BOTTOM GLASS ACTION BAR FOR VIEWPORTS < 1100px (Disabled to avoid duplicate run button) -->
+                    <div class="studio-mobile-bar" id="studioMobileActionBar" style="display: none !important;">
                         <div class="mobile-bar-info">
                             <span class="mobile-bar-filename" id="mobileBarFilename">Audio loaded</span>
                             <span class="mobile-bar-hint" id="mobileBarHint">Ready for inference</span>
@@ -985,21 +1023,21 @@
                                         <rect x="68" y="64.9" width="44" height="121.1" rx="4" fill="#ffffff" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
                                         <text x="90" y="58.9" text-anchor="middle" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="9" font-weight="600">74.8%</text>
                                         <text x="90" y="80.9" text-anchor="middle" fill="#000000" font-family="var(--font-mono, monospace)" font-size="8" font-weight="600">MAE 0.32</text>
-                                        <text x="90" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-body, sans-serif)" font-size="11">Org-Mix-4</text>
+                                        <text x="90" y="208" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="var(--font-mono, monospace)" font-size="10">Org-Mix-4</text>
                                         <title>Org-Mix-4: Exact Acc 74.75% | MAE 0.3243 | RMSE 0.4302</title>
                                     </g>
                                     <g class="chart-bar-group" tabindex="0">
                                         <rect x="168" y="126.9" width="44" height="59.1" rx="4" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
                                         <text x="190" y="120.9" text-anchor="middle" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="9" font-weight="600">36.5%</text>
                                         <text x="190" y="142.9" text-anchor="middle" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="8" font-weight="600">MAE 0.88</text>
-                                        <text x="190" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-body, sans-serif)" font-size="11">Org-Mix-9</text>
+                                        <text x="190" y="208" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="var(--font-mono, monospace)" font-size="10">Org-Mix-9</text>
                                         <title>Org-Mix-9: Exact Acc 36.46% | MAE 0.8766 | RMSE 1.0925</title>
                                     </g>
                                     <g class="chart-bar-group" tabindex="0">
                                         <rect x="268" y="177.0" width="44" height="9.0" rx="4" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
                                         <text x="290" y="171.0" text-anchor="middle" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="9" font-weight="600">5.6%</text>
                                         <text x="290" y="159.0" text-anchor="middle" fill="#ffffff" font-family="var(--font-mono, monospace)" font-size="8" font-weight="600">MAE 6.73</text>
-                                        <text x="290" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-body, sans-serif)" font-size="11">FSD-Mix-32</text>
+                                        <text x="290" y="208" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="var(--font-mono, monospace)" font-size="10">FSD-Mix-32</text>
                                         <title>FSD-Mix-32: Exact Acc 5.56% | MAE 6.7262 | RMSE 8.0885</title>
                                     </g>
                                 </svg>
@@ -1029,42 +1067,42 @@
                                     <text x="34" y="115" text-anchor="end" fill="rgba(255,255,255,0.4)" font-family="var(--font-mono, monospace)" font-size="8">0.5</text>
                                     <text x="34" y="189" text-anchor="end" fill="rgba(255,255,255,0.4)" font-family="var(--font-mono, monospace)" font-size="8">0.0</text>
                                     <g class="chart-group" tabindex="0">
-                                        <rect x="47" y="39.5" width="14" height="146.5" rx="2" fill="#ffffff" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                        <rect x="51" y="39.5" width="14" height="146.5" rx="2" fill="#ffffff" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
                                             <title>Org-Mix-4 - mAP: 0.9902</title>
                                         </rect>
-                                        <rect x="64" y="46.2" width="14" height="139.8" rx="2" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                        <rect x="68" y="46.2" width="14" height="139.8" rx="2" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
                                             <title>Org-Mix-4 - Macro F1: 0.9449</title>
                                         </rect>
-                                        <rect x="81" y="41.5" width="14" height="144.5" rx="2" fill="rgba(255,255,255,0.30)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                        <rect x="85" y="41.5" width="14" height="144.5" rx="2" fill="rgba(255,255,255,0.30)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
                                             <title>Org-Mix-4 - ROC-AUC: 0.9765</title>
                                         </rect>
-                                        <text x="71" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-body, sans-serif)" font-size="10">Org-Mix-4 (0.99)</text>
+                                        <text x="75" y="208" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="var(--font-mono, monospace)" font-size="10">Org-Mix-4</text>
                                         <title>Org-Mix-4 Tagging: mAP=0.9902, F1=0.9449, AUC=0.9765</title>
                                     </g>
                                     <g class="chart-group" tabindex="0">
-                                        <rect x="137" y="51.0" width="14" height="135.0" rx="2" fill="#ffffff" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                        <rect x="146" y="51.0" width="14" height="135.0" rx="2" fill="#ffffff" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
                                             <title>Org-Mix-9 - mAP: 0.9122</title>
                                         </rect>
-                                        <rect x="154" y="63.1" width="14" height="122.9" rx="2" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                        <rect x="163" y="63.1" width="14" height="122.9" rx="2" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
                                             <title>Org-Mix-9 - Macro F1: 0.8305</title>
                                         </rect>
-                                        <rect x="171" y="56.6" width="14" height="129.4" rx="2" fill="rgba(255,255,255,0.30)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                        <rect x="180" y="56.6" width="14" height="129.4" rx="2" fill="rgba(255,255,255,0.30)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
                                             <title>Org-Mix-9 - ROC-AUC: 0.8744</title>
                                         </rect>
-                                        <text x="161" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-body, sans-serif)" font-size="10">Org-Mix-9 (0.91)</text>
+                                        <text x="170" y="208" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="var(--font-mono, monospace)" font-size="10">Org-Mix-9</text>
                                         <title>Org-Mix-9 Tagging: mAP=0.9122, F1=0.8305, AUC=0.8744</title>
                                     </g>
                                     <g class="chart-group" tabindex="0">
-                                        <rect x="227" y="93.3" width="14" height="92.7" rx="2" fill="#ffffff" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                        <rect x="241" y="93.3" width="14" height="92.7" rx="2" fill="#ffffff" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
                                             <title>FSD-Mix - mAP: 0.6265</title>
                                         </rect>
-                                        <rect x="244" y="84.6" width="14" height="101.4" rx="2" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                        <rect x="258" y="84.6" width="14" height="101.4" rx="2" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
                                             <title>FSD-Mix - Macro F1: 0.6849</title>
                                         </rect>
-                                        <rect x="261" y="94.8" width="14" height="91.2" rx="2" fill="rgba(255,255,255,0.30)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
+                                        <rect x="275" y="94.8" width="14" height="91.2" rx="2" fill="rgba(255,255,255,0.30)" stroke="rgba(255,255,255,0.2)" stroke-width="0.8">
                                             <title>FSD-Mix - ROC-AUC: 0.6161</title>
                                         </rect>
-                                        <text x="251" y="208" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="var(--font-body, sans-serif)" font-size="10">FSD-Mix (0.63)</text>
+                                        <text x="265" y="208" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="var(--font-mono, monospace)" font-size="10">FSD-Mix</text>
                                         <title>FSD-Mix Tagging: mAP=0.6265, F1=0.6849, AUC=0.6161</title>
                                     </g>
                                 </svg>

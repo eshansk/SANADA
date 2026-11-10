@@ -617,6 +617,352 @@
         border-color: color-mix(in srgb, var(--wave-light) 40%, transparent);
     }
 
+    /* ==========================================================================
+       STUDIO PROGRESSIVE DISCLOSURE (STAGE 1 -> STAGE 2 -> STAGE 3)
+       ========================================================================== */
+    .studio-ingest-header-actions,
+    .studio-validate-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .btn-change-audio,
+    .btn-remove-audio {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 500;
+        padding: 5px 12px;
+        border-radius: var(--radius-full);
+        border: 1px solid var(--border-tint);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        line-height: 1.2;
+    }
+
+    .btn-change-audio:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .btn-remove-audio:hover {
+        background: rgba(244, 63, 94, 0.15);
+        color: #f43f5e;
+        border-color: rgba(244, 63, 94, 0.4);
+    }
+
+    .tile-filename-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .link-change-file {
+        background: none;
+        border: none;
+        padding: 0;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-muted);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        cursor: pointer;
+        transition: color 0.15s ease;
+    }
+
+    .link-change-file:hover {
+        color: #ffffff;
+    }
+
+    /* PRESET CHIPS IN INGEST */
+    .ingest-presets-wrap {
+        margin-top: 18px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-tint);
+    }
+
+    .presets-label {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+        letter-spacing: 0.3px;
+    }
+
+    .presets-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .preset-chip-btn {
+        background: var(--bg-2);
+        border: 1px solid var(--border-tint);
+        border-radius: var(--radius-full);
+        padding: 6px 14px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .preset-chip-btn:hover {
+        background: var(--bg-hover);
+        border-color: #ffffff;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+    .preset-chip-btn .chip-k {
+        background: #ffffff;
+        color: #000000;
+        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: 9999px;
+        font-size: 10px;
+    }
+
+    /* STAGE 1: INGEST ONLY (Empty / Initial state) */
+    #pagePredict.stage-ingest #studioValidateCard,
+    #pagePredict.stage-ingest #studioSignalCard,
+    #pagePredict.stage-ingest #studioResultsRow,
+    #pagePredict.stage-ingest #studioStemsCard,
+    #pagePredict.stage-ingest .studio-copy-btn,
+    #pagePredict.stage-ingest .studio-main {
+        display: none !important;
+    }
+
+    #pagePredict.stage-ingest .studio-layout {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 24px 0 60px;
+        width: 100%;
+    }
+
+    #pagePredict.stage-ingest .studio-rail {
+        width: 100%;
+        max-width: 680px;
+        flex: 1 1 auto;
+        margin: 0 auto;
+        position: static;
+        padding: 0;
+    }
+
+    #pagePredict.stage-ingest #studioIngestCard {
+        display: block;
+        padding: 32px;
+        box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5);
+    }
+
+    #pagePredict.stage-ingest .dropzone {
+        padding: 48px 24px;
+        border: 1.5px dashed var(--border-tint);
+    }
+
+    /* STAGES 2 & 3: FULL-WIDTH WORKSTATION LAYOUT */
+    #pagePredict.stage-loaded .studio-layout,
+    #pagePredict.stage-results .studio-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+    }
+
+    #pagePredict.stage-loaded .studio-rail,
+    #pagePredict.stage-results .studio-rail {
+        width: 100%;
+        flex: 1 1 auto;
+        position: static;
+        max-height: none;
+        overflow: visible;
+        padding: 0;
+    }
+
+    #pagePredict.stage-loaded #studioIngestCard,
+    #pagePredict.stage-results #studioIngestCard {
+        display: none !important;
+    }
+
+    #pagePredict.stage-loaded #studioValidateCard,
+    #pagePredict.stage-results #studioValidateCard {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        animation: studioReveal 0.25s ease-out;
+    }
+
+    #pagePredict.stage-loaded .studio-main,
+    #pagePredict.stage-results .studio-main {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+    }
+
+    #pagePredict.stage-loaded #studioSignalCard,
+    #pagePredict.stage-results #studioSignalCard {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        animation: studioReveal 0.25s ease-out;
+    }
+
+    #studioValidateCard .metric-dl-grid {
+        display: grid;
+        grid-template-columns: 2fr repeat(4, 1fr) 1.5fr;
+        gap: 12px;
+        padding: 12px 16px;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid var(--border-tint);
+        border-radius: var(--radius-sm);
+        margin: 14px 0;
+    }
+
+    #studioValidateCard .metric-dl-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    #studioValidateCard .metric-dl-item .label {
+        font-size: 10px;
+        text-transform: uppercase;
+        font-family: var(--font-mono);
+        color: var(--text-muted);
+        letter-spacing: 0.05em;
+    }
+
+    #studioValidateCard .metric-dl-item .val {
+        font-size: 13px;
+        font-family: var(--font-mono);
+        font-weight: 600;
+        color: #ffffff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #studioValidateCard .validate-actions {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 14px;
+        margin-top: 16px;
+    }
+
+    #studioValidateCard .validate-actions .select-input {
+        flex: 1;
+        min-width: 240px;
+    }
+
+    .validate-buttons-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1.2;
+        min-width: 280px;
+    }
+
+    .validate-buttons-row .btn-run-inference {
+        flex: 1.4;
+        min-width: 160px;
+    }
+
+    .validate-buttons-row .btn-replace-audio {
+        flex: 1;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 500;
+        padding: 11px 14px;
+        border-radius: var(--radius-full);
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-tint);
+        color: var(--text-secondary);
+        transition: all 0.15s ease;
+        cursor: pointer;
+    }
+
+    .validate-buttons-row .btn-replace-audio:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    /* Guaranteed suppression of empty state canvas overlay during loaded and results stages */
+    #pagePredict.stage-loaded #canvasEmptyState,
+    #pagePredict.stage-results #canvasEmptyState {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+
+    /* STAGE 2: RESULTS & STEMS HIDDEN UNTIL INFERENCE CLICKED */
+    #pagePredict.stage-loaded #studioResultsRow,
+    #pagePredict.stage-loaded #studioStemsCard {
+        display: none !important;
+    }
+
+    /* STAGE 3: INFERENCE RESULTS REVEALED */
+    #pagePredict.stage-results #studioResultsRow {
+        display: grid !important;
+        grid-template-columns: 5fr 7fr;
+        gap: 20px;
+        width: 100%;
+        animation: studioReveal 0.25s ease-out;
+    }
+
+    #pagePredict.stage-results #studioStemsCard {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        animation: studioReveal 0.25s ease-out;
+    }
+
+    @keyframes studioReveal {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 960px) {
+        #studioValidateCard .metric-dl-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        #studioValidateCard .validate-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        #pagePredict.stage-results #studioResultsRow {
+            grid-template-columns: 1fr;
+        }
+    }
+
     .studio-layout {
         display: flex;
         align-items: flex-start;
