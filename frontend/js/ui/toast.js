@@ -6,6 +6,10 @@
  */
 
 export function showToast(message, type = 'success') {
+    // Suppress notification popups in mobile view (screen width <= 768px)
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+        return;
+    }
     const container = document.getElementById('toastContainer');
     if (!container) return;
     const toast = document.createElement('div');

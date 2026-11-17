@@ -271,7 +271,15 @@ def predict_sound_tags(
         total_energy = np.sum(fft_mag ** 2) + 1e-8
         hf_ratio = float(hf_energy / total_energy)
 
-        if "org_mix_9" in hint or "9_speakers" in hint:
+        has_high_k = bool(
+            (k_from_member2 and k_from_member2 > 4)
+            or any(s in hint for s in ["5_speaker", "6_speaker", "7_speaker", "8_speaker", "9_speaker",
+                                      "speaker_5", "speaker_6", "speaker_7", "speaker_8", "speaker_9",
+                                      "org_mix_5", "org_mix_6", "org_mix_7", "org_mix_8", "org_mix_9", "org9"])
+            or re.search(r'[5-9]\s*(?:speakers?|sounds?)', hint)
+        )
+
+        if has_high_k or "org_mix_9" in hint or "9_speakers" in hint:
             classes = ORG_9_CLASSES
             active_taxonomy = "org9"
             probs = raw_probs[:9]

@@ -1,44 +1,20 @@
 /**
  * frontend/js/ui/homeVideo.js
  * ===========================
- * Ambient HLS Background Stream Engine.
- * Dynamically streams Mux wave animation on the homepage view, pauses off-screen,
+ * Ambient Background Wave Video Engine.
+ * Streams local wave animation on the homepage view, pauses off-screen,
  * and reacts to user scroll energy with momentum physics.
  */
 
-const HLS_CDN_URL = 'https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js';
-const MUX_HLS_SRC = 'https://stream.mux.com/8wrHPCX2dC3msyYU9ObwqNdm00u3ViXvOSHUMRYSEe5Q.m3u8';
+const LOCAL_VIDEO_SRC = 'assets/wave_bg.mp4?v=4';
+export const BASE_RATE = 0.80; // Ambient slow-motion baseline speed (calm, natural cinematic wave)
 
-let hlsInstance = null;
-let currentRate = 1.0;
+let currentRate = BASE_RATE;
 let scrollEnergy = 0;
 let rafId = null;
 let lastScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
 let videoElement = null;
 let waveContainer = null;
-
-function loadHlsScript() {
-    return new Promise((resolve, reject) => {
-        if (typeof window !== 'undefined' && typeof window.Hls !== 'undefined') {
-            resolve(window.Hls);
-            return;
-        }
-
-        const existingScript = document.querySelector(`script[src="${HLS_CDN_URL}"]`);
-        if (existingScript) {
-            existingScript.addEventListener('load', () => resolve(window.Hls));
-            existingScript.addEventListener('error', reject);
-            return;
-        }
-
-        const script = document.createElement('script');
-        script.src = HLS_CDN_URL;
-        script.async = true;
-        script.onload = () => resolve(window.Hls);
-        script.onerror = () => reject(new Error('Failed to load hls.js from CDN'));
-        document.head.appendChild(script);
-    });
-}
 
 function isHomePageActive() {
     const hash = (window.location.hash || '').replace(/^#\/?/, '').split('/')[0].trim();
@@ -64,6 +40,9 @@ export function updateWaveVisibility() {
         if (videoElement.paused) {
             videoElement.play().catch(() => {});
         }
+        if (scrollEnergy === 0) {
+            videoElement.playbackRate = BASE_RATE;
+        }
     } else {
         waveContainer.style.opacity = '0';
         setTimeout(() => {
@@ -80,12 +59,12 @@ function tickScrollVelocity() {
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) {
-        videoElement.playbackRate = 1.0;
+        videoElement.playbackRate = BASE_RATE;
         rafId = null;
         return;
     }
 
-    const targetRate = 1.0 + scrollEnergy;
+    const targetRate = BASE_RATE + scrollEnergy;
     currentRate += (targetRate - currentRate) * 0.28;
 
     scrollEnergy *= 0.91;
@@ -93,16 +72,16 @@ function tickScrollVelocity() {
         scrollEnergy = 0;
     }
 
-    const clampedRate = Math.max(1.0, Math.min(3.8, currentRate));
+    const clampedRate = Math.max(BASE_RATE, Math.min(3.2, currentRate));
     try {
         videoElement.playbackRate = Number(clampedRate.toFixed(2));
     } catch (e) {}
 
-    if (scrollEnergy > 0 || Math.abs(currentRate - 1.0) > 0.02) {
+    if (scrollEnergy > 0 || Math.abs(currentRate - BASE_RATE) > 0.02) {
         rafId = requestAnimationFrame(tickScrollVelocity);
     } else {
-        currentRate = 1.0;
-        try { videoElement.playbackRate = 1.0; } catch (e) {}
+        currentRate = BASE_RATE;
+        try { videoElement.playbackRate = BASE_RATE; } catch (e) {}
         rafId = null;
     }
 }
@@ -141,6 +120,22 @@ export async function initHomeVideo(videoId = 'ctaVideo') {
     if (!videoElement) return;
 
     videoElement.crossOrigin = 'anonymous';
+    videoElement.loop = true;
+    videoElement.muted = true;
+    videoElement.playsInline = true;
+    videoElement.defaultPlaybackRate = BASE_RATE;
+    videoElement.playbackRate = BASE_RATE;
+
+    videoElement.addEventListener('loadedmetadata', () => {
+        videoElement.defaultPlaybackRate = BASE_RATE;
+        videoElement.playbackRate = BASE_RATE;
+    });
+
+    videoElement.addEventListener('play', () => {
+        if (scrollEnergy === 0) {
+            videoElement.playbackRate = BASE_RATE;
+        }
+    });
 
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const shouldAutoplay = !reducedMotionQuery.matches;
@@ -168,7 +163,7 @@ export async function initHomeVideo(videoId = 'ctaVideo') {
     }
 
     function handleVideoError(reason) {
-        console.warn(`[Wave Background] Dark fallback: ${reason}`);
+        console.warn(`[Wave Background] Fallback: ${reason}`);
         if (videoElement) videoElement.style.display = 'none';
         if (waveContainer) waveContainer.style.background = '#000000';
     }
@@ -178,66 +173,19 @@ export async function initHomeVideo(videoId = 'ctaVideo') {
     });
 
     try {
-        const Hls = await loadHlsScript();
-
-        if (Hls && Hls.isSupported()) {
-            hlsInstance = new Hls({
-                enableWorker: true,
-                lowLatencyMode: false,
-                backBufferLength: 30
-            });
-
-            hlsInstance.loadSource(MUX_HLS_SRC);
-            hlsInstance.attachMedia(videoElement);
-
-            hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-                if (shouldAutoplay && isHomePageActive()) {
-                    videoElement.play().catch(err => {
-                        console.warn('[Wave Background] Autoplay policy prevented playback:', err);
-                    });
-                }
-            });
-
-            hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-                if (data.fatal) {
-                    switch (data.type) {
-                        case Hls.ErrorTypes.NETWORK_ERROR:
-                            hlsInstance.startLoad();
-                            break;
-                        case Hls.ErrorTypes.MEDIA_ERROR:
-                            hlsInstance.recoverMediaError();
-                            break;
-                        default:
-                            handleVideoError(`Fatal HLS error: ${data.details}`);
-                            hlsInstance.destroy();
-                            break;
-                    }
-                }
-            });
-
-            window.addEventListener('pagehide', () => {
-                if (hlsInstance) hlsInstance.destroy();
-            });
-
-        } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-            videoElement.src = MUX_HLS_SRC;
-            videoElement.addEventListener('loadedmetadata', () => {
-                if (shouldAutoplay && isHomePageActive()) {
-                    videoElement.play().catch(() => {});
-                }
-            });
-        } else {
-            handleVideoError('HLS not supported in this browser');
+        if (!videoElement.currentSrc && !videoElement.src) {
+            videoElement.src = LOCAL_VIDEO_SRC;
+        }
+        if (shouldAutoplay && isHomePageActive()) {
+            const playPromise = videoElement.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(err => {
+                    console.warn('[Wave Background] Autoplay policy prevented playback:', err);
+                });
+            }
         }
     } catch (err) {
-        if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-            videoElement.src = MUX_HLS_SRC;
-            if (shouldAutoplay && isHomePageActive()) {
-                videoElement.play().catch(() => {});
-            }
-        } else {
-            handleVideoError(err.message);
-        }
+        handleVideoError(err.message);
     }
 
     updateWaveVisibility();

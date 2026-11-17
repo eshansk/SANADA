@@ -399,7 +399,12 @@ export function initStudioPage() {
             console.warn('Real demo audio fetch failed, falling back to local synthesis', fetchErr);
         }
 
-        const kSources = mixName.includes('18') ? 4 : (mixName.includes('9') || mixName.includes('12') ? 3 : 2);
+        let kSources = 2;
+        if (mixName.includes('9')) kSources = 9;
+        else if (mixName.includes('8')) kSources = 8;
+        else if (mixName.includes('5')) kSources = 5;
+        else if (mixName.includes('4') || mixName.includes('18')) kSources = 4;
+        else if (mixName.includes('3') || mixName.includes('12')) kSources = 3;
         const buffer = audioEngine.createSyntheticDemoBuffer(kSources);
         activeBuffer = buffer;
         const wavBlob = audioEngine.bufferToWavBlob(buffer);
@@ -521,6 +526,17 @@ export function initStudioPage() {
         DOM.runInferenceBtn.addEventListener('click', async () => {
             if (!activeFile) return;
 
+            // Immediately switch to results stage and smooth-scroll to source count section
+            setStudioStage('stage-results');
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    const countCard = document.getElementById('studioCountingCard');
+                    if (countCard) {
+                        countCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 40);
+            });
+
             const task = DOM.taskSelect ? DOM.taskSelect.value : 'all';
             DOM.runInferenceBtn.disabled = true;
             if (DOM.runInferenceMobileBtn) DOM.runInferenceMobileBtn.disabled = true;
@@ -552,7 +568,11 @@ export function initStudioPage() {
 
     function animateCountUp(el, targetVal, duration = 400) {
         const target = parseInt(targetVal, 10);
-        if (isNaN(target)) { el.textContent = targetVal; return; }
+        if (isNaN(target)) {
+            el.textContent = targetVal;
+            updateSegmentedMeter(targetVal);
+            return;
+        }
         const startTime = (typeof performance !== 'undefined' ? performance.now() : Date.now());
         function step(now) {
             const time = now || (typeof performance !== 'undefined' ? performance.now() : Date.now());
@@ -560,11 +580,13 @@ export function initStudioPage() {
             const progress = Math.min(1, elapsed / duration);
             const current = Math.floor(progress * target);
             el.textContent = current;
+            updateSegmentedMeter(current);
             if (progress < 1) {
                 if (typeof requestAnimationFrame !== 'undefined') requestAnimationFrame(step);
                 else setTimeout(() => step(), 16);
             } else {
                 el.textContent = target;
+                updateSegmentedMeter(target);
             }
         }
         if (typeof requestAnimationFrame !== 'undefined') requestAnimationFrame(step);
@@ -578,6 +600,7 @@ export function initStudioPage() {
         if (results.source_counting && DOM.kHeroNumber) {
             const count = results.source_counting;
             animateCountUp(DOM.kHeroNumber, count.estimated_k);
+            updateSegmentedMeter(count.estimated_k);
             if (DOM.kHeroSub) DOM.kHeroSub.textContent = `Confidence: ${(count.confidence * 100).toFixed(1)}%`;
             if (DOM.kModelBadge) DOM.kModelBadge.textContent = count.model;
             if (DOM.kContinuousVal) DOM.kContinuousVal.textContent = count.raw_continuous_prediction.toFixed(3);
@@ -635,31 +658,55 @@ export function initStudioPage() {
     }
 
     function renderMockResults() {
+        let mockK = 4;
+        let mockRaw = 4.215;
+        let activeClasses = ["Speaker_4_1", "Speaker_4_3"];
+        let classProbabilities = {
+            "Speaker_4_1": 0.965,
+            "Speaker_4_3": 0.912,
+            "Speaker_4_4": 0.384,
+            "Speaker_4_2": 0.122
+        };
+
+        const fname = activeFile ? activeFile.name.toLowerCase() : '';
+        const matchK = fname.match(/(\d+)\s*(?:speakers?|sounds?|sources?)/) || fname.match(/mix_(\d+)/) || fname.match(/(\d+)/);
+        if (matchK) {
+            const parsed = parseInt(matchK[1], 10);
+            if (parsed >= 1 && parsed <= 9) {
+                mockK = parsed;
+                mockRaw = +(parsed + 0.05).toFixed(3);
+                if (parsed > 4) {
+                    activeClasses = [];
+                    classProbabilities = {};
+                    for (let i = 1; i <= parsed; i++) {
+                        const sName = `Speaker_9_${i}`;
+                        activeClasses.push(sName);
+                        classProbabilities[sName] = +(0.95 - (i - 1) * 0.03).toFixed(2);
+                    }
+                }
+            }
+        }
+
         renderPredictionResults({
             source_counting: {
-                estimated_k: 4,
-                raw_continuous_prediction: 4.215,
+                estimated_k: mockK,
+                raw_continuous_prediction: mockRaw,
                 confidence: 0.895,
                 model: "Conformer-Regressor-MSE"
             },
             label_tagging: {
-                active_classes: ["Speaker_4_1", "Speaker_4_3"],
-                class_probabilities: {
-                    "Speaker_4_1": 0.965,
-                    "Speaker_4_3": 0.912,
-                    "Speaker_4_4": 0.384,
-                    "Speaker_4_2": 0.122
-                },
+                active_classes: activeClasses,
+                class_probabilities: classProbabilities,
                 model: "Conformer-Classifier-ASL"
             },
             source_separation: {
-                reconstructed_count: 4,
+                reconstructed_count: Math.min(mockK, 4),
                 stems: [
                     { channel: 1, filename: "stem_1.wav", url: "/static/stems/demo_stem_1.wav", si_sdr_estimate_db: 10.59 },
                     { channel: 2, filename: "stem_2.wav", url: "/static/stems/demo_stem_2.wav", si_sdr_estimate_db: 8.42 },
                     { channel: 3, filename: "stem_3.wav", url: "/static/stems/demo_stem_3.wav", si_sdr_estimate_db: 4.24 },
                     { channel: 4, filename: "stem_4.wav", url: "/static/stems/demo_stem_4.wav", si_sdr_estimate_db: 4.24 }
-                ],
+                ].slice(0, Math.min(mockK, 4)),
                 model: "TimeDomain-ConvTasNet"
             }
         });
@@ -670,8 +717,10 @@ export function initStudioPage() {
         if (!DOM.segmentedMeter || !DOM.gaugeLabel || !DOM.gaugeDot) return;
         const k = parseInt(kVal, 10);
         const segments = DOM.segmentedMeter.querySelectorAll('.meter-segment');
-        if (isNaN(k)) {
-            segments.forEach(seg => seg.classList.remove('active'));
+        if (isNaN(k) || k <= 0) {
+            segments.forEach(seg => {
+                seg.classList.remove('active', 'is-active');
+            });
             DOM.gaugeDot.className = 'status-dot';
             DOM.gaugeDot.style.background = '';
             DOM.gaugeLabel.textContent = 'Awaiting inference prediction to evaluate Complexity Ceiling';
@@ -680,11 +729,9 @@ export function initStudioPage() {
 
         segments.forEach(seg => {
             const segK = parseInt(seg.dataset.k, 10);
-            if (segK <= k) {
-                seg.classList.add('active');
-            } else {
-                seg.classList.remove('active');
-            }
+            const shouldBeActive = segK <= k;
+            seg.classList.toggle('active', shouldBeActive);
+            seg.classList.toggle('is-active', shouldBeActive);
         });
 
         if (k <= 3) {
@@ -697,8 +744,8 @@ export function initStudioPage() {
             DOM.gaugeLabel.innerHTML = `<strong>K = 4 (Ceiling Boundary)</strong>: Speech separation usable (~4.2 dB SI-SDR); near breakdown limit.`;
         } else {
             DOM.gaugeDot.className = 'status-dot';
-            DOM.gaugeDot.style.background = 'rgba(255, 255, 255, 0.4)';
-            DOM.gaugeLabel.innerHTML = `<strong>K = ${k} (Ceiling Exceeded)</strong>: Separation is unreliable (&lt; 0 dB SI-SDR). High permutation ambiguity.`;
+            DOM.gaugeDot.style.background = '#ffffff';
+            DOM.gaugeLabel.innerHTML = `<strong>K = ${k} (Ceiling Exceeded)</strong>: High source density (${k} speakers/sources). Separation unreliable (&lt; 0 dB SI-SDR) beyond K=4 ceiling.`;
         }
     }
 

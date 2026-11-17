@@ -10,7 +10,7 @@ import { API_BASE } from './config.js';
 import { API } from './services/api.js';
 import { showToast } from './ui/toast.js';
 import { initRouter, switchRoute } from './ui/router.js';
-import { initHomeVideo, updateWaveVisibility } from './ui/homeVideo.js';
+import { initHomeVideo, updateWaveVisibility } from './ui/homeVideo.js?v=6';
 import { initHomePage } from './pages/home.js';
 import { initStudioPage } from './pages/studio.js';
 import { initResultsPage, loadAnalytics } from './pages/results.js';
@@ -41,16 +41,27 @@ function initMobileNav() {
     const navTabs = document.querySelector('.nav-tabs');
     if (!navToggle || !navTabs) return;
 
-    navToggle.addEventListener('click', () => {
-        navTabs.classList.toggle('open');
-        navToggle.classList.toggle('active');
+    navToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = navTabs.classList.toggle('open');
+        navToggle.classList.toggle('active', isOpen);
+        navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
 
     navTabs.querySelectorAll('.tab-link').forEach(link => {
         link.addEventListener('click', () => {
             navTabs.classList.remove('open');
             navToggle.classList.remove('active');
+            navToggle.setAttribute('aria-expanded', 'false');
         });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.navbar')) {
+            navTabs.classList.remove('open');
+            navToggle.classList.remove('active');
+            navToggle.setAttribute('aria-expanded', 'false');
+        }
     });
 }
 

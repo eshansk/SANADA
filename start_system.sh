@@ -26,16 +26,17 @@ BACKEND_PID=$!
 # Wait briefly for model checkpoints and engine to initialize
 sleep 2
 
-# 2. Start Frontend Web Client
-echo " [2/2] Starting Frontend UI on http://127.0.0.1:3000 ..."
-python3 -m http.server 3000 --directory frontend &
+# 2. Start Unified Frontend & API Proxy Server
+echo " [2/2] Starting Unified Server (Frontend & API Proxy) on http://0.0.0.0:3000 ..."
+python3 dev_server.py &
 FRONTEND_PID=$!
 
 echo "------------------------------------------------------------------"
 echo " 🚀 System is LIVE and ready:"
-echo "    • Frontend Web Client : http://localhost:3000"
-echo "    • Backend API Service : http://localhost:8000"
+echo "    • Unified Web Client  : http://localhost:3000 (serves UI & proxies /api)"
+echo "    • Backend API Direct  : http://localhost:8000"
 echo "    • Interactive API Docs: http://localhost:8000/docs"
+echo "    • Public Tunnel Ready : Run '~/cloudflared tunnel --url http://localhost:3000'"
 echo "------------------------------------------------------------------"
 echo " Press [CTRL + C] anytime to stop both servers."
 echo "=================================================================="
