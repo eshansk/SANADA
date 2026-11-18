@@ -3,8 +3,10 @@
  * ========================
  * Hash-based Single-Page Application Router.
  * Coordinates view transitions, tab indicator states, and URL synchronization
- * across all 7 platform sections without page reloads.
+ * across all 7 platform sections with role-aware route guards.
  */
+
+import { getAuth } from '../auth-guard.js';
 
 const VALID_ROUTES = ['home', 'predict', 'dataset', 'train', 'analytics', 'docs', 'paper'];
 
@@ -33,8 +35,8 @@ export function updateNavIndicator() {
     const navTabs = document.querySelector('.navbar .nav-tabs');
     if (!indicator || !navTabs) return;
 
-    // On narrow screens (<= 1100px) or mobile hamburger menu, indicator is hidden
-    if (window.innerWidth <= 1100 || navTabs.classList.contains('open')) {
+    const role = document.body?.dataset?.role || 'unauthenticated';
+    if (role === 'unauthenticated' || window.innerWidth <= 1100 || navTabs.classList.contains('open')) {
         indicator.style.opacity = '0';
         return;
     }
@@ -50,7 +52,26 @@ export function updateNavIndicator() {
 }
 
 export function switchRoute(targetRoute, updateHash = true) {
-    const route = resolveRoute(targetRoute);
+    let route = resolveRoute(targetRoute);
+
+    // Role-based route guard
+    const auth = getAuth();
+    const role = auth?.role || document.body?.dataset?.role || 'unauthenticated';
+
+    if (role === 'unauthenticated' && route !== 'home') {
+        // Unauthenticated access restricted to landing page
+        route = 'home';
+        if (typeof window !== 'undefined' && typeof window.openAuthModal === 'function') {
+            window.openAuthModal('developer');
+        }
+    } else if (role === 'user' && !['home', 'predict'].includes(route)) {
+        // User access restricted to Home and Studio; unauthorized routes redirect to home page
+        route = 'home';
+        if (typeof window !== 'undefined' && typeof window.showToast === 'function') {
+            window.showToast('Developer access required. Redirected to home page.', 'warning');
+        }
+    }
+
     currentRoute = route;
 
     // Scroll to top on route change
@@ -138,6 +159,18 @@ export function initRouter(onRouteChangeCallback) {
         updateNavIndicator();
     });
 
+    // Re-check route and indicator when role changes
+    window.addEventListener('sanada:roleChanged', (e) => {
+        const role = e.detail?.role || 'unauthenticated';
+        if (role === 'unauthenticated' && currentRoute !== 'home') {
+            switchRoute('home', true);
+        } else if (role === 'user' && !['home', 'predict'].includes(currentRoute)) {
+            switchRoute('predict', true);
+        } else {
+            updateNavIndicator();
+        }
+    });
+
     // Listen to hash changes in window
     window.addEventListener('hashchange', () => {
         const hashRoute = (window.location.hash || '').replace(/^#\/?/, '').trim();
@@ -147,4 +180,9 @@ export function initRouter(onRouteChangeCallback) {
     // Initial route sync
     const initialRoute = resolveRoute(window.location.hash);
     switchRoute(initialRoute, false);
+}
+
+if (typeof window !== 'undefined') {
+    window.switchRoute = switchRoute;
+    window.updateNavIndicator = updateNavIndicator;
 }

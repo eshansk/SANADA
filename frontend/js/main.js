@@ -9,6 +9,10 @@
 import { API_BASE } from './config.js';
 import { API } from './services/api.js';
 import { showToast } from './ui/toast.js';
+
+if (typeof window !== 'undefined') {
+    window.showToast = showToast;
+}
 import { initRouter, switchRoute } from './ui/router.js';
 import { initHomeVideo, updateWaveVisibility } from './ui/homeVideo.js?v=6';
 import { initHomePage } from './pages/home.js';
@@ -42,6 +46,7 @@ function initMobileNav() {
     if (!navToggle || !navTabs) return;
 
     navToggle.addEventListener('click', (e) => {
+        e.preventDefault();
         e.stopPropagation();
         const isOpen = navTabs.classList.toggle('open');
         navToggle.classList.toggle('active', isOpen);

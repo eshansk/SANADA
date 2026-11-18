@@ -13,6 +13,36 @@
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    html, body {
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    /* ELIMINATE MOBILE TAP BLUE HIGHLIGHT & UNWANTED TOUCH FOCUS OUTLINE */
+    button,
+    a,
+    input,
+    select,
+    textarea,
+    [role="button"],
+    .btn,
+    .tab-link,
+    .nav-toggle,
+    .role-select-card,
+    .seg-btn {
+        -webkit-tap-highlight-color: transparent !important;
+        -webkit-touch-callout: none;
+    }
+
+    button:focus:not(:focus-visible),
+    a:focus:not(:focus-visible),
+    [role="button"]:focus:not(:focus-visible),
+    .btn:focus:not(:focus-visible),
+    .tab-link:focus:not(:focus-visible),
+    .nav-toggle:focus:not(:focus-visible) {
+        outline: none !important;
     }
 
     html {

@@ -12,7 +12,19 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/pages.css">
-    <script src="js/auth-guard.js"></script>
+    <link rel="stylesheet" href="css/portal.css">
+    <script>
+        (function() {
+            try {
+                var raw = sessionStorage.getItem('sanada_auth');
+                var auth = raw ? JSON.parse(raw) : null;
+                document.documentElement.dataset.role = (auth && (auth.role === 'developer' || auth.role === 'user')) ? auth.role : 'unauthenticated';
+            } catch(e) {
+                document.documentElement.dataset.role = 'unauthenticated';
+            }
+        })();
+    </script>
+    <script type="module" src="js/auth-guard.js"></script>
 </head>
 <body>
     <div class="app-shell">
@@ -86,9 +98,17 @@
                     <button class="tab-link" data-route="train">Developer</button>
                     <button class="tab-link" data-route="docs">Docs</button>
                     <button class="tab-link" data-route="paper">Paper</button>
+                    <button type="button" class="tab-link mobile-menu-logout" id="mobileMenuLogoutBtn" data-action="logout">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        <span>Logout</span>
+                    </button>
                 </nav>
 
-                <!-- BACKEND HEALTH TELEMETRY -->
+                <!-- BACKEND HEALTH TELEMETRY & AUTH ACTIONS -->
                 <div class="nav-status">
                     <div class="status-pill" id="backendStatusPill">
                         <span class="status-dot" id="backendDot"></span>
@@ -97,6 +117,14 @@
                     <button class="btn btn-sm btn-icon" id="pingBtn" title="Ping Engine" aria-label="Ping Engine">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                     </button>
+
+                    <!-- Nav Login Button (Visible when unauthenticated) -->
+                    <button class="btn btn-sm btn-primary btn-nav-login" id="navLoginBtn" title="Sign in" aria-label="Log In">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                        <span>Log In</span>
+                    </button>
+
+                    <!-- Logout Button (Visible when authenticated) -->
                     <button class="btn btn-sm btn-logout" id="logoutBtn" title="Sign out" aria-label="Log Out">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                         <span>Logout</span>
@@ -128,11 +156,18 @@
                             A standardized neural listening platform for simultaneous polyphonic source counting, multi-label event tagging, and clean time-domain speech separation evaluated across 13 benchmark partitions.
                         </p>
                         <div class="hero-cta-group">
-                            <a href="#/predict" class="btn btn-hero">
+                            <!-- Login button on landing page (Replaces Open Studio when unauthenticated) -->
+                            <button type="button" class="btn btn-hero" id="heroLoginBtn">
+                                <span>Log In</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                            </button>
+                            <!-- Open Studio button (Displayed when authenticated as Developer or User) -->
+                            <a href="#/predict" class="btn btn-hero" id="heroOpenStudioBtn">
                                 <span>Open Studio</span>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                             </a>
-                            <a href="#/paper" class="btn btn-primary btn-hero">
+                            <!-- Read Paper button: ONLY visible when logged in as Developer -->
+                            <a href="#/paper" class="btn btn-primary btn-hero" id="heroReadPaperBtn">
                                 <span>Read the Paper</span>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                             </a>
@@ -1558,6 +1593,176 @@
                 </div>
             </div>
         </footer>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- LIQUID GLASS DUAL LOGIN MODAL (DEVELOPER OR USER)              -->
+    <!-- ============================================================== -->
+    <div class="auth-modal" id="sanadaAuthModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modalAuthTitle">
+        <div class="auth-modal-card">
+            <!-- Close Button -->
+            <button type="button" class="auth-modal-close" id="modalCloseBtn" aria-label="Close Login Modal" title="Close (Esc)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <!-- Brand Header -->
+            <div class="modal-brand">
+                <span class="brand-badge">SANADA</span>
+                <span class="brand-title">Portal Access</span>
+            </div>
+
+            <h2 class="modal-title" id="modalAuthTitle">Sign In</h2>
+            <p class="modal-subtitle">Choose your access role to continue.</p>
+
+            <!-- TWO LOGINS SELECTOR: DEVELOPER OR USER -->
+            <div class="modal-role-selector" role="tablist" aria-label="Select Login Role">
+                <!-- Option 1: Login as Developer -->
+                <button type="button" class="role-select-card active" id="modalRoleDevBtn" role="tab" aria-selected="true" data-role="developer">
+                    <div class="role-select-top">
+                        <div class="role-select-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="16 18 22 12 16 6"></polyline>
+                                <polyline points="8 6 2 12 8 18"></polyline>
+                            </svg>
+                        </div>
+                        <span class="role-select-badge">Full Suite</span>
+                    </div>
+                    <div class="role-select-name">Login as Developer</div>
+                    <div class="role-select-desc">Models, checkpoints, training, dataset analytics &amp; research suite</div>
+                </button>
+
+                <!-- Option 2: Login as User -->
+                <button type="button" class="role-select-card" id="modalRoleUserBtn" role="tab" aria-selected="false" data-role="user">
+                    <div class="role-select-top">
+                        <div class="role-select-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+                                <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+                            </svg>
+                        </div>
+                        <span class="role-select-badge">Inference</span>
+                    </div>
+                    <div class="role-select-name">Login as User</div>
+                    <div class="role-select-desc">Neural source count estimation &amp; speech separation listening studio</div>
+                </button>
+            </div>
+
+            <!-- Error Notice -->
+            <div class="modal-auth-error" id="modalAuthError" role="alert" style="display: none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span id="modalAuthErrorText">Invalid credentials.</span>
+            </div>
+
+            <!-- Login Form -->
+            <form class="modal-login-form" id="modalLoginForm" autocomplete="on">
+                <div class="auth-field">
+                    <label class="auth-label" for="modalUsernameInput" id="modalUsernameLabel">Developer Username</label>
+                    <input
+                        type="text"
+                        id="modalUsernameInput"
+                        name="username"
+                        class="auth-input"
+                        placeholder="Enter username"
+                        value=""
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="modalPasswordInput">Password</label>
+                    <div class="modal-pass-wrap">
+                        <input
+                            type="password"
+                            id="modalPasswordInput"
+                            name="password"
+                            class="auth-input"
+                            placeholder="Enter password"
+                            value=""
+                            autocomplete="current-password"
+                            required
+                        >
+                        <button
+                            type="button"
+                            class="modal-pass-toggle"
+                            id="modalPassToggle"
+                            aria-label="Toggle password visibility"
+                            title="Show/Hide password"
+                        >
+                            <svg class="eye-show" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg class="eye-hide" style="display: none;" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="modal-actions-group">
+                    <button type="submit" class="btn btn-primary btn-modal-submit" id="modalSubmitBtn">
+                        <span>Log In as Developer</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- LIQUID GLASS LOGOUT CONFIRMATION MODAL                         -->
+    <!-- ============================================================== -->
+    <div class="auth-modal" id="sanadaLogoutModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modalLogoutTitle">
+        <div class="auth-modal-card logout-modal-card">
+            <!-- Close Button -->
+            <button type="button" class="auth-modal-close" id="modalLogoutCloseBtn" aria-label="Cancel Sign Out" title="Cancel (Esc)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <!-- Brand Header -->
+            <div class="modal-brand">
+                <span class="brand-badge">SANADA</span>
+                <span class="brand-title">Session Management</span>
+            </div>
+
+            <div class="logout-icon-wrap">
+                <div class="logout-icon-pill">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </div>
+            </div>
+
+            <h2 class="modal-title" id="modalLogoutTitle">Sign Out Confirmation</h2>
+            <p class="modal-subtitle">Are you sure you want to log out of your session? You will be returned to the landing page.</p>
+
+            <div class="logout-modal-actions">
+                <button type="button" class="btn btn-modal-cancel" id="modalLogoutCancelBtn">
+                    <span>Cancel</span>
+                </button>
+                <button type="button" class="btn btn-modal-confirm-logout" id="modalLogoutConfirmBtn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- GLOBAL TOAST CONTAINER -->

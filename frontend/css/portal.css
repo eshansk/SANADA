@@ -5,6 +5,24 @@
  * Bridges User and Admin/Developer experiences with consistent liquid-glass aesthetic.
  */
 
+/* ELIMINATE MOBILE TAP BLUE HIGHLIGHT & UNWANTED TOUCH FOCUS OUTLINE */
+*, *::before, *::after {
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+button, a, input, select, textarea, [role="button"], .btn, .tab-link, .nav-toggle, .role-select-card {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+.btn:focus:not(:focus-visible),
+.tab-link:focus:not(:focus-visible),
+.nav-toggle:focus:not(:focus-visible) {
+    outline: none !important;
+}
+
 /* AUTH CONTAINER & CENTERED LAYOUT */
 .auth-wrapper {
     min-height: calc(100vh - 160px);
@@ -363,3 +381,817 @@
     background: var(--bg-hover);
 }
 
+
+
+/* =============================================================================
+   ROLE-BASED DISPLAY & NAVIGATION VISIBILITY RULES
+   ============================================================================= */
+
+/* 1. UNAUTHENTICATED LAUNCHED STATE:
+   Remove all navigation buttons (including Home) when not logged in.
+   Instead of Open Studio button, a LOGIN BUTTON is displayed in Hero and in navbar. */
+body:not([data-role="developer"]):not([data-role="user"]) .navbar .nav-tabs,
+body[data-role="unauthenticated"] .navbar .nav-tabs,
+html[data-role="unauthenticated"] .navbar .nav-tabs {
+    display: none !important;
+}
+
+body:not([data-role="developer"]):not([data-role="user"]) .nav-tabs .tab-link,
+body[data-role="unauthenticated"] .nav-tabs .tab-link,
+html[data-role="unauthenticated"] .nav-tabs .tab-link {
+    display: none !important;
+}
+
+body:not([data-role="developer"]):not([data-role="user"]) .nav-toggle,
+body[data-role="unauthenticated"] .nav-toggle,
+html[data-role="unauthenticated"] .nav-toggle {
+    display: none !important;
+}
+
+body:not([data-role="developer"]):not([data-role="user"]) #logoutBtn,
+body[data-role="unauthenticated"] #logoutBtn,
+html[data-role="unauthenticated"] #logoutBtn {
+    display: none !important;
+}
+
+/* Engine online status & ping button: REMOVE when not logged in */
+body:not([data-role="developer"]):not([data-role="user"]) #backendStatusPill,
+body[data-role="unauthenticated"] #backendStatusPill,
+html[data-role="unauthenticated"] #backendStatusPill,
+body:not([data-role="developer"]):not([data-role="user"]) #pingBtn,
+body[data-role="unauthenticated"] #pingBtn,
+html[data-role="unauthenticated"] #pingBtn {
+    display: none !important;
+}
+
+body[data-role="developer"] #backendStatusPill,
+body[data-role="user"] #backendStatusPill,
+html[data-role="developer"] #backendStatusPill,
+html[data-role="user"] #backendStatusPill {
+    display: inline-flex !important;
+}
+
+body[data-role="developer"] #pingBtn,
+body[data-role="user"] #pingBtn,
+html[data-role="developer"] #pingBtn,
+html[data-role="user"] #pingBtn {
+    display: inline-flex !important;
+}
+
+/* Developer & User role tags completely removed from navbar */
+.nav-role-pill,
+#navRolePill {
+    display: none !important;
+}
+
+/* NAVBAR OVERALL WIDTH REVERT & HEIGHT / STYLING INCREASE ACROSS WHOLE WEBAPP */
+.navbar .nav-inner {
+    max-width: 1240px !important;
+    width: 100% !important;
+    height: 68px !important;
+    padding: 0 20px !important;
+    background: rgba(3, 6, 14, 0.72) !important;
+    backdrop-filter: blur(32px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(32px) saturate(160%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), 0 0 24px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.18) !important;
+}
+
+/* NAVBAR NAVIGATION BUTTONS: CENTER OF REMAINING NAV SPACE
+   Centers nav tabs in the remaining space between the brand on the left and the telemetry/controls
+   on the right, eliminating any overlap between the Paper button and the Engine Status pill. */
+@media (min-width: 1101px) {
+    .navbar .nav-inner {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .navbar .brand {
+        flex-shrink: 0;
+    }
+    .navbar .nav-status {
+        flex-shrink: 0;
+    }
+    .navbar .nav-tabs {
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        top: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+        margin: 0 auto !important;
+        flex-shrink: 0;
+        z-index: 5;
+    }
+    body[data-role="developer"] .navbar .nav-tabs .tab-link {
+        padding: 7px 13px !important;
+        font-size: 13px !important;
+        white-space: nowrap;
+    }
+}
+
+body:not([data-role="developer"]):not([data-role="user"]) #heroOpenStudioBtn,
+body[data-role="unauthenticated"] #heroOpenStudioBtn,
+html[data-role="unauthenticated"] #heroOpenStudioBtn {
+    display: none !important;
+}
+
+body:not([data-role="developer"]):not([data-role="user"]) #heroLoginBtn,
+body[data-role="unauthenticated"] #heroLoginBtn,
+html[data-role="unauthenticated"] #heroLoginBtn {
+    display: inline-flex !important;
+}
+
+body:not([data-role="developer"]):not([data-role="user"]) #navLoginBtn,
+body[data-role="unauthenticated"] #navLoginBtn,
+html[data-role="unauthenticated"] #navLoginBtn {
+    display: inline-flex !important;
+}
+
+/* HERO BUTTON SIZING: Equalize Login and Open Studio buttons */
+#heroLoginBtn,
+#heroOpenStudioBtn {
+    min-height: 48px !important;
+    min-width: 170px !important;
+    padding: 13px 32px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    font-family: var(--font-body) !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: var(--radius-full);
+}
+
+/* READ PAPER BUTTON: ONLY visible when logged in as Developer */
+#heroReadPaperBtn {
+    min-height: 48px !important;
+    min-width: 170px !important;
+    padding: 13px 32px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    font-family: var(--font-body) !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: var(--radius-full);
+}
+
+body:not([data-role="developer"]) #heroReadPaperBtn,
+html:not([data-role="developer"]) #heroReadPaperBtn {
+    display: none !important;
+}
+
+body[data-role="developer"] #heroReadPaperBtn,
+html[data-role="developer"] #heroReadPaperBtn {
+    display: inline-flex !important;
+}
+
+/* FOOTER LINKS: ONLY visible when logged in as Developer.
+   When logged in as User or when unauthenticated, remove footer links. */
+body:not([data-role="developer"]) .cta-footer-links,
+html:not([data-role="developer"]) .cta-footer-links,
+#sanadaCtaFooter .cta-footer-links.dev-only {
+    display: none !important;
+}
+
+body:not([data-role="developer"]) .site-footer-inner,
+html:not([data-role="developer"]) .site-footer-inner {
+    justify-content: center !important;
+    text-align: center;
+}
+
+body[data-role="developer"] .cta-footer-links,
+html[data-role="developer"] .cta-footer-links {
+    display: flex !important;
+}
+
+/* 2. AUTHENTICATED COMMON RULES:
+   Hide landing login button and nav login button, show Open Studio and Logout */
+body[data-role="developer"] #navLoginBtn,
+body[data-role="user"] #navLoginBtn,
+html[data-role="developer"] #navLoginBtn,
+html[data-role="user"] #navLoginBtn {
+    display: none !important;
+}
+
+body[data-role="developer"] #heroLoginBtn,
+body[data-role="user"] #heroLoginBtn,
+html[data-role="developer"] #heroLoginBtn,
+html[data-role="user"] #heroLoginBtn {
+    display: none !important;
+}
+
+body[data-role="developer"] #heroOpenStudioBtn,
+body[data-role="user"] #heroOpenStudioBtn,
+html[data-role="developer"] #heroOpenStudioBtn,
+html[data-role="user"] #heroOpenStudioBtn {
+    display: inline-flex !important;
+}
+
+body[data-role="developer"] #logoutBtn,
+body[data-role="user"] #logoutBtn,
+html[data-role="developer"] #logoutBtn,
+html[data-role="user"] #logoutBtn {
+    display: inline-flex !important;
+}
+
+/* 3. DEVELOPER & USER PORTAL DISPLAY (Desktop):
+   Navigation tabs visible across navbar on desktop */
+@media (min-width: 1101px) {
+    body[data-role="developer"] .navbar .nav-tabs,
+    html[data-role="developer"] .navbar .nav-tabs {
+        display: flex !important;
+    }
+
+    body[data-role="user"] .navbar .nav-tabs,
+    html[data-role="user"] .navbar .nav-tabs {
+        display: flex !important;
+    }
+
+    .mobile-menu-logout,
+    #mobileMenuLogoutBtn {
+        display: none !important;
+    }
+}
+
+/* 4. MOBILE MENU DISPLAY & TOGGLING (Screens <= 1100px):
+   When menu is toggled open, show dropdown menu.
+   When toggled closed, enforce display: none so tapping toggle closes the menu! */
+@media (max-width: 1100px) {
+    .navbar .nav-tabs:not(.open),
+    body[data-role="developer"] .navbar .nav-tabs:not(.open),
+    body[data-role="user"] .navbar .nav-tabs:not(.open) {
+        display: none !important;
+    }
+
+    .navbar .nav-tabs.open,
+    body[data-role="developer"] .navbar .nav-tabs.open,
+    body[data-role="user"] .navbar .nav-tabs.open {
+        display: flex !important;
+        pointer-events: auto !important;
+    }
+
+    /* In mobile menu, display the logout option */
+    body[data-role="developer"] .mobile-menu-logout,
+    body[data-role="user"] .mobile-menu-logout,
+    html[data-role="developer"] .mobile-menu-logout,
+    html[data-role="user"] .mobile-menu-logout {
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        border-radius: var(--radius-md) !important;
+        border-top: 1px solid var(--border-tint) !important;
+        margin-top: 6px !important;
+        color: color-mix(in srgb, var(--rose) 85%, #ffffff) !important;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .mobile-menu-logout:hover {
+        background: color-mix(in srgb, var(--rose) 18%, transparent) !important;
+        color: #ffffff !important;
+    }
+
+    /* On mobile, when not logged in, display the login button in the navbar */
+    body:not([data-role="developer"]):not([data-role="user"]) .nav-status,
+    body[data-role="unauthenticated"] .nav-status,
+    html[data-role="unauthenticated"] .nav-status {
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+    }
+
+    body:not([data-role="developer"]):not([data-role="user"]) #navLoginBtn,
+    body[data-role="unauthenticated"] #navLoginBtn,
+    html[data-role="unauthenticated"] #navLoginBtn {
+        display: inline-flex !important;
+        padding: 7px 16px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        border-radius: var(--radius-full) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Ensure unauthenticated nav-status with Login button remains visible on smaller mobile devices */
+    body:not([data-role="developer"]):not([data-role="user"]) .nav-status,
+    body[data-role="unauthenticated"] .nav-status,
+    html[data-role="unauthenticated"] .nav-status {
+        display: flex !important;
+    }
+}
+
+body[data-role="user"] .nav-tabs .tab-link[data-route="dataset"],
+body[data-role="user"] .nav-tabs .tab-link[data-route="analytics"],
+body[data-role="user"] .nav-tabs .tab-link[data-route="train"],
+body[data-role="user"] .nav-tabs .tab-link[data-route="docs"],
+body[data-role="user"] .nav-tabs .tab-link[data-route="paper"],
+html[data-role="user"] .nav-tabs .tab-link[data-route="dataset"],
+html[data-role="user"] .nav-tabs .tab-link[data-route="analytics"],
+html[data-role="user"] .nav-tabs .tab-link[data-route="train"],
+html[data-role="user"] .nav-tabs .tab-link[data-route="docs"],
+html[data-role="user"] .nav-tabs .tab-link[data-route="paper"] {
+    display: none !important;
+}
+
+/* Role Badges in Navbar */
+.nav-role-pill {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 4px 11px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-tint);
+    background: var(--bg-2);
+}
+
+.nav-role-pill .role-indicator-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.nav-role-pill.dev .role-indicator-dot {
+    background: #60a5fa;
+    box-shadow: 0 0 8px #60a5fa;
+}
+
+.nav-role-pill.user .role-indicator-dot {
+    background: #34d399;
+    box-shadow: 0 0 8px #34d399;
+}
+
+.btn-nav-login {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border-radius: var(--radius-full);
+}
+
+.btn-logout,
+#logoutBtn {
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: var(--radius-full);
+}
+
+/* =============================================================================
+   LIQUID GLASS DUAL LOGIN & LOGOUT MODALS (Matching Website Wave Palette)
+   ============================================================================= */
+.auth-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    /* Translucent frosted glass backdrop carrying website's wave-deep violet tint */
+    background: color-mix(in srgb, var(--wave-deep) 68%, transparent);
+    backdrop-filter: blur(28px) saturate(150%);
+    -webkit-backdrop-filter: blur(28px) saturate(150%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                visibility 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-modal.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.auth-modal-card {
+    width: 100%;
+    max-width: 520px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%),
+                color-mix(in srgb, var(--wave-deep) 84%, var(--wave-1) 16%);
+    backdrop-filter: blur(36px) saturate(160%);
+    -webkit-backdrop-filter: blur(36px) saturate(160%);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    padding: 34px 30px 28px;
+    box-shadow: var(--shadow-glow),
+                0 28px 70px rgba(0, 0, 0, 0.65),
+                inset 0 1px 1px var(--w-20);
+    position: relative;
+    overflow: hidden;
+    transform: translateY(16px) scale(0.97);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 1PX TOP-EDGE ACCENT HAIRLINE matching website cards */
+.auth-modal-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--wave-light) 40%, transparent), transparent);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.auth-modal.open .auth-modal-card {
+    transform: translateY(0) scale(1);
+}
+
+.auth-modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-tint);
+    color: var(--text-secondary);
+    border-radius: var(--radius-full);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.auth-modal-close:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.modal-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.modal-title {
+    font-size: clamp(26px, 3.5vw, 32px);
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-weight: 400;
+    margin: 0 0 6px 0;
+    color: #ffffff;
+    line-height: 1.1;
+}
+
+.modal-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-weight: 300;
+    margin: 0 0 18px 0;
+}
+
+/* Dual Role Selector Cards */
+.modal-role-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 0 0 20px 0;
+}
+
+.role-select-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border-tint);
+    border-radius: var(--radius-lg);
+    padding: 14px 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--text-secondary);
+    box-shadow: inset 0 1px 1px var(--w-10);
+}
+
+.role-select-card:hover {
+    border-color: var(--glass-border);
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    transform: translateY(-2px);
+}
+
+.role-select-card.active {
+    border-color: var(--wave-light);
+    background: color-mix(in srgb, var(--wave-1) 32%, var(--bg-1));
+    color: #ffffff;
+    box-shadow: 0 8px 24px -6px color-mix(in srgb, var(--wave-1) 50%, transparent),
+                inset 0 1px 1px var(--w-20);
+}
+
+.role-select-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.role-select-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    transition: var(--transition-fast);
+}
+
+.role-select-card.active .role-select-icon {
+    background: var(--accent-grad);
+    color: #000000;
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.role-select-badge {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    background: color-mix(in srgb, var(--wave-1) 18%, transparent);
+    border: 1px solid var(--border-tint);
+    color: var(--wave-light);
+}
+
+.role-select-card.active .role-select-badge {
+    border-color: var(--wave-light);
+    background: color-mix(in srgb, var(--wave-light) 25%, transparent);
+    color: #ffffff;
+}
+
+.role-select-name {
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font-body);
+}
+
+.role-select-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    line-height: 1.35;
+}
+
+.role-select-card.active .role-select-desc {
+    color: var(--text-secondary);
+}
+
+/* Modal Form */
+.modal-login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.modal-login-form .auth-input {
+    background: var(--bg-2);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    border-radius: var(--radius-md);
+    padding: 11px 14px;
+    font-size: 13px;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.4);
+    transition: var(--transition-fast);
+}
+
+.modal-login-form .auth-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-dim);
+    background: var(--bg-hover);
+}
+
+.modal-auth-error {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: color-mix(in srgb, var(--rose) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rose) 35%, transparent);
+    color: #ffffff;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    font-family: var(--font-body);
+    margin-bottom: 14px;
+}
+
+.modal-auth-error svg {
+    flex-shrink: 0;
+    color: var(--rose);
+}
+
+.modal-pass-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.modal-pass-wrap .auth-input {
+    padding-right: 42px;
+}
+
+.modal-pass-toggle {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: var(--transition-fast);
+}
+
+.modal-pass-toggle:hover {
+    color: #ffffff;
+}
+
+.modal-actions-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.btn-modal-submit {
+    width: 100%;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border-radius: var(--radius-full);
+    background: #ffffff;
+    color: #000000;
+    border: none;
+    box-shadow: 0 2px 14px rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-modal-submit:hover {
+    background: #f4f4f5;
+    box-shadow: 0 4px 22px rgba(255, 255, 255, 0.35);
+    transform: translateY(-1px);
+}
+
+.btn-modal-quick {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    background: var(--bg-2);
+    border: 1px solid var(--border-tint);
+    border-radius: var(--radius-full);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-modal-quick:hover {
+    color: #ffffff;
+    background: var(--bg-hover);
+    border-color: var(--glass-border);
+}
+
+.modal-hint-box {
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: color-mix(in srgb, var(--wave-deep) 60%, transparent);
+    border: 1px solid var(--border-tint);
+    border-radius: var(--radius-md);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.modal-hint-box strong {
+    color: var(--wave-light);
+}
+
+/* =============================================================================
+   LIQUID GLASS LOGOUT CONFIRMATION MODAL
+   ============================================================================= */
+.logout-modal-card {
+    max-width: 440px !important;
+    text-align: center;
+    padding: 34px 28px 28px !important;
+}
+
+.logout-icon-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.logout-icon-pill {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--rose) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rose) 35%, transparent);
+    color: var(--rose);
+    box-shadow: 0 0 24px color-mix(in srgb, var(--rose) 22%, transparent);
+}
+
+.logout-modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-modal-cancel {
+    background: var(--bg-2);
+    border: 1px solid var(--border-tint);
+    color: var(--text-secondary);
+    border-radius: var(--radius-full);
+    padding: 11px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-modal-cancel:hover {
+    background: var(--bg-hover);
+    color: #ffffff;
+    border-color: var(--glass-border);
+}
+
+.btn-modal-confirm-logout {
+    background: color-mix(in srgb, var(--rose) 25%, #18090e);
+    border: 1px solid color-mix(in srgb, var(--rose) 60%, transparent);
+    color: #ffffff;
+    border-radius: var(--radius-full);
+    padding: 11px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--rose) 25%, transparent);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-modal-confirm-logout:hover {
+    background: var(--rose);
+    border-color: var(--rose);
+    color: #000000;
+    box-shadow: 0 6px 24px color-mix(in srgb, var(--rose) 50%, transparent);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 540px) {
+    .auth-modal-card {
+        padding: 26px 18px 22px;
+    }
+    .modal-role-selector {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
