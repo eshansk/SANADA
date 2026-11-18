@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SANADA — Neural Machine Listening &amp; Speech Separation Platform</title>
+    <meta name="description" content="SANADA (Samslesha-Nada) — Open-source machine listening platform for neural audio source counting, multi-label sound event tagging, and time-domain speech separation.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
+    <script src="js/auth-guard.js"></script>
+</head>
+<body>
+    <div class="app-shell">
+        <!-- FIXED CINEMATIC WAVE BACKGROUND (Pinned to Homepage only) -->
+        <div class="home-fixed-wave-bg" id="homeWaveBg" aria-hidden="true">
+            <video id="ctaVideo" crossorigin="anonymous" autoplay loop muted playsinline class="cta-video">
+                <source src="assets/wave_bg.mp4?v=6" type="video/mp4">
+            </video>
+            <script>
+                (function() {
+                    var v = document.getElementById('ctaVideo');
+                    if (v) { v.defaultPlaybackRate = 0.80; v.playbackRate = 0.80; }
+                })();
+            </script>
+            <div class="home-wave-overlay"></div>
+        </div>
+
+        <!-- VISIBLE AMBIENT BACKDROP (Refraction layer for non-home pages & depth) -->
+        <div class="ambient-backdrop" id="ambientBackdrop" aria-hidden="true">
+            <div class="ambient-blob blob-1"></div>
+            <div class="ambient-blob blob-2"></div>
+            <div class="ambient-blob blob-3"></div>
+            <div class="ambient-blob blob-4"></div>
+            <svg class="ambient-ribbons" viewBox="0 0 1440 900" fill="none" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="ribbonGrad1" x1="0%" y1="0%" x2="100%" y2="80%">
+                        <stop offset="0%" stop-color="var(--wave-light)" stop-opacity="0.35"/>
+                        <stop offset="45%" stop-color="var(--wave-2)" stop-opacity="0.22"/>
+                        <stop offset="85%" stop-color="var(--wave-1)" stop-opacity="0.10"/>
+                        <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+                    </linearGradient>
+                    <linearGradient id="ribbonGrad2" x1="100%" y1="10%" x2="0%" y2="90%">
+                        <stop offset="0%" stop-color="var(--wave-2)" stop-opacity="0.28"/>
+                        <stop offset="50%" stop-color="var(--wave-3)" stop-opacity="0.18"/>
+                        <stop offset="85%" stop-color="var(--wave-1)" stop-opacity="0.08"/>
+                        <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+                    </linearGradient>
+                    <linearGradient id="ribbonGrad3" x1="30%" y1="0%" x2="70%" y2="100%">
+                        <stop offset="0%" stop-color="var(--wave-light)" stop-opacity="0.25"/>
+                        <stop offset="40%" stop-color="var(--wave-1)" stop-opacity="0.15"/>
+                        <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+                    </linearGradient>
+                    <filter id="grainFilter">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
+                        <feColorMatrix type="saturate" values="0"/>
+                    </filter>
+                </defs>
+                <path class="ribbon-path ribbon-1" d="M -100 280 C 260 120, 520 460, 880 260 C 1180 90, 1380 320, 1600 240" stroke="url(#ribbonGrad1)" stroke-width="2.5"/>
+                <path class="ribbon-path ribbon-2" d="M -100 440 C 320 280, 600 620, 960 400 C 1240 220, 1420 480, 1600 380" stroke="url(#ribbonGrad2)" stroke-width="2"/>
+                <path class="ribbon-path ribbon-3" d="M -80 620 C 380 440, 680 740, 1040 560 C 1300 420, 1480 620, 1600 520" stroke="url(#ribbonGrad1)" stroke-width="2"/>
+                <path class="ribbon-path ribbon-4" d="M -50 160 C 300 320, 640 100, 1000 220 C 1280 320, 1440 160, 1600 180" stroke="url(#ribbonGrad3)" stroke-width="1.5"/>
+                <rect width="100%" height="100%" filter="url(#grainFilter)" opacity="0.04"/>
+            </svg>
+        </div>
+
+        <!-- FLOATING LIQUID GLASS PILL NAVBAR -->
+        <header class="navbar">
+            <div class="nav-inner">
+                <a href="#/home" class="brand">
+                    <span class="brand-badge">SANADA</span>
+                    <span class="brand-title">Samslesha-Nada</span>
+                </a>
+
+                <!-- 7-TIER NAVIGATION TABS -->
+                <!-- 2-TIER NAVIGATION TABS (USER PORTAL: HOME & STUDIO) -->
+                <nav class="nav-tabs">
+                    <div class="nav-indicator" id="navIndicator"></div>
+                    <button class="tab-link active" data-route="home">Home</button>
+                    <button class="tab-link" data-route="predict">Studio</button>
+                </nav>
+                <!-- BACKEND HEALTH TELEMETRY -->
+                <div class="nav-status">
+                    <div class="status-pill" id="backendStatusPill">
+                        <span class="status-dot" id="backendDot"></span>
+                        <span id="backendText">Engine offline</span>
+                    </div>
+                    <button class="btn btn-sm btn-logout" id="logoutBtn" title="Sign out" aria-label="Log Out">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                        <span>Logout</span>
+                    </button>
+                </div>
+
+                <!-- MOBILE MENU TOGGLE -->
+                <button class="nav-toggle" id="navToggle" aria-label="Toggle Navigation Menu" title="Menu">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN VIEWPORT CONTAINER -->
+        <main class="main-viewport">
+            <div class="container">
+
+                <!-- ============================================================== -->
+                <!-- PAGE 1: HOME (CINEMATIC HERO & RESEARCH OVERVIEW)             -->
+                <!-- ============================================================== -->
+                <section class="view-page active" id="pageHome">
+                    <div class="hero-section">
+                        <h1 class="hero-headline">Audio source count <span class="hero-word-estimator">Estimator</span></h1>
+                        <p class="hero-sub">
+                            A standardized neural listening platform for simultaneous polyphonic source counting, multi-label event tagging, and clean time-domain speech separation evaluated across 13 benchmark partitions.
+                        </p>
+                        <div class="hero-cta-group">
+                            <a href="#/predict" class="btn btn-hero">
+                                <span>Open Studio</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- STAT TILES -->
+                    <div class="grid-4">
+                        <div class="stat-tile">
+                            <div class="stat-number">3</div>
+                            <div class="stat-label">Isolated Corpora</div>
+                            <div class="stat-sub">Org-Mix-4, Org-Mix-9, FSD-Mix</div>
+                        </div>
+                        <div class="stat-tile">
+                            <div class="stat-number">13</div>
+                            <div class="stat-label">Sub-Datasets</div>
+                            <div class="stat-sub">15,559 Synthesized Mixtures</div>
+                        </div>
+                        <div class="stat-tile">
+                            <div class="stat-number"><em>K</em> = 2&ndash;32</div>
+                            <div class="stat-label">Concurrent Sources</div>
+                            <div class="stat-sub">Variable &amp; High-Density Mixes</div>
+                        </div>
+                        <div class="stat-tile">
+                            <div class="stat-number">16 kHz</div>
+                            <div class="stat-label">Standard Sample Rate</div>
+                            <div class="stat-sub">128,000 Samples (8.0s Mono)</div>
+                        </div>
+                    </div>
+
+                    <!-- 3-TASK PLATFORM OVERVIEW (EQUAL SIZE & ALIGNMENT) -->
+                    <div class="home-task-grid">
+                        <!-- TASK 01: SOURCE COUNTING -->
+                        <div class="card home-task-card">
+                            <div class="card-header home-task-card-header">
+                                <div>
+                                    <div class="task-mono-label">TASK 01</div>
+                                    <h2 class="card-title">Source Counting (<em>K</em>)</h2>
+                                </div>
+                                <span class="badge">Conformer MSE</span>
+                            </div>
+                            <p class="home-task-card-desc">
+                                Continuous regression of active sound emitters from raw audio mixtures.
+                            </p>
+                            <div class="task-headline-metric">
+                                <div class="metric-val">0.082 <span class="metric-unit">MAE</span></div>
+                                <div class="metric-caption">Org-Mix-4 &bull; 94.2% Exact Accuracy</div>
+                            </div>
+                            <div class="task-mini-graphic graphic-dots" aria-hidden="true">
+                                <span class="dot-item active"></span>
+                                <span class="dot-item active"></span>
+                                <span class="dot-item active"></span>
+                                <span class="dot-item active"></span>
+                                <span class="dot-item dim"></span>
+                                <span class="dot-item dim"></span>
+                                <span class="dot-item dim"></span>
+                                <span class="dot-item dim"></span>
+                            </div>
+                        </div>
+
+                        <!-- TASK 02: MULTI-LABEL TAGGING -->
+                        <div class="card home-task-card">
+                            <div class="card-header home-task-card-header">
+                                <div>
+                                    <div class="task-mono-label">TASK 02</div>
+                                    <h2 class="card-title">Multi-Label Tagging</h2>
+                                </div>
+                                <span class="badge">Conformer ASL</span>
+                            </div>
+                            <p class="home-task-card-desc">
+                                Asymmetric Loss classification across 32 heterogeneous acoustic event classes.
+                            </p>
+                            <div class="task-headline-metric">
+                                <div class="metric-val">0.942 <span class="metric-unit">mAP</span></div>
+                                <div class="metric-caption">32 Classes &bull; 0.915 F1 &bull; 0.978 AUC</div>
+                            </div>
+                            <div class="task-mini-graphic graphic-chips" aria-hidden="true">
+                                <span class="mini-tag-chip">Speech</span>
+                                <span class="mini-tag-chip">Bell</span>
+                                <span class="mini-tag-chip">Music</span>
+                                <span class="mini-tag-chip">+29</span>
+                            </div>
+                        </div>
+
+                        <!-- TASK 03: SPEECH SEPARATION -->
+                        <div class="card home-task-card">
+                            <div class="card-header home-task-card-header">
+                                <div>
+                                    <div class="task-mono-label">TASK 03</div>
+                                    <h2 class="card-title">Speech Separation</h2>
+                                </div>
+                                <span class="badge">Conv-TasNet SI-SDR</span>
+                            </div>
+                            <p class="home-task-card-desc">
+                                Time-domain uPIT mask estimation reconstructing clean monaural waveforms.
+                            </p>
+                            <div class="task-headline-metric">
+                                <div class="metric-val">+10.59 <span class="metric-unit">dB</span></div>
+                                <div class="metric-caption">K=2 Conv-TasNet SI-SDR &bull; uPIT Loss</div>
+                            </div>
+                            <div class="task-mini-graphic graphic-split" aria-hidden="true">
+                                <svg class="mini-split-svg" viewBox="0 0 200 24" fill="none" stroke="currentColor">
+                                    <path d="M 10 12 L 60 12 C 90 12, 100 5, 130 5 L 190 5" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round"/>
+                                    <path d="M 60 12 C 90 12, 100 19, 130 19 L 190 19" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+                                    <circle cx="10" cy="12" r="2.5" fill="#ffffff"/>
+                                    <circle cx="190" cy="5" r="2.5" fill="#ffffff"/>
+                                    <circle cx="190" cy="19" r="2.5" fill="rgba(255,255,255,0.5)"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INTERACTIVE COMPLEXITY CEILING EXPLORER -->
+                    <div class="card ceiling-explorer-card" id="ceilingExplorer">
+                        <div class="card-header ceiling-explorer-header">
+                            <div>
+                                <div class="task-mono-label">INTERACTIVE BENCHMARK</div>
+                                <h2 class="card-title">Complexity Ceiling Explorer: Speech Separation Breakdown</h2>
+                            </div>
+                            <span class="badge">Conv-TasNet &bull; Org-Mix Fixed</span>
+                        </div>
+
+                        <div class="ceiling-explorer-body">
+                            <!-- Control: Segmented control K = 2, 3, 4, 6, 9 -->
+                            <div class="explorer-control-row">
+                                <span class="explorer-label">Mixture Density:</span>
+                                <div class="seg-toggle explorer-k-toggle" id="explorerKToggle" role="group" aria-label="Select source density K">
+                                    <button type="button" class="seg-btn active" data-k="2">K = 2</button>
+                                    <button type="button" class="seg-btn" data-k="3">K = 3</button>
+                                    <button type="button" class="seg-btn" data-k="4">K = 4 (Ceiling)</button>
+                                    <button type="button" class="seg-btn" data-k="6">K = 6</button>
+                                    <button type="button" class="seg-btn" data-k="9">K = 9</button>
+                                </div>
+                            </div>
+
+                            <div class="explorer-display-grid">
+                                <!-- Left: Large SI-SDR Readout -->
+                                <div class="explorer-metric-box">
+                                    <div class="explorer-metric-large" id="explorerSisdrNum">+10.59 dB</div>
+                                    <div class="explorer-metric-status" id="explorerSisdrStatus">Clean Separation (+10.6 dB)</div>
+                                </div>
+
+                                <!-- Middle: Horizontal bar crossing vertical 0 dB line -->
+                                <div class="explorer-bar-viz">
+                                    <div class="bar-viz-track">
+                                        <div class="bar-zero-line" title="0 dB Failure Boundary">
+                                            <span class="bar-zero-text">0 dB Failure Line</span>
+                                        </div>
+                                        <div class="bar-fill-indicator" id="explorerBarFill"></div>
+                                    </div>
+                                    <div class="bar-scale-marks">
+                                        <span>-10 dB</span>
+                                        <span>0 dB</span>
+                                        <span>+12 dB</span>
+                                    </div>
+                                </div>
+
+                                <!-- Right: Row of K dots going from solid to dissolving -->
+                                <div class="explorer-dots-box">
+                                    <div class="explorer-dots-label">Acoustic Emitting Stems (<span id="explorerDotsCount">2</span>):</div>
+                                    <div class="explorer-dots-row" id="explorerDotsRow"></div>
+                                </div>
+                            </div>
+
+                            <p class="teaser-desc mt-md">
+                                Empirical benchmarking across the SANADA dataset suite uncovered a physical performance barrier in time-domain speech separation. While source counting and multi-label tagging scale accurately up to <em>K</em> = 32, Conv-TasNet separation degrades from +10.59 dB at <em>K</em> = 2 to -1.15 dB at <em>K</em> = 5, proving that mask-based separation becomes mathematically intractable when mixture density exceeds four concurrent acoustic sources.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================== -->
+                <!-- PAGE 2: /predict (STUDIO / INFERENCE PORTAL)                    -->
+                <!-- ============================================================== -->
+                <section class="view-page stage-ingest" id="pagePredict">
+                    <!-- STUDIO HEADER ROW -->
+                    <div class="studio-header">
+                        <div class="studio-header-left">
+                            <h1 class="page-title">Machine Listening Studio</h1>
+                            <p class="page-desc">Ingest polyphonic mixtures to jointly estimate source counts (<em>K</em>), classify sound events, and reconstruct clean audio stems.</p>
+                        </div>
+                    </div>
+
+                    <!-- INLINE GLASS NOTICE BAR (SHOWN ONLY WHEN ENGINE OFFLINE) -->
+                    <div class="studio-offline-notice" id="studioOfflineNotice" style="display: none;">
+                        <span class="notice-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        </span>
+                        <span>Engine offline: results are simulated</span>
+                    </div>
+
+                    <!-- THIN INDETERMINATE PROGRESS BAR DURING INFERENCE -->
+                    <div class="inference-progress-bar" id="inferenceProgressBar" style="display: none;">
+                        <div class="indeterminate-bar"></div>
+                    </div>
+
+                    <!-- TWO-COLUMN WORKSTATION LAYOUT -->
+                    <div class="studio-layout">
+                        <!-- LEFT RAIL (STICKY ON DESKTOP): INGESTION & PRE-FLIGHT VALIDATION -->
+                        <aside class="studio-rail">
+                            <!-- CARD 01: INGEST -->
+                            <div class="card" id="studioIngestCard">
+                                <div class="card-header">
+                                    <h2 class="card-title">
+                                        <span>Load Audio Mixture</span>
+                                    </h2>
+                                    <div class="seg-toggle">
+                                        <button type="button" class="seg-btn active" id="tabUploadMode">Upload WAV</button>
+                                        <button type="button" class="seg-btn" id="tabRecordMode">Live Mic</button>
+                                    </div>
+                                </div>
+
+                                <!-- DROP CONTAINER -->
+                                <div id="dropContainer">
+                                    <div class="dropzone" id="dropZone">
+                                        <input type="file" id="fileInput" accept=".wav" class="u-hidden">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="dropzone-icon">
+                                            <path d="M12 3v13m0-13l-4 4m4-4l4 4"></path>
+                                            <path d="M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17"></path>
+                                        </svg>
+                                        <div class="dropzone-title">Drop 16 kHz Mono .WAV File</div>
+                                        <div class="dropzone-sub">Standardized to exactly 8.0 seconds (128,000 samples)</div>
+                                    </div>
+
+                                    <div class="ingest-controls-stacked">
+                                        <button class="btn btn-full" id="browseBtn">Browse Computer</button>
+                                        <select class="select-input select-full" id="demoSelect">
+                                            <option value="">Select Preloaded Evaluation Audio...</option>
+                                            <option value="mix_00000.wav">mix_00000.wav (Org-Mix-4 Variable K=2)</option>
+                                            <option value="mix_00001.wav">mix_00001.wav (Org-Mix-4 Variable K=2)</option>
+                                            <option value="mix_00012.wav">mix_00012.wav (Org-Mix-9 Variable K=3)</option>
+                                            <option value="mix_00018.wav">mix_00018.wav (Org-Mix-9 Variable K=4)</option>
+                                            <option value="fsd_mix_5_sounds.wav">fsd_mix_5_sounds.wav (FSD-Mix-5 K=5 Sounds)</option>
+                                            <option value="fsd_mix_8_sounds.wav">fsd_mix_8_sounds.wav (FSD-Mix-8 K=8 Sounds)</option>
+                                            <option value="org_mix_9_speakers.wav">org_mix_9_speakers.wav (Org-Mix-9 K=9 Speakers)</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="ingest-presets-wrap">
+                                        <span class="presets-label">Or choose an evaluation mixture preset:</span>
+                                        <div class="presets-chips">
+                                            <button type="button" class="preset-chip-btn" data-preset="mix_00000.wav">
+                                                <span class="chip-k">K=2</span>
+                                                <span>Speech Duo (Org-Mix-4)</span>
+                                            </button>
+                                            <button type="button" class="preset-chip-btn" data-preset="mix_00018.wav">
+                                                <span class="chip-k">K=4</span>
+                                                <span>Ceiling Boundary (K=4)</span>
+                                            </button>
+                                            <button type="button" class="preset-chip-btn" data-preset="fsd_mix_5_sounds.wav">
+                                                <span class="chip-k">K=5</span>
+                                                <span>5 Sounds (FSD-Mix-5)</span>
+                                            </button>
+                                            <button type="button" class="preset-chip-btn" data-preset="org_mix_9_speakers.wav">
+                                                <span class="chip-k">K=9</span>
+                                                <span>9 Speakers (Org-Mix-9)</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- LIVE MIC CONTAINER -->
+                                <div id="recordContainer" class="u-hidden">
+                                    <div class="record-box">
+                                        <button class="btn btn-danger btn-record" id="recordToggleBtn">
+                                            <span class="rec-dot"></span>
+                                            <span>Record 8.0s Audio</span>
+                                        </button>
+                                        <div class="record-timer" id="recTimer">0.0 / 8.0s</div>
+                                        <div class="record-hint" id="recHint">Captures live microphone and standardizes to 128,000 samples</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CARD 02: VALIDATE -->
+                            <div class="card" id="studioValidateCard">
+                                <div class="card-header">
+                                    <h2 class="card-title">
+                                        <span>Loaded Audio &amp; Specifications</span>
+                                    </h2>
+                                    <div class="studio-validate-header-actions">
+                                        <span class="badge" id="uploadStatusBadge">Awaiting Audio</span>
+                                        <button type="button" class="btn btn-sm btn-change-audio" id="studioResetAudioBtn" title="Upload or select a different audio">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                                            <span>Change Audio</span>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-remove-audio" id="studioRemoveAudioBtn" title="Remove audio and return to upload">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                            <span>Remove</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <dl class="metric-dl-grid">
+                                    <div class="metric-dl-item tile-filename">
+                                        <div class="tile-filename-header">
+                                            <dt class="label">Filename</dt>
+                                            <button type="button" class="link-change-file" id="studioChangeFileInlineBtn" title="Change or remove file">Change</button>
+                                        </div>
+                                        <dd class="val" id="metaFilename">—</dd>
+                                    </div>
+                                    <div class="metric-dl-item">
+                                        <dt class="label">Sampling Rate</dt>
+                                        <dd class="val" id="metaSampleRate">—</dd>
+                                    </div>
+                                    <div class="metric-dl-item">
+                                        <dt class="label">Channels</dt>
+                                        <dd class="val" id="metaChannels">—</dd>
+                                    </div>
+                                    <div class="metric-dl-item">
+                                        <dt class="label">Duration</dt>
+                                        <dd class="val" id="metaDuration">—</dd>
+                                    </div>
+                                    <div class="metric-dl-item">
+                                        <dt class="label">Peak Amplitude</dt>
+                                        <dd class="val" id="metaPeak">—</dd>
+                                    </div>
+                                    <div class="metric-dl-item tile-compliance">
+                                        <dt class="label">Standard Compliance</dt>
+                                        <dd class="val" id="metaCompliance"><span class="badge warn">PENDING</span></dd>
+                                    </div>
+                                </dl>
+
+                                <div class="validate-actions">
+                                    <select class="select-input select-full" id="taskSelect">
+                                        <option value="all">Task: All (Counting + Tagging + Separation)</option>
+                                        <option value="counting">Task 1: Source Counting Only</option>
+                                        <option value="tagging">Task 2: Multi-Label Tagging Only</option>
+                                        <option value="separating">Task 3: Source Separation Only</option>
+                                    </select>
+                                    <div class="validate-buttons-row">
+                                        <button class="btn btn-primary btn-run-inference" id="runInferenceBtn" disabled>
+                                            <span id="inferenceBtnIcon"></span>
+                                            <span id="inferenceBtnText">Run Inference</span>
+                                        </button>
+                                        <button type="button" class="btn btn-secondary btn-replace-audio" id="studioChangeAudioActionBtn" title="Replace or remove current audio file">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                                            <span>Replace Audio</span>
+                                        </button>
+                                    </div>
+                                    <div class="run-hint" id="runHint">Load or record audio to enable inference</div>
+                                </div>
+                            </div>
+                        </aside>
+
+                        <!-- RIGHT MAIN COLUMN: SIGNAL VISUALIZER, RESULTS, & STEM MIXER -->
+                        <div class="studio-main">
+                            <!-- CARD 03: SIGNAL -->
+                            <div class="card" id="studioSignalCard">
+                                <div class="card-header">
+                                    <h2 class="card-title">
+                                        <span>Signal Visualizer</span>
+                                    </h2>
+                                    <span class="badge">Dual Canvas &bull; STFT 256 Hann</span>
+                                </div>
+
+                                <!-- STACKED CANVASES WITH SYNCHRONOUS PLAYHEAD LINE -->
+                                <div class="canvas-stack" id="canvasStack" tabindex="0" role="region" aria-label="Audio visualizer: waveform and spectrogram">
+                                    <!-- EMPTY STATE BEFORE AUDIO LOADS -->
+                                    <div class="canvas-empty-state" id="canvasEmptyState">
+                                        <div class="empty-state-content">
+                                            <svg class="empty-state-wave-icon" viewBox="0 0 64 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                                <path d="M0 12 Q8 2, 16 12 T32 12 T48 12 T64 12" />
+                                            </svg>
+                                            <span>Drop a WAV or record to see the signal</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- PLAYED REGION HIGHLIGHT (Left of playhead is slightly brighter) -->
+                                    <div class="playhead-played-tint" id="playheadPlayedTint"></div>
+
+                                    <!-- ACTIVE PLAYHEAD LINE (2px white with soft glow) -->
+                                    <div class="playhead-line" id="playheadLine"></div>
+
+                                    <!-- HOVER GHOST LINE -->
+                                    <div class="visualizer-ghost-line" id="visualizerGhostLine"></div>
+
+                                    <!-- GLASS TOOLTIP (time; frequency and dB on spectrogram) -->
+                                    <div class="visualizer-tooltip" id="visualizerTooltip" role="tooltip"></div>
+
+                                    <!-- WAVEFORM LAYER -->
+                                    <div class="canvas-layer canvas-layer-waveform">
+                                        <span class="canvas-tag">WAVEFORM</span>
+                                        <canvas id="waveformCanvas" role="img" aria-label="Audio waveform visualization (mirrored peak envelope)"></canvas>
+                                    </div>
+
+                                    <!-- SPECTROGRAM LAYER -->
+                                    <div class="canvas-layer canvas-layer-spectrogram">
+                                        <div class="spectrogram-header-row">
+                                            <span class="canvas-tag">SPECTROGRAM · STFT 256 · HANN</span>
+                                            <div class="spectrogram-db-legend" aria-hidden="true" title="Dynamic range: -80 dB to 0 dB relative to clip peak">
+                                                <span class="db-label">-80 dB</span>
+                                                <div class="db-bar"></div>
+                                                <span class="db-label">0 dB</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- FREQUENCY AXIS LABELS (0, 2k, 4k, 6k, 8k Hz at left in mono) -->
+                                        <div class="frequency-axis-labels" aria-hidden="true">
+                                            <span class="freq-tick" data-freq="8000">8k</span>
+                                            <span class="freq-tick" data-freq="6000">6k</span>
+                                            <span class="freq-tick" data-freq="4000">4k</span>
+                                            <span class="freq-tick" data-freq="2000">2k</span>
+                                            <span class="freq-tick" data-freq="0">0 Hz</span>
+                                        </div>
+                                        <canvas id="spectrogramCanvas" role="img" aria-label="STFT spectrogram frequency visualization (0 to 8 kHz)"></canvas>
+                                    </div>
+                                </div>
+
+                                <!-- STATIC TIME RULER (0s to 8.0s) WITH ALIGNED TICK MARKS -->
+                                <div class="signal-time-ruler" aria-hidden="true">
+                                    <div class="ruler-tick"><span>0.0s</span></div>
+                                    <div class="ruler-tick"><span>1.0s</span></div>
+                                    <div class="ruler-tick"><span>2.0s</span></div>
+                                    <div class="ruler-tick"><span>3.0s</span></div>
+                                    <div class="ruler-tick"><span>4.0s</span></div>
+                                    <div class="ruler-tick"><span>5.0s</span></div>
+                                    <div class="ruler-tick"><span>6.0s</span></div>
+                                    <div class="ruler-tick"><span>7.0s</span></div>
+                                    <div class="ruler-tick"><span>8.0s</span></div>
+                                </div>
+
+                                <!-- TRANSPORT CONTROLS BELOW CANVASES -->
+                                <div class="signal-transport-bar">
+                                    <div class="transport-controls">
+                                        <button class="transport-play-btn" id="playMasterBtn" disabled aria-label="Play audio" title="Play / Pause (Space)">
+                                            <span id="playIcon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg></span>
+                                        </button>
+                                        <input type="range" class="transport-scrubber" id="scrubber" min="0" max="100" value="0" step="0.1" disabled aria-label="Audio playback scrubber">
+                                        <span class="transport-time" id="timeDisplay">0.00 / 0.00s</span>
+                                    </div>
+                                    <div class="transport-shortcuts-hint">
+                                        <span>Shortcuts:</span>
+                                        <kbd>Space</kbd> <span>Play / Pause</span> &bull; <kbd>M</kbd> <span>Mute Stem</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ROW 2: TASK 1 (SOURCE COUNTING) & TASK 2 (ACTIVE TAGS) -->
+                            <div class="studio-results-row" id="studioResultsRow">
+                                <!-- TASK 1: SOURCE COUNTING -->
+                                <div class="card" id="studioCountingCard">
+                                    <div class="card-header">
+                                        <h2 class="card-title">
+                                            <span>Source count</span>
+                                        </h2>
+                                        <span class="badge" id="kModelBadge">Conformer-MSE</span>
+                                    </div>
+                                    <div class="k-hero-box">
+                                        <div class="k-hero-number" id="kHeroNumber">—</div>
+                                        <div class="k-hero-sub" id="kHeroSub">Awaiting prediction</div>
+                                    </div>
+
+                                    <!-- 9-STEP SEGMENTED CEILING METER (K = 1..9+) -->
+                                    <div class="ceiling-meter-wrap" id="ceilingMeterWrap">
+                                        <div class="segmented-meter" id="segmentedMeter" aria-label="Source density meter K=1 to 9+">
+                                            <div class="meter-segment" data-k="1">
+                                                <span class="segment-num">1</span>
+                                            </div>
+                                            <div class="meter-segment" data-k="2">
+                                                <span class="segment-num">2</span>
+                                            </div>
+                                            <div class="meter-segment" data-k="3">
+                                                <span class="segment-num">3</span>
+                                            </div>
+                                            <div class="meter-segment is-ceiling" data-k="4">
+                                                <span class="segment-num">4</span>
+                                                <span class="ceiling-marker" title="Complexity Ceiling (K=4)">CEILING</span>
+                                            </div>
+                                            <div class="meter-segment" data-k="5">
+                                                <span class="segment-num">5</span>
+                                            </div>
+                                            <div class="meter-segment" data-k="6">
+                                                <span class="segment-num">6</span>
+                                            </div>
+                                            <div class="meter-segment" data-k="7">
+                                                <span class="segment-num">7</span>
+                                            </div>
+                                            <div class="meter-segment" data-k="8">
+                                                <span class="segment-num">8</span>
+                                            </div>
+                                            <div class="meter-segment" data-k="9">
+                                                <span class="segment-num">9+</span>
+                                            </div>
+                                        </div>
+                                        <div class="gauge-status">
+                                            <span class="status-dot" id="gaugeDot"></span>
+                                            <span id="gaugeLabel" class="gauge-label">Awaiting inference prediction</span>
+                                        </div>
+                                    </div>
+
+                                    <table class="metric-table metric-table-spaced">
+                                        <tr>
+                                            <td class="label">Continuous Estimate</td>
+                                            <td class="val" id="kContinuousVal">—</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Complexity Ceiling</td>
+                                            <td class="val"><span class="badge" title="Reliable up to K = 4 (paper baseline)">K ≤ 4 · Verified</span></td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <!-- TASK 2: MULTI-LABEL TAGGING -->
+                                <div class="card" id="studioTaggingCard">
+                                    <div class="card-header">
+                                        <h2 class="card-title">
+                                            <span>Active tags</span>
+                                        </h2>
+                                        <span class="badge">Conformer-ASL</span>
+                                    </div>
+                                    <div id="probBarsContainer">
+                                        <div class="ghost-empty-state">
+                                            <span class="ghost-icon">
+                                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                                            </span>
+                                            <span class="ghost-text">No active sound tags predicted yet</span>
+                                            <span class="ghost-sub">Run inference to dynamically populate top-K probabilities</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TASK 3: FULL-WIDTH MULTI-STEM PLAYER MATRIX -->
+                            <div class="card" id="studioStemsCard">
+                                <div class="card-header">
+                                    <h2 class="card-title">
+                                        <span>Separated stems</span>
+                                    </h2>
+                                    <span class="badge">Conv-TasNet</span>
+                                </div>
+                                <div id="stemsContainer">
+                                    <div class="ghost-empty-state">
+                                        <span class="ghost-icon">
+                                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                                        </span>
+                                        <span class="ghost-text">No separated stems reconstructed yet</span>
+                                        <span class="ghost-sub">Run inference to render independent play / mute stem player strips</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FIXED BOTTOM GLASS ACTION BAR FOR VIEWPORTS < 1100px (Disabled to avoid duplicate run button) -->
+                    <div class="studio-mobile-bar" id="studioMobileActionBar" style="display: none !important;">
+                        <div class="mobile-bar-info">
+                            <span class="mobile-bar-filename" id="mobileBarFilename">Audio loaded</span>
+                            <span class="mobile-bar-hint" id="mobileBarHint">Ready for inference</span>
+                        </div>
+                        <button class="btn btn-primary btn-run-inference btn-mobile-run" id="runInferenceMobileBtn">
+                            <span>Run Inference</span>
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- ============================================================== -->
+        <!-- PERSISTENT MINIMAL FOOTER BAR                                  -->
+        <!-- ============================================================== -->
+        <footer class="site-footer" id="sanadaCtaFooter">
+            <div class="container site-footer-inner">
+                <div class="cta-footer-copy">&copy; 2026 SANADA. All rights reserved.</div>
+                <div class="cta-footer-links">
+                    <a href="#/home" class="cta-footer-link">Home</a>
+                    <a href="#/predict" class="cta-footer-link">Studio</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- GLOBAL TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // Guard: ensure user portal stays confined to Home and Studio routes
+        (function() {
+            function sanitizeRoute() {
+                var hash = (window.location.hash || "").replace(/^#\/?/, "").split("/")[0].trim();
+                if (hash && hash !== "home" && hash !== "predict" && hash !== "studio") {
+                    window.location.hash = "#/home";
+                }
+            }
+            window.addEventListener("hashchange", sanitizeRoute);
+            sanitizeRoute();
+        })();
+    </script>
+    <script type="module" src="js/main.js?v=6"></script>
+</body>
+</html>

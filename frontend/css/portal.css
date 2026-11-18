@@ -1,0 +1,365 @@
+/**
+ * frontend/css/portal.css
+ * =======================
+ * Styles for SANADA Portal Authentication & Role Differentiation.
+ * Bridges User and Admin/Developer experiences with consistent liquid-glass aesthetic.
+ */
+
+/* AUTH CONTAINER & CENTERED LAYOUT */
+.auth-wrapper {
+    min-height: calc(100vh - 160px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px 64px;
+    position: relative;
+    z-index: var(--z-content);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--bg-1);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(40px) saturate(140%);
+    -webkit-backdrop-filter: blur(40px) saturate(140%);
+    border: 1px solid var(--border-tint);
+    border-radius: var(--radius-xl);
+    padding: 36px 32px 32px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
+                0 0 30px var(--accent-glow),
+                inset 0 1px 1px var(--w-15);
+    position: relative;
+    overflow: hidden;
+    animation: authFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes authFadeIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.auth-title {
+    font-size: clamp(30px, 4.5vw, 42px);
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin-bottom: 8px;
+    color: #ffffff;
+}
+
+.auth-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+/* AUDIENCE / ROLE DIFFERENTIATOR PILL */
+.role-differentiator {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-tint);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    margin-bottom: 22px;
+}
+
+.role-label-title {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.role-pill-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.role-pill-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 8px;
+    background: var(--bg-2);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    text-align: center;
+}
+
+.role-pill-btn .role-name {
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-body);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.role-pill-btn .role-desc {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    line-height: 1.2;
+}
+
+.role-pill-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--border-light);
+    background: var(--bg-hover);
+}
+
+.role-pill-btn.active {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+    box-shadow: 0 2px 14px rgba(255, 255, 255, 0.3);
+}
+
+.role-pill-btn.active .role-desc {
+    color: rgba(0, 0, 0, 0.65);
+}
+
+.role-destination-hint {
+    margin-top: 10px;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--wave-light);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+}
+
+.role-destination-hint .dest-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+}
+
+/* AUTH MODE TABS (SIGN IN vs SIGN UP) */
+.auth-mode-tabs {
+    display: flex;
+    background: var(--bg-2);
+    border: 1px solid var(--border-tint);
+    border-radius: var(--radius-full);
+    padding: 3px;
+    margin-bottom: 22px;
+}
+
+.auth-mode-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    text-align: center;
+}
+
+.auth-mode-tab:hover:not(.active) {
+    color: var(--text-primary);
+}
+
+.auth-mode-tab.active {
+    background: #ffffff;
+    color: #000000;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.25);
+}
+
+/* SSO / THIRD PARTY AUTH BUTTONS */
+.sso-button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.btn-social {
+    background: var(--bg-2);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    width: 100%;
+}
+
+.btn-social:hover {
+    background: var(--bg-hover);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 14px var(--accent-glow);
+    color: #ffffff;
+}
+
+.btn-social svg {
+    flex-shrink: 0;
+}
+
+/* DIVIDER */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-tint);
+}
+
+/* FORM FIELDS & INPUTS */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.auth-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+}
+
+.auth-label {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.auth-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 14px;
+    font-size: 13px;
+    background: var(--bg-2);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    color: #ffffff;
+    font-family: var(--font-body);
+    outline: none;
+    transition: var(--transition-fast);
+}
+
+.auth-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-dim);
+    background: var(--bg-hover);
+}
+
+.auth-row-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-top: 2px;
+    color: var(--text-secondary);
+}
+
+.auth-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    user-select: none;
+}
+
+.auth-link {
+    color: var(--wave-light);
+    text-decoration: none;
+    font-size: 12px;
+    transition: var(--transition-fast);
+}
+
+.auth-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+.btn-auth-submit {
+    margin-top: 6px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+/* FOOTER CALLOUT INSIDE CARD */
+.auth-card-footer {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border-tint);
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.portal-switch-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-2);
+    border: 1px solid var(--border-tint);
+    padding: 5px 12px;
+    border-radius: var(--radius-full);
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+.portal-switch-link:hover {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.3);
+    background: var(--bg-hover);
+}
+

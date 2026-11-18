@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — SANADA</title>
+    <meta name="description" content="Sign in to the SANADA Neural Machine Listening Platform.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
+
+    <style>
+        /* =====================================================================
+           /* Login Page */ — Centered Liquid Glass Layout
+           ===================================================================== */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .login-page-wrap {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: var(--z-content);
+            padding: 32px 16px;
+            box-sizing: border-box;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--bg-1);
+            background-blend-mode: luminosity;
+            backdrop-filter: blur(50px) saturate(140%);
+            -webkit-backdrop-filter: blur(50px) saturate(140%);
+            border: 1px solid var(--border-tint);
+            border-radius: var(--radius-xl);
+            padding: 40px 34px 36px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55),
+                        0 0 35px var(--accent-glow),
+                        inset 0 1px 1px var(--w-15);
+            position: relative;
+            overflow: hidden;
+            animation: loginCardFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1.2px;
+            background: linear-gradient(
+                180deg,
+                var(--w-30) 0%,
+                var(--border-tint) 45%,
+                transparent 100%
+            );
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        @keyframes loginCardFadeIn {
+            from { opacity: 0; transform: translateY(14px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* BRAND DISPLAY (Occurring ONCE) */
+        .login-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .login-header {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .login-title {
+            font-size: clamp(28px, 4vw, 34px);
+            font-family: var(--font-heading);
+            font-style: italic;
+            font-weight: 400;
+            letter-spacing: -0.015em;
+            line-height: 1.1;
+            margin: 0 0 6px 0;
+            color: #ffffff;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-family: var(--font-body);
+            font-weight: 300;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        /* INLINE ERROR ALERT */
+        .login-error {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: color-mix(in srgb, var(--rose) 12%, transparent);
+            border: 1px solid color-mix(in srgb, var(--rose) 35%, transparent);
+            color: #ffffff;
+            padding: 11px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-family: var(--font-body);
+            margin-bottom: 20px;
+        }
+
+        .login-error svg {
+            flex-shrink: 0;
+            color: var(--rose);
+        }
+
+        /* FORM */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            text-align: left;
+        }
+
+        .form-label {
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .input-full {
+            width: 100%;
+            box-sizing: border-box;
+            border-radius: var(--radius-md);
+        }
+
+        .password-input-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-input-wrap .text-input {
+            padding-right: 42px;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-fast);
+        }
+
+        .password-toggle-btn:hover {
+            color: #ffffff;
+        }
+
+        .btn-login-submit {
+            margin-top: 6px;
+            padding: 13px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        /* SMALL LINE: NEW USER? SIGN UP */
+        .new-user-line {
+            margin-top: 22px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-family: var(--font-body);
+        }
+
+        .new-user-link {
+            color: var(--wave-light);
+            text-decoration: none;
+            font-weight: 500;
+            margin-left: 4px;
+            transition: var(--transition-fast);
+        }
+
+        .new-user-link:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
+        /* MINIMAL CLEAN FOOTER */
+        .login-mini-footer {
+            margin-top: 28px;
+            text-align: center;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            letter-spacing: 0.02em;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 30px 22px 28px;
+                border-radius: var(--radius-lg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <!-- FIXED CINEMATIC WAVE BACKGROUND -->
+        <div class="home-fixed-wave-bg" id="homeWaveBg" aria-hidden="true">
+            <video id="ctaVideo" crossorigin="anonymous" autoplay loop muted playsinline class="cta-video">
+                <source src="assets/wave_bg.mp4?v=6" type="video/mp4">
+            </video>
+            <script>
+                (function() {
+                    var v = document.getElementById('ctaVideo');
+                    if (v) { v.defaultPlaybackRate = 0.80; v.playbackRate = 0.80; }
+                })();
+            </script>
+            <div class="home-wave-overlay"></div>
+        </div>
+
+        <!-- VISIBLE AMBIENT BACKDROP -->
+        <div class="ambient-backdrop" id="ambientBackdrop" aria-hidden="true">
+            <div class="ambient-blob blob-1"></div>
+            <div class="ambient-blob blob-2"></div>
+            <div class="ambient-blob blob-3"></div>
+            <div class="ambient-blob blob-4"></div>
+            <svg class="ambient-ribbons" viewBox="0 0 1440 900" fill="none" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="ribbonGrad1" x1="0%" y1="0%" x2="100%" y2="80%">
+                        <stop offset="0%" stop-color="var(--wave-light)" stop-opacity="0.35"/>
+                        <stop offset="45%" stop-color="var(--wave-2)" stop-opacity="0.22"/>
+                        <stop offset="85%" stop-color="var(--wave-1)" stop-opacity="0.10"/>
+                        <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+                    </linearGradient>
+                    <linearGradient id="ribbonGrad2" x1="100%" y1="10%" x2="0%" y2="90%">
+                        <stop offset="0%" stop-color="var(--wave-2)" stop-opacity="0.28"/>
+                        <stop offset="50%" stop-color="var(--wave-3)" stop-opacity="0.18"/>
+                        <stop offset="85%" stop-color="var(--wave-1)" stop-opacity="0.08"/>
+                        <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+                    </linearGradient>
+                </defs>
+                <path class="ribbon-path ribbon-1" d="M -100 280 C 260 120, 520 460, 880 260 C 1180 90, 1380 320, 1600 240" stroke="url(#ribbonGrad1)" stroke-width="2.5"/>
+                <path class="ribbon-path ribbon-2" d="M -100 440 C 320 280, 600 620, 960 400 C 1240 220, 1420 480, 1600 380" stroke="url(#ribbonGrad2)" stroke-width="2"/>
+            </svg>
+        </div>
+
+        <!-- CENTERED LOGIN SECTION -->
+        <main class="login-page-wrap">
+            <div class="card login-card">
+                <!-- LOGO & BRAND (Occurs only once on the page) -->
+                <div class="login-brand">
+                    <span class="brand-badge">SANADA</span>
+                    <span class="brand-title">Samslesha-Nada</span>
+                </div>
+
+                <div class="login-header">
+                    <h1 class="login-title">Sign In</h1>
+                    <p class="login-subtitle">Enter your account credentials to continue.</p>
+                </div>
+
+                <!-- INLINE ERROR MESSAGE AREA -->
+                <div class="login-error" id="loginError" style="display: none;" role="alert">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span id="loginErrorText">Invalid username or password.</span>
+                </div>
+
+                <!-- LOGIN FORM: ONLY USER ID AND PASSWORD -->
+                <form class="login-form" id="loginForm" autocomplete="on">
+                    <div class="form-group">
+                        <label class="form-label" for="usernameInput">User ID</label>
+                        <input
+                            type="text"
+                            id="usernameInput"
+                            name="username"
+                            class="text-input input-full"
+                            placeholder="Enter User ID"
+                            autocomplete="username"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="passwordInput">Password</label>
+                        <div class="password-input-wrap">
+                            <input
+                                type="password"
+                                id="passwordInput"
+                                name="password"
+                                class="text-input input-full"
+                                placeholder="••••••••"
+                                autocomplete="current-password"
+                                required
+                            >
+                            <button
+                                type="button"
+                                class="password-toggle-btn"
+                                id="passwordToggleBtn"
+                                aria-label="Toggle password visibility"
+                                title="Show/Hide password"
+                            >
+                                <svg class="eye-icon eye-show" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <svg class="eye-icon eye-hide" style="display: none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full btn-login-submit" id="loginBtn">
+                        <span>Log In</span>
+                    </button>
+                </form>
+
+                <!-- SMALL LINE: NEW USER? LOGIN -->
+                <div class="new-user-line">
+                    <span>New user?</span>
+                    <a href="#" id="newUserLink" class="new-user-link">Sign up</a>
+                </div>
+            </div>
+
+            <!-- CLEAN MINIMAL COPYRIGHT FOOTER -->
+            <footer class="login-mini-footer">
+                &copy; 2026 SANADA. All rights reserved.
+            </footer>
+        </main>
+    </div>
+
+    <!-- UI INTERACTION SCRIPT (Password Visibility Toggle) -->
+    <script>
+        (function() {
+            var toggleBtn = document.getElementById('passwordToggleBtn');
+            var passwordInput = document.getElementById('passwordInput');
+            if (toggleBtn && passwordInput) {
+                toggleBtn.addEventListener('click', function() {
+                    var isPassword = passwordInput.type === 'password';
+                    passwordInput.type = isPassword ? 'text' : 'password';
+                    var eyeShow = toggleBtn.querySelector('.eye-show');
+                    var eyeHide = toggleBtn.querySelector('.eye-hide');
+                    if (eyeShow) eyeShow.style.display = isPassword ? 'none' : 'block';
+                    if (eyeHide) eyeHide.style.display = isPassword ? 'block' : 'none';
+                    passwordInput.focus();
+                });
+            }
+        })();
+    </script>
+    <script type="module" src="js/login.js"></script>
+</body>
+</html>
