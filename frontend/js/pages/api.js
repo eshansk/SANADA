@@ -277,6 +277,48 @@ async function revokeKey(keyId) {
     }
 }
 
+let pendingDeleteKeyId = null;
+
+function openDeleteModal(keyId, keyName) {
+    pendingDeleteKeyId = keyId;
+    const modal = document.getElementById('sanadaDeleteKeyModal');
+    const nameEl = document.getElementById('modalDeleteKeyName');
+    if (nameEl) nameEl.textContent = `"${keyName}"`;
+
+    if (!modal) {
+        if (confirm(`Are you sure you want to delete "${keyName}"? Applications using this key will immediately lose access.`)) {
+            performRevoke(keyId);
+        }
+        return;
+    }
+
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDeleteModal() {
+    pendingDeleteKeyId = null;
+    const modal = document.getElementById('sanadaDeleteKeyModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    const authModal = document.getElementById('sanadaAuthModal');
+    const logoutModal = document.getElementById('sanadaLogoutModal');
+    if ((!authModal || !authModal.classList.contains('open')) && (!logoutModal || !logoutModal.classList.contains('open'))) {
+        document.body.style.overflow = '';
+    }
+}
+
+async function performRevoke(keyId) {
+    if (!keyId) return;
+    await revokeKey(keyId);
+    renderApiKeysList();
+    if (typeof window.showToast === 'function') {
+        window.showToast(`API Key deleted.`, 'info');
+    }
+}
+
 /**
  * Renders the list of API Keys and updates the code snippet for the selected key.
  */
@@ -446,13 +488,7 @@ function renderApiKeysList() {
                     btn.innerHTML = originalHtml;
                 }, 2000);
             } else if (action === 'revoke') {
-                if (confirm(`Are you sure you want to revoke the key "${target.name}"? Applications using this key will immediately lose access.`)) {
-                    await revokeKey(id);
-                    renderApiKeysList();
-                    if (typeof window.showToast === 'function') {
-                        window.showToast(`API Key revoked.`, 'info');
-                    }
-                }
+                openDeleteModal(id, target.name);
             }
         });
     });
@@ -641,6 +677,45 @@ export async function initApiPage() {
             }
         });
     }
+
+    // Wire up Delete Key Modal actions
+    const deleteModal = document.getElementById('sanadaDeleteKeyModal');
+    const closeDeleteBtn = document.getElementById('modalDeleteKeyCloseBtn');
+    const cancelDeleteBtn = document.getElementById('modalDeleteKeyCancelBtn');
+    const confirmDeleteBtn = document.getElementById('modalDeleteKeyConfirmBtn');
+
+    closeDeleteBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeDeleteModal();
+    });
+
+    cancelDeleteBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeDeleteModal();
+    });
+
+    confirmDeleteBtn?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const id = pendingDeleteKeyId;
+        closeDeleteModal();
+        if (id) {
+            await performRevoke(id);
+        }
+    });
+
+    if (deleteModal) {
+        deleteModal.addEventListener('click', (e) => {
+            if (e.target === deleteModal) {
+                closeDeleteModal();
+            }
+        });
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && deleteModal?.classList.contains('open')) {
+            closeDeleteModal();
+        }
+    });
 
     // Reactively refresh when navigating to the API tab or when user logs in/out
     onRouteChanged((route) => {

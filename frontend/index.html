@@ -2022,6 +2022,39 @@
         </div>
     </div>
 
+    <!-- ============================================================== -->
+    <!-- LIQUID GLASS API KEY DELETE CONFIRMATION MODAL                 -->
+    <!-- ============================================================== -->
+    <div class="auth-modal" id="sanadaDeleteKeyModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modalDeleteKeyTitle">
+        <div class="auth-modal-card logout-modal-card">
+            <!-- Close Button -->
+            <button type="button" class="auth-modal-close" id="modalDeleteKeyCloseBtn" aria-label="Cancel Delete Key" title="Cancel (Esc)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <h2 class="modal-title" id="modalDeleteKeyTitle">Revoke API Key</h2>
+            <p class="modal-subtitle" id="modalDeleteKeyDesc">
+                Are you sure you want to delete <strong id="modalDeleteKeyName" style="color: #ffffff;"></strong>? Applications using this key will immediately lose access.
+            </p>
+
+            <div class="logout-modal-actions">
+                <button type="button" class="btn btn-modal-cancel" id="modalDeleteKeyCancelBtn">
+                    <span>Cancel</span>
+                </button>
+                <button type="button" class="btn btn-modal-confirm-logout" id="modalDeleteKeyConfirmBtn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    <span>Delete Key</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- GLOBAL TOAST CONTAINER -->
     <div class="toast-container" id="toastContainer"></div>
 
