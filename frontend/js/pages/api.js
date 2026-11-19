@@ -321,9 +321,9 @@ function renderApiKeysList() {
                     </div>
                     <div class="api-key-status-group">
                         ${isSelected ? `
-                            <span class="badge pass">Selected</span>
+                            <span class="badge pass">Viewing Code</span>
                         ` : `
-                            <button type="button" class="btn btn-xs" data-action="select" data-id="${key.id}">Select</button>
+                            <button type="button" class="btn btn-xs btn-view-code" data-action="select" data-id="${key.id}" title="View integration code for this key">View code for this key</button>
                         `}
                     </div>
                 </div>
@@ -403,7 +403,7 @@ function renderApiKeysList() {
                 renderApiKeysList();
                 const target = cachedKeys.find(k => k.id === id);
                 if (target && typeof window.showToast === 'function') {
-                    window.showToast(`Selected "${target.name}" for code snippets`, 'info');
+                    window.showToast(`Viewing code for "${target.name}"`, 'info');
                 }
             }
         });
@@ -423,7 +423,7 @@ function renderApiKeysList() {
                 selectedKeyId = id;
                 renderApiKeysList();
                 if (typeof window.showToast === 'function') {
-                    window.showToast(`Selected "${target.name}" for code snippets`, 'info');
+                    window.showToast(`Viewing code for "${target.name}"`, 'info');
                 }
             } else if (action === 'toggle') {
                 target.revealed = !target.revealed;
@@ -625,7 +625,7 @@ export async function initApiPage() {
                 if (keyNameInput) keyNameInput.value = '';
                 renderApiKeysList();
                 if (typeof window.showToast === 'function') {
-                    window.showToast(`New API Key "${newKey.name}" created and selected!`, 'success');
+                    window.showToast(`New API Key "${newKey.name}" created! Viewing code below.`, 'success');
                 }
             } catch (err) {
                 console.error('[SANADA API] Key generation error:', err);

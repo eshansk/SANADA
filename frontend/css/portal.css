@@ -1444,6 +1444,13 @@ html[data-role="user"] .nav-tabs .tab-link[data-route="paper"] {
     gap: 8px;
 }
 
+.btn-view-code {
+    white-space: nowrap;
+    cursor: pointer;
+    font-size: 11px;
+    padding: 4px 12px;
+}
+
 .api-key-code-wrap {
     display: flex;
     align-items: center;
