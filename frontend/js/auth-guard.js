@@ -12,7 +12,15 @@
  *  6. Session persistence and clean logout handling.
  */
 
-import { isSupabaseConfigured, loginWithSupabase, getSupabaseUrl, getSupabaseKey } from './services/supabase.js';
+import {
+    isSupabaseConfigured,
+    loginWithSupabase,
+    signUpWithSupabase,
+    verifyOtpWithSupabase,
+    resendOtpWithSupabase,
+    getSupabaseUrl,
+    getSupabaseKey
+} from './services/supabase.js';
 
 // Demo credentials configuration
 export const DEMO_CONFIG = {
@@ -106,8 +114,44 @@ export function applyRoleDisplay(role) {
     }
 }
 
-// 3. Dual Login Modal Controller
+// 3. Modal State & Controller (Sign In, Create Account, OTP Verification)
 let currentModalRole = 'developer';
+let currentModalView = 'signin'; // 'signin' | 'signup' | 'otp'
+let pendingSignup = { username: '', email: '', password: '' };
+let resendCooldown = 0;
+let resendTimer = null;
+
+export function switchModalView(viewName) {
+    currentModalView = (viewName === 'signup' || viewName === 'otp') ? viewName : 'signin';
+
+    const signinView = document.getElementById('modalSigninView');
+    const signupView = document.getElementById('modalSignupView');
+    const otpView = document.getElementById('modalOtpView');
+
+    hideModalAlerts();
+
+    if (signinView) signinView.style.display = (currentModalView === 'signin') ? 'block' : 'none';
+    if (signupView) signupView.style.display = (currentModalView === 'signup') ? 'block' : 'none';
+    if (otpView) otpView.style.display = (currentModalView === 'otp') ? 'block' : 'none';
+
+    if (currentModalView === 'signin') {
+        setTimeout(() => {
+            document.getElementById('modalUsernameInput')?.focus();
+        }, 50);
+    } else if (currentModalView === 'signup') {
+        setTimeout(() => {
+            document.getElementById('modalSignupUsernameInput')?.focus();
+        }, 50);
+    } else if (currentModalView === 'otp') {
+        const targetLabel = document.getElementById('modalOtpTargetEmail');
+        if (targetLabel && pendingSignup.email) {
+            targetLabel.textContent = pendingSignup.email;
+        }
+        setTimeout(() => {
+            document.getElementById('modalOtpInput')?.focus();
+        }, 50);
+    }
+}
 
 export function setModalActiveRole(role) {
     currentModalRole = (role === 'user') ? 'user' : 'developer';
@@ -115,13 +159,10 @@ export function setModalActiveRole(role) {
     const devCard = document.getElementById('modalRoleDevBtn');
     const userCard = document.getElementById('modalRoleUserBtn');
     const submitBtn = document.getElementById('modalSubmitBtn');
-    const quickBtn = document.getElementById('modalQuickLoginBtn');
     const usernameInput = document.getElementById('modalUsernameInput');
     const passwordInput = document.getElementById('modalPasswordInput');
     const usernameLabel = document.getElementById('modalUsernameLabel');
-    const errorBox = document.getElementById('modalAuthError');
-
-    if (errorBox) errorBox.style.display = 'none';
+    hideModalAlerts();
 
     if (currentModalRole === 'developer') {
         devCard?.classList.add('active');
@@ -156,6 +197,9 @@ export function openAuthModal(preferredRole) {
         setModalActiveRole(currentModalRole || 'developer');
     }
 
+    // Default to sign-in view
+    switchModalView('signin');
+
     // Keep fields empty when opening
     const usernameInput = document.getElementById('modalUsernameInput');
     const passwordInput = document.getElementById('modalPasswordInput');
@@ -185,20 +229,55 @@ export function closeAuthModal() {
     // Clear fields on close
     const usernameInput = document.getElementById('modalUsernameInput');
     const passwordInput = document.getElementById('modalPasswordInput');
+    const regUsernameInput = document.getElementById('modalSignupUsernameInput');
+    const regEmailInput = document.getElementById('modalSignupEmailInput');
+    const regPasswordInput = document.getElementById('modalSignupPasswordInput');
+    const otpInput = document.getElementById('modalOtpInput');
+
     if (usernameInput) usernameInput.value = '';
     if (passwordInput) passwordInput.value = '';
+    if (regUsernameInput) regUsernameInput.value = '';
+    if (regEmailInput) regEmailInput.value = '';
+    if (regPasswordInput) regPasswordInput.value = '';
+    if (otpInput) otpInput.value = '';
 
-    const errorBox = document.getElementById('modalAuthError');
-    if (errorBox) errorBox.style.display = 'none';
+    if (resendTimer) {
+        clearInterval(resendTimer);
+        resendTimer = null;
+        resendCooldown = 0;
+    }
+
+    hideModalAlerts();
+    switchModalView('signin');
 }
 
 function showModalError(message) {
     const errorBox = document.getElementById('modalAuthError');
     const errorText = document.getElementById('modalAuthErrorText');
+    const successBox = document.getElementById('modalAuthSuccess');
+    if (successBox) successBox.style.display = 'none';
     if (errorBox && errorText) {
         errorText.textContent = message;
         errorBox.style.display = 'flex';
     }
+}
+
+function showModalSuccess(message) {
+    const successBox = document.getElementById('modalAuthSuccess');
+    const successText = document.getElementById('modalAuthSuccessText');
+    const errorBox = document.getElementById('modalAuthError');
+    if (errorBox) errorBox.style.display = 'none';
+    if (successBox && successText) {
+        successText.textContent = message;
+        successBox.style.display = 'flex';
+    }
+}
+
+function hideModalAlerts() {
+    const errorBox = document.getElementById('modalAuthError');
+    const successBox = document.getElementById('modalAuthSuccess');
+    if (errorBox) errorBox.style.display = 'none';
+    if (successBox) successBox.style.display = 'none';
 }
 
 // 4. Authenticate & Role Routing
@@ -468,19 +547,217 @@ function initAuthGuard() {
         });
     }
 
-    // Password reveal toggle
+    // Password reveal toggles (guaranteed single-execution via helper)
     const passToggle = document.getElementById('modalPassToggle');
-    const passInput = document.getElementById('modalPasswordInput');
-    if (passToggle && passInput) {
+    if (passToggle && !passToggle.hasAttribute('onclick')) {
         passToggle.addEventListener('click', (e) => {
             e.preventDefault();
-            const isPass = passInput.type === 'password';
-            passInput.type = isPass ? 'text' : 'password';
-            const showEye = passToggle.querySelector('.eye-show');
-            const hideEye = passToggle.querySelector('.eye-hide');
-            if (showEye) showEye.style.display = isPass ? 'none' : 'block';
-            if (hideEye) hideEye.style.display = isPass ? 'block' : 'none';
-            passInput.focus();
+            if (typeof window.togglePasswordVisibility === 'function') {
+                window.togglePasswordVisibility('modalPasswordInput', passToggle);
+            }
+        });
+    }
+
+    // Switch between Sign In and Create Account
+    const switchToSignupBtn = document.getElementById('modalSwitchToSignupBtn');
+    switchToSignupBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchModalView('signup');
+    });
+
+    const switchToSigninBtn = document.getElementById('modalSwitchToSigninBtn');
+    switchToSigninBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchModalView('signin');
+    });
+
+    const otpBackBtn = document.getElementById('modalOtpBackBtn');
+    otpBackBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchModalView('signup');
+    });
+
+    // Signup password reveal toggle
+    const regPassToggle = document.getElementById('modalSignupPassToggle');
+    if (regPassToggle && !regPassToggle.hasAttribute('onclick')) {
+        regPassToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (typeof window.togglePasswordVisibility === 'function') {
+                window.togglePasswordVisibility('modalSignupPasswordInput', regPassToggle);
+            }
+        });
+    }
+
+    // Auto-clear alerts when user types in signup & OTP fields
+    ['modalSignupUsernameInput', 'modalSignupEmailInput', 'modalSignupPasswordInput', 'modalOtpInput'].forEach(id => {
+        const el = document.getElementById(id);
+        el?.addEventListener('input', () => {
+            hideModalAlerts();
+        });
+    });
+
+    // Create Account Form submission (Sign Up -> send OTP)
+    const signupForm = document.getElementById('modalSignupForm');
+    if (signupForm) {
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideModalAlerts();
+
+            const uInput = document.getElementById('modalSignupUsernameInput');
+            const eInput = document.getElementById('modalSignupEmailInput');
+            const pInput = document.getElementById('modalSignupPasswordInput');
+            const submitBtn = document.getElementById('modalSignupSubmitBtn');
+
+            const username = (uInput?.value || '').trim();
+            const email = (eInput?.value || '').trim().toLowerCase();
+            const password = (pInput?.value || '').trim();
+
+            if (!username) {
+                showModalError('Please choose a username.');
+                uInput?.focus();
+                return;
+            }
+            if (username.length < 3) {
+                showModalError('Username must be at least 3 characters.');
+                uInput?.focus();
+                return;
+            }
+            if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+                showModalError('Username can only contain letters, numbers, underscores, and hyphens.');
+                uInput?.focus();
+                return;
+            }
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                showModalError('Please enter a valid email address.');
+                eInput?.focus();
+                return;
+            }
+            if (!password || password.length < 6) {
+                showModalError('Password must be at least 6 characters long.');
+                pInput?.focus();
+                return;
+            }
+
+            const origContent = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span>Sending Code...</span>';
+            }
+
+            try {
+                if (!isSupabaseConfigured()) {
+                    showModalError('Supabase is not configured yet. Paste your credentials into frontend/js/services/supabase.js');
+                    return;
+                }
+
+                const res = await signUpWithSupabase(username, email, password);
+                if (!res.success) {
+                    showModalError(res.error || 'Failed to send verification code. Please try again.');
+                    return;
+                }
+
+                pendingSignup = { username, email, password };
+                switchModalView('otp');
+                showModalSuccess(`A 6-digit verification code was sent to ${email}.`);
+                startResendCooldown(60);
+            } catch (err) {
+                console.error('[SANADA Auth] Signup error:', err);
+                showModalError(err.message || 'An unexpected error occurred during account creation.');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origContent;
+                }
+            }
+        });
+    }
+
+    // Resend OTP button
+    const otpResendBtn = document.getElementById('modalOtpResendBtn');
+    otpResendBtn?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (resendCooldown > 0) return;
+        hideModalAlerts();
+
+        const btn = document.getElementById('modalOtpResendBtn');
+        if (btn) btn.textContent = 'Sending...';
+
+        try {
+            const res = await resendOtpWithSupabase(pendingSignup.email);
+            if (!res.success) {
+                showModalError(res.error || 'Failed to resend code.');
+                if (btn) btn.textContent = 'Resend Code';
+            } else {
+                showModalSuccess(`A new 6-digit code has been sent to ${pendingSignup.email}.`);
+                startResendCooldown(60);
+            }
+        } catch (err) {
+            showModalError(err.message || 'Failed to resend code.');
+            if (btn) btn.textContent = 'Resend Code';
+        }
+    });
+
+    // OTP Form submission (Verify OTP -> Activate -> Sign In)
+    const otpForm = document.getElementById('modalOtpForm');
+    if (otpForm) {
+        otpForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideModalAlerts();
+
+            const otpInput = document.getElementById('modalOtpInput');
+            const submitBtn = document.getElementById('modalOtpSubmitBtn');
+            const token = (otpInput?.value || '').trim();
+
+            if (!token) {
+                showModalError('Please enter the 6-digit verification code.');
+                otpInput?.focus();
+                return;
+            }
+
+            const origContent = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span>Verifying Code...</span>';
+            }
+
+            try {
+                const res = await verifyOtpWithSupabase(
+                    pendingSignup.email,
+                    token,
+                    pendingSignup.username,
+                    pendingSignup.password
+                );
+
+                if (!res.success) {
+                    showModalError(res.error || 'Invalid or expired verification code.');
+                    return;
+                }
+
+                const user = res.user;
+                const username = user?.username || pendingSignup.username || 'user';
+                const role = 'user';
+
+                setAuth(role, username, { id: user?.id, email: pendingSignup.email });
+                applyRoleDisplay(role);
+                closeAuthModal();
+
+                notify(`Account verified successfully! Welcome to SANADA, ${username}.`, 'success');
+
+                // Clear pending signup data
+                pendingSignup = { username: '', email: '', password: '' };
+
+                if (window.location.pathname.endsWith('login.html')) {
+                    window.location.href = 'index.html';
+                }
+            } catch (err) {
+                console.error('[SANADA Auth] OTP verification error:', err);
+                showModalError(err.message || 'Verification failed. Please try again.');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origContent;
+                }
+            }
         });
     }
 }
@@ -494,6 +771,7 @@ if (typeof window !== 'undefined') {
         applyRoleDisplay,
         openAuthModal,
         closeAuthModal,
+        switchModalView,
         openLogoutModal,
         closeLogoutModal,
         authenticate,
@@ -504,6 +782,7 @@ if (typeof window !== 'undefined') {
     window.logout = logout;
     window.openAuthModal = openAuthModal;
     window.closeAuthModal = closeAuthModal;
+    window.switchModalView = switchModalView;
     window.openLogoutModal = openLogoutModal;
     window.closeLogoutModal = closeLogoutModal;
 

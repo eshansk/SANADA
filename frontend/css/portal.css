@@ -990,6 +990,25 @@ html[data-role="user"] .nav-tabs .tab-link[data-route="paper"] {
     color: var(--rose);
 }
 
+.modal-auth-success {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: color-mix(in srgb, #10b981 12%, transparent);
+    border: 1px solid color-mix(in srgb, #10b981 28%, transparent);
+    color: #6ee7b7;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-family: var(--font-body);
+    margin-bottom: 8px;
+}
+
+.modal-auth-success svg {
+    flex-shrink: 0;
+    color: #34d399;
+}
+
 .modal-pass-wrap {
     position: relative;
     width: 100%;
@@ -1014,10 +1033,41 @@ html[data-role="user"] .nav-tabs .tab-link[data-route="paper"] {
     justify-content: center;
     border-radius: var(--radius-sm);
     transition: color var(--transition-fast);
+    z-index: 10;
+}
+
+.modal-pass-toggle svg {
+    pointer-events: none;
 }
 
 .modal-pass-toggle:hover {
     color: #ffffff;
+}
+
+/* User Account Restriction Callout Notice */
+.modal-role-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    background: color-mix(in srgb, var(--wave-1) 12%, rgba(255, 255, 255, 0.03));
+    border: 1px solid color-mix(in srgb, var(--wave-light) 22%, transparent);
+    color: var(--text-secondary);
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    line-height: 1.45;
+    margin-bottom: 16px;
+}
+
+.modal-role-notice strong {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.modal-role-notice svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--wave-light);
 }
 
 .modal-actions-group {
@@ -1057,6 +1107,85 @@ html[data-role="user"] .nav-tabs .tab-link[data-route="paper"] {
     opacity: 0.45;
     cursor: not-allowed;
     transform: none;
+}
+
+/* Modal View Transition */
+.modal-view {
+    animation: modalViewFade 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalViewFade {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Modal Auth Switcher Footer (Sign In <-> Create Account) */
+.modal-auth-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 12.5px;
+    font-family: var(--font-body);
+}
+
+.auth-modal-footer-text {
+    color: var(--text-muted);
+}
+
+.auth-link-btn {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 500;
+    font-family: var(--font-body);
+    cursor: pointer;
+    padding: 2px 4px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(255, 255, 255, 0.3);
+    transition: all var(--transition-fast);
+}
+
+.auth-link-btn:hover {
+    color: var(--wave-light);
+    text-decoration-color: var(--wave-light);
+}
+
+.auth-link-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    text-decoration: none;
+}
+
+/* 6-Digit OTP Field */
+.modal-otp-input {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    letter-spacing: 0.32em;
+    text-align: center;
+    padding: 12px 14px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.modal-otp-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 0 4px;
 }
 
 /* =============================================================================
