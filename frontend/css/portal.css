@@ -1267,3 +1267,374 @@ html[data-role="user"] .nav-tabs .tab-link[data-route="paper"] {
         font-size: 12px;
     }
 }
+
+/* =============================================================================
+   SANADA WEB API & PARTNER GATEWAY STYLES
+   ============================================================================= */
+.api-page-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 20px;
+}
+
+@media (max-width: 1024px) {
+    .api-page-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.api-card-intro {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 18px;
+}
+
+.api-create-key-form {
+    margin-bottom: 16px;
+}
+
+.api-input-wrap {
+    display: flex;
+    gap: 10px;
+}
+
+.api-name-input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 11px 14px;
+    font-size: 13.5px;
+    color: #ffffff;
+    outline: none;
+    transition: all var(--transition-fast);
+}
+
+.api-name-input:focus {
+    border-color: color-mix(in srgb, var(--wave-light) 60%, rgba(255, 255, 255, 0.5));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--wave-1) 25%, transparent);
+}
+
+.btn-generate-key {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    padding: 11px 18px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.api-security-pill-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: color-mix(in srgb, var(--wave-1) 12%, rgba(255, 255, 255, 0.03));
+    border: 1px solid color-mix(in srgb, var(--wave-light) 20%, transparent);
+    color: var(--text-secondary);
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 12px;
+    line-height: 1.45;
+    margin-bottom: 20px;
+}
+
+.api-security-pill-notice svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--wave-light);
+}
+
+/* Empty State */
+.api-empty-state {
+    text-align: center;
+    padding: 36px 20px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.api-empty-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.api-empty-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.api-empty-sub {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    max-width: 320px;
+}
+
+/* API Key Item Card */
+.api-keys-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.api-key-item {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 14px;
+    padding: 14px 16px;
+    transition: all var(--transition-fast);
+}
+
+.api-key-item:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.api-key-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.api-key-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.api-key-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.api-key-date {
+    font-size: 11.5px;
+    color: var(--text-muted);
+}
+
+.api-key-badge.active {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    background: color-mix(in srgb, #10b981 12%, transparent);
+    border: 1px solid color-mix(in srgb, #10b981 30%, transparent);
+    color: #34d399;
+}
+
+.badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 6px #34d399;
+}
+
+.api-key-code-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 6px 8px 6px 12px;
+}
+
+.api-key-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #e4e4e7;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    outline: none;
+    user-select: all;
+}
+
+.api-key-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-key-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 8px;
+    padding: 5px 9px;
+    font-size: 12px;
+    font-family: var(--font-body);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-key-action:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-key-copy.copied {
+    background: color-mix(in srgb, #10b981 20%, transparent);
+    border-color: #34d399;
+    color: #a7f3d0;
+}
+
+.btn-key-revoke:hover {
+    background: color-mix(in srgb, var(--rose) 20%, transparent);
+    border-color: var(--rose);
+    color: var(--rose);
+}
+
+/* Code Integration Box */
+.code-lang-selector {
+    display: inline-flex;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 3px;
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 14px;
+    gap: 4px;
+}
+
+.code-lang-pill {
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-full);
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.code-lang-pill:hover:not(.active) {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.code-lang-pill.active {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.code-snippet-box {
+    background: hsl(268 35% 6% / 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 22px;
+}
+
+.code-snippet-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.code-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+.code-dot.red { background: #ff5f56; }
+.code-dot.yellow { background: #ffbd2e; }
+.code-dot.green { background: #27c93f; }
+
+.code-file-label {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-left: 6px;
+}
+
+.btn-copy-snippet {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-copy-snippet:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.api-code-pre {
+    margin: 0;
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: #e4e4e7;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.api-subheading {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0 0 10px 0;
+}
+
+.api-params-table-wrap {
+    overflow-x: auto;
+}
+
+.api-params-table th {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    padding: 8px 12px;
+}
+
+.api-params-table td {
+    padding: 10px 12px;
+    font-size: 12.5px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+

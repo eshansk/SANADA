@@ -8,12 +8,14 @@
 
 import { getAuth } from '../auth-guard.js';
 
-const VALID_ROUTES = ['home', 'predict', 'dataset', 'train', 'analytics', 'docs', 'paper'];
+const VALID_ROUTES = ['home', 'predict', 'dataset', 'train', 'analytics', 'api', 'docs', 'paper'];
 
 const ROUTE_ALIASES = {
     studio: 'predict',
     results: 'analytics',
-    developer: 'train'
+    developer: 'train',
+    'web-api': 'api',
+    keys: 'api'
 };
 
 let currentRoute = 'home';
@@ -64,8 +66,8 @@ export function switchRoute(targetRoute, updateHash = true) {
         if (typeof window !== 'undefined' && typeof window.openAuthModal === 'function') {
             window.openAuthModal('developer');
         }
-    } else if (role === 'user' && !['home', 'predict'].includes(route)) {
-        // User access restricted to Home and Studio; unauthorized routes redirect to home page
+    } else if (role === 'user' && !['home', 'predict', 'api'].includes(route)) {
+        // User access restricted to Home, Studio, and Web API; unauthorized routes redirect to home page
         route = 'home';
         if (typeof window !== 'undefined' && typeof window.showToast === 'function') {
             window.showToast('Developer access required. Redirected to home page.', 'warning');
@@ -110,6 +112,7 @@ export function switchRoute(targetRoute, updateHash = true) {
         dataset: document.getElementById('pageDataset'),
         train: document.getElementById('pageTrain'),
         analytics: document.getElementById('pageAnalytics'),
+        api: document.getElementById('pageApi'),
         docs: document.getElementById('pageDocs'),
         paper: document.getElementById('pagePaper')
     };

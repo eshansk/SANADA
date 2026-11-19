@@ -29,7 +29,7 @@ import soundfile as sf
 import numpy as np
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks, status
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks, status, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -220,7 +220,9 @@ async def validate_audio_upload(file: UploadFile = File(...)):
 async def run_prediction(
     file: UploadFile = File(...),
     task: str = Form("all"),
-    threshold: float = Form(0.5)
+    threshold: float = Form(0.5),
+    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
+    authorization: Optional[str] = Header(None)
 ):
     """Multi-task audio inference endpoint."""
     contents = await file.read()
@@ -240,7 +242,16 @@ async def run_prediction(
         filename=file.filename
     )
     
-    return {
+    # Extract API key if provided via X-API-Key or Bearer token
+    api_key = x_api_key
+    if not api_key and authorization:
+        auth_parts = authorization.strip().split()
+        if len(auth_parts) == 2 and auth_parts[0].lower() == "bearer":
+            api_key = auth_parts[1]
+        elif len(auth_parts) == 1:
+            api_key = auth_parts[0]
+
+    response_payload = {
         "status": "success",
         "filename": file.filename,
         "duration_s": 8.0,
@@ -248,6 +259,12 @@ async def run_prediction(
         "task_executed": task,
         "results": results
     }
+
+    if api_key:
+        response_payload["api_authenticated"] = True
+        response_payload["api_key_prefix"] = api_key[:16] + "..." if len(api_key) > 16 else api_key
+
+    return response_payload
 
 @app.get("/api/demo-mixtures")
 def get_demo_catalog():

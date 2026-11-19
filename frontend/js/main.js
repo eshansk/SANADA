@@ -19,6 +19,7 @@ import { initHomePage } from './pages/home.js';
 import { initStudioPage } from './pages/studio.js';
 import { initResultsPage, loadAnalytics } from './pages/results.js';
 import { initDeveloperPage } from './pages/developer.js';
+import { initApiPage } from './pages/api.js';
 import { initPaperPage } from './pages/paper.js';
 
 async function checkHealth() {
@@ -105,6 +106,7 @@ export function boot() {
     initStudioPage();
     initResultsPage();
     initDeveloperPage();
+    initApiPage();
     initPaperPage();
 
     // 3. Initialize Shared Navigation & Controls
