@@ -1292,7 +1292,7 @@ html[data-role="user"] .nav-tabs .tab-link[data-route="paper"] {
 }
 
 .api-create-key-form {
-    margin-bottom: 16px;
+    margin-bottom: 22px;
 }
 
 .api-input-wrap {
@@ -1398,6 +1398,7 @@ html[data-role="user"] .nav-tabs .tab-link[data-route="paper"] {
     border-radius: 14px;
     padding: 14px 16px;
     transition: all var(--transition-fast);
+    min-width: 0;
 }
 
 .api-key-item:hover {
@@ -1410,6 +1411,8 @@ html[data-role="user"] .nav-tabs .tab-link[data-route="paper"] {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .api-key-meta {
@@ -1460,10 +1463,14 @@ html[data-role="user"] .nav-tabs .tab-link[data-route="paper"] {
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 10px;
     padding: 6px 8px 6px 12px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .api-key-input {
-    flex: 1;
+    flex: 1 1 0;
+    min-width: 0;
+    width: 0;
     background: transparent;
     border: none;
     color: #e4e4e7;
@@ -1472,12 +1479,16 @@ html[data-role="user"] .nav-tabs .tab-link[data-route="paper"] {
     letter-spacing: 0.04em;
     outline: none;
     user-select: all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .api-key-actions {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
+    flex-shrink: 0;
 }
 
 .btn-key-action {
@@ -1619,22 +1630,99 @@ html[data-role="user"] .nav-tabs .tab-link[data-route="paper"] {
     margin: 0 0 10px 0;
 }
 
-.api-params-table-wrap {
+.api-integration-card .table-responsive {
+    margin-top: 10px;
+    margin-bottom: 0;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
     overflow-x: auto;
+    background: rgba(0, 0, 0, 0.25);
 }
 
-.api-params-table th {
+.api-integration-card .data-table {
+    margin: 0;
+}
+
+.api-integration-card .data-table th {
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.api-integration-card .data-table td {
+    padding: 11px 14px;
+    font-size: 13px;
+}
+
+.api-integration-card .data-table code {
     font-family: var(--font-mono);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-    padding: 8px 12px;
+    font-size: 12px;
+    color: #93c5fd;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
-.api-params-table td {
-    padding: 10px 12px;
-    font-size: 12.5px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+/* Mobile responsive adjustments for Web API Page */
+@media (max-width: 768px) {
+    .api-input-wrap {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .btn-generate-key {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .api-key-item {
+        padding: 12px 14px;
+    }
+
+    .api-key-header-row {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .api-key-code-wrap {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 10px 12px;
+    }
+
+    .api-key-input {
+        width: 100%;
+        min-width: 0;
+        font-size: 12px;
+        padding: 4px 2px 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        text-overflow: clip;
+    }
+
+    .api-key-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .btn-key-action {
+        flex: 1;
+        justify-content: center;
+        padding: 8px 10px;
+        font-size: 12px;
+        min-width: 0;
+    }
+
+    .btn-key-action span {
+        white-space: nowrap;
+    }
+
+    .btn-key-revoke {
+        flex: 0 0 38px;
+        justify-content: center;
+        padding: 8px;
+    }
 }
+
 
