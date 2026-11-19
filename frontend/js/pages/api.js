@@ -321,16 +321,9 @@ function renderApiKeysList() {
                     </div>
                     <div class="api-key-status-group">
                         ${isSelected ? `
-                            <span class="api-key-badge selected" title="Active key used in integration code snippets">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="20 6 9 17 4 12"></polyline>
-                                </svg>
-                                <span>Selected for Integration</span>
-                            </span>
+                            <span class="badge pass">Selected</span>
                         ` : `
-                            <button type="button" class="btn-select-key" data-action="select" data-id="${key.id}" title="Use this key in code integration snippets">
-                                <span>Use in Snippets</span>
-                            </button>
+                            <button type="button" class="btn btn-xs" data-action="select" data-id="${key.id}">Select</button>
                         `}
                     </div>
                 </div>
@@ -493,7 +486,13 @@ function updateCodeSnippet(apiKey, keyName = null) {
     const codeEl = document.getElementById('apiCodeDisplay');
     const labelEl = document.getElementById('apiCodeActiveKeyLabel');
     if (labelEl) {
-        labelEl.textContent = keyName ? `Key: ${keyName}` : 'Key: None';
+        if (keyName) {
+            labelEl.textContent = keyName;
+            labelEl.style.display = 'inline-flex';
+        } else {
+            labelEl.textContent = '';
+            labelEl.style.display = 'none';
+        }
     }
     if (!codeEl) return;
 
