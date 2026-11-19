@@ -5,21 +5,44 @@
  *
  * Provides:
  *  1. Cryptographically secure API key generation with SHA-256 database hashing.
- *  2. Masked key display with click-to-reveal toggle (eye icon).
- *  3. One-click clipboard copy with animated visual feedback.
- *  4. Key deletion / revocation with confirmation.
- *  5. Dynamic multi-language integration snippets (cURL, Python requests, Node.js fetch).
- *  6. Dual-tier storage (Supabase PostgreSQL sync with local resilience fallback).
+ *  2. Strict user/developer isolation (keys are scoped per user identity).
+ *  3. Automatic sequential default key labels ("My app key 1", "My app key 2", ...).
+ *  4. Interactive key selection: picking a key dynamically updates integration snippets.
+ *  5. Masked key display with click-to-reveal toggle (eye icon).
+ *  6. One-click clipboard copy with animated visual feedback.
+ *  7. Key deletion / revocation with confirmation.
+ *  8. Multi-language code snippets (cURL, Python requests, Node.js fetch).
+ *  9. Dual-tier storage (Supabase PostgreSQL sync with per-user local storage resilience).
  */
 
 import { getAuth } from '../auth-guard.js';
+import { onRouteChanged } from '../ui/router.js';
 
-// Local storage key for fallback persistence
-const STORAGE_KEY = 'sanada_api_keys';
-
-// Active code snippet tab state
+// Active code snippet tab and key state
 let activeSnippetLang = 'curl';
 let cachedKeys = [];
+let selectedKeyId = null;
+
+/**
+ * Returns normalized metadata for the currently authenticated user/developer.
+ */
+function getCurrentUserMeta() {
+    const auth = getAuth();
+    if (!auth) {
+        return {
+            id: null,
+            username: 'guest',
+            role: 'unauthenticated',
+            storageKey: 'sanada_api_keys_guest'
+        };
+    }
+    const username = (auth.username || auth.role || 'user').trim().toLowerCase();
+    const id = auth.id || null;
+    const role = auth.role || 'user';
+    // Storage key strictly scoped to user ID (UUID) or username/role
+    const storageKey = id ? `sanada_api_keys_uid_${id}` : `sanada_api_keys_user_${username}`;
+    return { id, username, role, storageKey };
+}
 
 /**
  * Generates a random cryptographic key prefixed with `sanada_live_`.
@@ -66,14 +89,74 @@ function maskApiKey(rawKey) {
 }
 
 /**
- * Loads API keys from Supabase or localStorage fallback.
+ * Computes the next sequential default label ("My app key 1", "My app key 2", ...).
+ */
+function getNextDefaultKeyName() {
+    let maxIndex = 0;
+    const pattern = /^My app key\s*(\d+)$/i;
+
+    cachedKeys.forEach(k => {
+        const match = (k.name || '').match(pattern);
+        if (match) {
+            const num = parseInt(match[1], 10);
+            if (!isNaN(num) && num > maxIndex) {
+                maxIndex = num;
+            }
+        }
+    });
+
+    if (maxIndex > 0) {
+        return `My app key ${maxIndex + 1}`;
+    }
+
+    return `My app key ${cachedKeys.length + 1}`;
+}
+
+/**
+ * Updates the key name input's placeholder to reflect the next default label.
+ */
+function updateKeyInputPlaceholder() {
+    const keyNameInput = document.getElementById('apiKeyNameInput');
+    if (keyNameInput) {
+        const nextDefault = getNextDefaultKeyName();
+        keyNameInput.placeholder = `Key label (default: ${nextDefault})`;
+    }
+}
+
+/**
+ * Ensures a valid key selection exists among the cached keys.
+ */
+function ensureValidSelection() {
+    if (!cachedKeys || cachedKeys.length === 0) {
+        selectedKeyId = null;
+        return;
+    }
+    const exists = cachedKeys.some(k => k.id === selectedKeyId);
+    if (!exists) {
+        selectedKeyId = cachedKeys[0].id;
+    }
+}
+
+/**
+ * Loads API keys strictly for the active user from Supabase or localStorage fallback.
  */
 async function loadApiKeys() {
+    const userMeta = getCurrentUserMeta();
+
+    // 1. Attempt Supabase lookup strictly scoped to current user
     try {
         if (typeof window !== 'undefined' && window.SANADA_SUPABASE && window.SANADA_SUPABASE.getClient) {
             const client = window.SANADA_SUPABASE.getClient();
             if (client) {
-                const { data, error } = await client.from('api_keys').select('*').order('created_at', { ascending: false });
+                let query = client.from('api_keys').select('*').order('created_at', { ascending: false });
+
+                if (userMeta.id) {
+                    query = query.or(`user_id.eq.${userMeta.id},user_identifier.eq.${userMeta.username}`);
+                } else if (userMeta.username && userMeta.username !== 'guest') {
+                    query = query.eq('user_identifier', userMeta.username);
+                }
+
+                const { data, error } = await query;
                 if (!error && Array.isArray(data)) {
                     cachedKeys = data.map(item => ({
                         id: item.id,
@@ -85,60 +168,54 @@ async function loadApiKeys() {
                         revealed: false
                     }));
                     saveToLocalStorage(cachedKeys);
+                    ensureValidSelection();
                     return cachedKeys;
                 }
             }
         }
     } catch (e) {
-        console.warn('[SANADA API] Supabase table lookup notice:', e?.message || e);
+        console.warn('[SANADA API] Supabase query notice:', e?.message || e);
     }
 
-    // Fallback: Read from localStorage
+    // 2. Fallback: Read from user-scoped localStorage
     try {
-        const stored = localStorage.getItem(STORAGE_KEY);
+        const stored = localStorage.getItem(userMeta.storageKey);
         if (stored) {
             cachedKeys = JSON.parse(stored);
+            ensureValidSelection();
             return cachedKeys;
         }
     } catch (e) {}
 
-    // Seed default demo key if list is completely empty
-    if (!cachedKeys || cachedKeys.length === 0) {
-        const demoRaw = 'sanada_live_9a7b3c2e1f408d6e5a9c8b7a6d5e4f3a';
-        cachedKeys = [{
-            id: 'key_demo_default',
-            name: 'Default Inference Client',
-            rawKey: demoRaw,
-            maskedKey: maskApiKey(demoRaw),
-            keyHash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-            createdAt: 'Today',
-            revealed: false
-        }];
-        saveToLocalStorage(cachedKeys);
-    }
-
+    // When a user has no keys, keep empty (no cross-user contamination)
+    cachedKeys = [];
+    selectedKeyId = null;
     return cachedKeys;
 }
 
+/**
+ * Persists keys array to user-scoped localStorage.
+ */
 function saveToLocalStorage(keys) {
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(keys));
+        const userMeta = getCurrentUserMeta();
+        localStorage.setItem(userMeta.storageKey, JSON.stringify(keys));
     } catch (e) {}
 }
 
 /**
- * Saves a new key to Supabase (and localStorage).
+ * Saves a new key strictly associated with the current user/developer.
  */
 async function saveNewKey(name) {
+    const userMeta = getCurrentUserMeta();
+    const finalName = (name && name.trim()) ? name.trim() : getNextDefaultKeyName();
     const rawKey = generateRawApiKey();
     const keyHash = await computeSha256(rawKey);
     const maskedKey = maskApiKey(rawKey);
-    const auth = getAuth();
-    const userId = auth?.id || null;
 
     const newKeyObj = {
         id: 'key_' + Date.now(),
-        name: name.trim() || 'Production Key',
+        name: finalName,
         rawKey: rawKey,
         maskedKey: maskedKey,
         keyHash: keyHash,
@@ -146,30 +223,35 @@ async function saveNewKey(name) {
         revealed: false
     };
 
-    // Attempt Supabase insert
+    // Attempt Supabase insert with user identification
     try {
         if (typeof window !== 'undefined' && window.SANADA_SUPABASE && window.SANADA_SUPABASE.getClient) {
             const client = window.SANADA_SUPABASE.getClient();
             if (client) {
-                const { data, error } = await client.from('api_keys').insert([{
-                    user_id: userId,
+                const insertPayload = {
                     name: newKeyObj.name,
                     key_prefix: rawKey.slice(0, 16),
                     key_hash: keyHash,
                     masked_key: maskedKey,
-                    encrypted_key: rawKey
-                }]).select();
+                    encrypted_key: rawKey,
+                    user_identifier: userMeta.username
+                };
+                if (userMeta.id) {
+                    insertPayload.user_id = userMeta.id;
+                }
 
+                const { data, error } = await client.from('api_keys').insert([insertPayload]).select();
                 if (!error && data && data.length > 0) {
                     newKeyObj.id = data[0].id;
                 }
             }
         }
     } catch (err) {
-        console.info('[SANADA API] Stored locally (Supabase table api_keys will sync once SQL is executed):', err?.message || err);
+        console.info('[SANADA API] Saved locally for user:', err?.message || err);
     }
 
     cachedKeys.unshift(newKeyObj);
+    selectedKeyId = newKeyObj.id; // Automatically select newly created key
     saveToLocalStorage(cachedKeys);
     return newKeyObj;
 }
@@ -189,14 +271,27 @@ async function revokeKey(keyId) {
 
     cachedKeys = cachedKeys.filter(k => k.id !== keyId);
     saveToLocalStorage(cachedKeys);
+
+    if (selectedKeyId === keyId) {
+        selectedKeyId = cachedKeys[0]?.id || null;
+    }
 }
 
 /**
- * Renders the list of API Keys into the DOM.
+ * Renders the list of API Keys and updates the code snippet for the selected key.
  */
 function renderApiKeysList() {
     const container = document.getElementById('apiKeysListContainer');
     if (!container) return;
+
+    ensureValidSelection();
+    updateKeyInputPlaceholder();
+
+    const activeSelectedKey = cachedKeys.find(k => k.id === selectedKeyId) || null;
+    updateCodeSnippet(
+        activeSelectedKey ? activeSelectedKey.rawKey : 'sanada_live_YOUR_KEY',
+        activeSelectedKey ? activeSelectedKey.name : null
+    );
 
     if (cachedKeys.length === 0) {
         container.innerHTML = `
@@ -207,26 +302,37 @@ function renderApiKeysList() {
                     </svg>
                 </span>
                 <span class="api-empty-title">No API keys created yet</span>
-                <span class="api-empty-sub">Enter a key label above and click "Create Secret Key" to generate credentials.</span>
+                <span class="api-empty-sub">Click "Create Secret Key" above to generate your first credential.</span>
             </div>
         `;
-        updateCodeSnippet('sanada_live_YOUR_KEY');
         return;
     }
 
     let html = '';
     cachedKeys.forEach(key => {
+        const isSelected = (key.id === selectedKeyId);
         const displayValue = key.revealed ? key.rawKey : key.maskedKey;
         html += `
-            <div class="api-key-item" data-id="${key.id}">
+            <div class="api-key-item ${isSelected ? 'selected' : ''}" data-id="${key.id}">
                 <div class="api-key-header-row">
                     <div class="api-key-meta">
                         <span class="api-key-name">${escapeHtml(key.name)}</span>
                         <span class="api-key-date">Created: ${key.createdAt}</span>
                     </div>
-                    <span class="api-key-badge active">
-                        <span class="badge-dot"></span> Active
-                    </span>
+                    <div class="api-key-status-group">
+                        ${isSelected ? `
+                            <span class="api-key-badge selected" title="Active key used in integration code snippets">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span>Selected for Integration</span>
+                            </span>
+                        ` : `
+                            <button type="button" class="btn-select-key" data-action="select" data-id="${key.id}" title="Use this key in code integration snippets">
+                                <span>Use in Snippets</span>
+                            </button>
+                        `}
+                    </div>
                 </div>
 
                 <div class="api-key-code-wrap">
@@ -294,16 +400,39 @@ function renderApiKeysList() {
 
     container.innerHTML = html;
 
+    // Attach card click to select key
+    container.querySelectorAll('.api-key-item').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('button') || e.target.closest('input')) return;
+            const id = card.dataset.id;
+            if (id && id !== selectedKeyId) {
+                selectedKeyId = id;
+                renderApiKeysList();
+                const target = cachedKeys.find(k => k.id === id);
+                if (target && typeof window.showToast === 'function') {
+                    window.showToast(`Selected "${target.name}" for code snippets`, 'info');
+                }
+            }
+        });
+    });
+
     // Attach row button events
     container.querySelectorAll('button[data-action]').forEach(btn => {
         btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
             e.preventDefault();
             const action = btn.dataset.action;
             const id = btn.dataset.id;
             const target = cachedKeys.find(k => k.id === id);
             if (!target) return;
 
-            if (action === 'toggle') {
+            if (action === 'select') {
+                selectedKeyId = id;
+                renderApiKeysList();
+                if (typeof window.showToast === 'function') {
+                    window.showToast(`Selected "${target.name}" for code snippets`, 'info');
+                }
+            } else if (action === 'toggle') {
                 target.revealed = !target.revealed;
                 renderApiKeysList();
             } else if (action === 'copy') {
@@ -334,10 +463,6 @@ function renderApiKeysList() {
             }
         });
     });
-
-    // Update code snippets with the latest/first key
-    const activeKey = cachedKeys[0]?.rawKey || 'sanada_live_YOUR_KEY';
-    updateCodeSnippet(activeKey);
 }
 
 /**
@@ -362,10 +487,14 @@ async function copyToClipboard(text) {
 }
 
 /**
- * Updates the code snippet box with active language and user key.
+ * Updates the code snippet box with active language, user key, and key name badge.
  */
-function updateCodeSnippet(apiKey) {
+function updateCodeSnippet(apiKey, keyName = null) {
     const codeEl = document.getElementById('apiCodeDisplay');
+    const labelEl = document.getElementById('apiCodeActiveKeyLabel');
+    if (labelEl) {
+        labelEl.textContent = keyName ? `Key: ${keyName}` : 'Key: None';
+    }
     if (!codeEl) return;
 
     const origin = (typeof window !== 'undefined' && window.location.origin) ? window.location.origin : 'http://localhost:8000';
@@ -435,6 +564,14 @@ function escapeHtml(str) {
 }
 
 /**
+ * Reloads keys for the active identity and updates the UI.
+ */
+export async function refreshApiPage() {
+    await loadApiKeys();
+    renderApiKeysList();
+}
+
+/**
  * Initializes the Web API page events and key manager.
  */
 export async function initApiPage() {
@@ -450,8 +587,11 @@ export async function initApiPage() {
             langBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             activeSnippetLang = btn.dataset.lang || 'curl';
-            const activeKey = cachedKeys[0]?.rawKey || 'sanada_live_YOUR_KEY';
-            updateCodeSnippet(activeKey);
+            const activeSelectedKey = cachedKeys.find(k => k.id === selectedKeyId);
+            updateCodeSnippet(
+                activeSelectedKey ? activeSelectedKey.rawKey : 'sanada_live_YOUR_KEY',
+                activeSelectedKey ? activeSelectedKey.name : null
+            );
         });
     });
 
@@ -477,16 +617,16 @@ export async function initApiPage() {
     if (generateBtn) {
         generateBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            const name = (keyNameInput?.value || '').trim() || 'My App Key';
+            const rawName = (keyNameInput?.value || '').trim();
             generateBtn.disabled = true;
             generateBtn.innerHTML = '<span>Generating...</span>';
 
             try {
-                const newKey = await saveNewKey(name);
+                const newKey = await saveNewKey(rawName);
                 if (keyNameInput) keyNameInput.value = '';
                 renderApiKeysList();
                 if (typeof window.showToast === 'function') {
-                    window.showToast(`New API Key "${newKey.name}" created!`, 'success');
+                    window.showToast(`New API Key "${newKey.name}" created and selected!`, 'success');
                 }
             } catch (err) {
                 console.error('[SANADA API] Key generation error:', err);
@@ -503,7 +643,19 @@ export async function initApiPage() {
         });
     }
 
+    // Reactively refresh when navigating to the API tab or when user logs in/out
+    onRouteChanged((route) => {
+        if (route === 'api') {
+            refreshApiPage();
+        }
+    });
+
+    if (typeof window !== 'undefined') {
+        window.addEventListener('sanada:roleChanged', () => {
+            refreshApiPage();
+        });
+    }
+
     // Load and render initial keys
-    await loadApiKeys();
-    renderApiKeysList();
+    await refreshApiPage();
 }

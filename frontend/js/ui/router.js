@@ -167,7 +167,7 @@ export function initRouter(onRouteChangeCallback) {
         const role = e.detail?.role || 'unauthenticated';
         if (role === 'unauthenticated' && currentRoute !== 'home') {
             switchRoute('home', true);
-        } else if (role === 'user' && !['home', 'predict'].includes(currentRoute)) {
+        } else if (role === 'user' && !['home', 'predict', 'api'].includes(currentRoute)) {
             switchRoute('predict', true);
         } else {
             updateNavIndicator();

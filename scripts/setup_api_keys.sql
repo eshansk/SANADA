@@ -3,13 +3,15 @@
 -- =============================================================================
 -- Run this script in your Supabase SQL Editor to enable persistent API key
 -- management and partner authentication for SANADA Machine Listening.
+-- Keys are strictly scoped per user/developer.
 -- =============================================================================
 
 -- 1. Create table public.api_keys
 create table if not exists public.api_keys (
     id uuid primary key default gen_random_uuid(),
     user_id uuid references public.app_users(id) on delete cascade,
-    name text not null default 'Production API Key',
+    user_identifier text,
+    name text not null default 'My app key 1',
     key_prefix text not null,
     key_hash text not null,
     masked_key text not null,
@@ -17,14 +19,18 @@ create table if not exists public.api_keys (
     created_at timestamptz not null default now()
 );
 
--- 2. Indexes for fast authentication lookups and user queries
+-- Ensure user_identifier column exists if table was created previously
+alter table public.api_keys add column if not exists user_identifier text;
+
+-- 2. Indexes for fast authentication lookups and per-user queries
 create index if not exists idx_api_keys_hash on public.api_keys(key_hash);
 create index if not exists idx_api_keys_user_id on public.api_keys(user_id);
+create index if not exists idx_api_keys_user_identifier on public.api_keys(user_identifier);
 
 -- 3. Enable Row-Level Security (RLS)
 alter table public.api_keys enable row level security;
 
--- 4. Policies: Allow authenticated and anon users to manage API keys
+-- 4. Policies: Allow access to api_keys
 create policy "Allow select api_keys" on public.api_keys
     for select using (true);
 
@@ -43,6 +49,7 @@ returns table (
     is_valid boolean,
     key_name text,
     user_id uuid,
+    user_identifier text,
     created_at timestamptz
 ) language plpgsql security definer as $$
 begin
@@ -51,6 +58,7 @@ begin
         true as is_valid,
         k.name as key_name,
         k.user_id,
+        k.user_identifier,
         k.created_at
     from public.api_keys k
     where k.key_hash = p_key_hash
